@@ -1,0 +1,5 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.settings.url": ".vscode/org.eclipse.jdt.core.prefs"
+}
