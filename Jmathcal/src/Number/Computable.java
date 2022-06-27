@@ -1,4 +1,4 @@
-package JMathcal.Number;
+package Number;
 
 /**
  * This interface imposes each class that implements it to be able to do
@@ -22,7 +22,7 @@ public interface Computable<T> {
 
     /**
      * Returns the value of {@code (this * augend)}.
-     * @param multiplicand value to be added.
+     * @param multiplicand value to be multiplied.
      * @return {@code this * augend}
      */
     public T multiply(T multiplicand);

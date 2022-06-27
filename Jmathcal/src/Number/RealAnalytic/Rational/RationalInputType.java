@@ -1,9 +1,9 @@
-package JMathcal.Number.Rational;
+package Number.RealAnalytic.Rational;
 
 /**
  * Specify the String format for {@code RationalNum}'s constructor.
  */
-public enum InputType {
+public enum RationalInputType {
     /**
      * Separated by {@code /}, the first integer represents the numerator
      * and the second integer represents the denominator.<p>

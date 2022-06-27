@@ -1,12 +1,14 @@
-package JMathcal.Number.Rational;
+package Number.RealAnalytic.Rational;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import JMathcal.Number.Computable;
+import Number.Computable;
+import Number.Complex.ComplexNum;
+import Number.RealAnalytic.Analytic;
 
-public class RationalNum extends Number implements Comparable<RationalNum>, Computable<RationalNum> {
+public class RationalNum extends Number implements Comparable<RationalNum>, Computable<RationalNum>, Analytic {
 
     // Serialization
     @java.io.Serial
@@ -16,13 +18,15 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
     private final BigInteger numerator;
     private final int precision;
 
-    private static final RationalNum ZERO = new RationalNum(new BigInteger("1"), new BigInteger("0"));
+    public static final RationalNum ZERO = new RationalNum(new BigInteger("1"), new BigInteger("0"));
+    public static final RationalNum ONE = new RationalNum(new BigInteger("1"), new BigInteger("1"));
 
-    public RationalNum(String val, InputType inputType) {
+    //Constructors
+    public RationalNum(String val, RationalInputType inputType) {
         this(val, inputType, 32);
     }
 
-    public RationalNum(String val, InputType inputType, int precision) {
+    public RationalNum(String val, RationalInputType inputType, int precision) {
 
         String[] separatedStr = null;
         RationalNum intPart = null;
@@ -50,7 +54,7 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
 
                 RationalNum deciPart = (new RationalNum((new BigInteger("10")).pow(separatedStr[1].length()),
                         new BigInteger(separatedStr[1]))).reduce();
-                intPart = new RationalNum(separatedStr[0], InputType.INT);
+                intPart = new RationalNum(separatedStr[0], RationalInputType.INT);
 
                 thisNum = deciPart.add(intPart);
 
@@ -62,7 +66,7 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
                 this.precision = precision;
                 separatedStr = val.split("\\.");
                 if (separatedStr.length != 2) throw new NumberFormatException("not the right number format.");
-                intPart = new RationalNum(separatedStr[0], InputType.INT);
+                intPart = new RationalNum(separatedStr[0], RationalInputType.INT);
 
                 separatedStr = separatedStr[1].split("R");
                 if (separatedStr.length != 2) throw new NumberFormatException("not the right number format.");
@@ -108,10 +112,25 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
         this.numerator = numerator;
     }
 
+    // Methods
     private static BigInteger findLCM(BigInteger firstNum, BigInteger secondNum) {
         return firstNum.multiply(secondNum.divide(firstNum.gcd(secondNum))).abs();
     }
+    
+    /**
+     * Return the negative value of {@code this}.
+     * @return {@code -this}.
+     */
+    public RationalNum negate(){
+        RationalNum thisNum = this.reduce();
+        BigInteger newNumer = thisNum.numerator.negate();
+        return new RationalNum(thisNum.denominator, newNumer);
+    }
 
+    /**
+     * Simplifies the RationalNum {@code this}.
+     * @return {@code (denominator/gcd) / (numerator/gcd)}
+     */
     public RationalNum reduce() {
         if (numerator.compareTo(BigInteger.ZERO) == 0)
             return ZERO;
@@ -122,21 +141,30 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
         BigInteger newDenom = denominator.divide(gcd);
         BigInteger newNumer = numerator.divide(gcd);
 
-        boolean ifPositive = newDenom.compareTo(BigInteger.ZERO) * newNumer.compareTo(BigInteger.ZERO) == 1 ? true
-                : false;
+        newNumer = newDenom.compareTo(BigInteger.ZERO) * newNumer.compareTo(BigInteger.ZERO) == 1 ?
+                newNumer.abs() : newNumer.abs().negate();
         newDenom = newDenom.abs();
-        newNumer = ifPositive ? newNumer.abs() : newNumer.abs().negate();
 
         return new RationalNum(newDenom, newNumer, precision);
     }
 
-    public RationalNum reverse() {
+    /**
+     * Returns the inverse value of {@code this}.
+     * @return {@code 1 / this}
+     */
+    public RationalNum inverse() {
         if (denominator.compareTo(BigInteger.ZERO) == 0 || numerator.compareTo(BigInteger.ZERO) == 0)
             throw new ArithmeticException(" / by zero.");
 
         return new RationalNum(numerator, denominator, precision);
     }
 
+    /**
+     * Returns the value of {@code (this + augend)}, and whose precision
+     * is {@code max(this.precision, augend.precision)}.
+     * @param augend value to be added.
+     * @return {@code this + augend}
+     */
     @Override
     public RationalNum add(RationalNum augend) {
         RationalNum thisNum = this.reduce();
@@ -152,21 +180,23 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
                 thisNum.precision > augend.precision ? thisNum.precision : augend.precision)).reduce();
     }
 
+    /**
+     * Returns the value of {@code (this - augend)}, and whose precision
+     * is {@code max(this.precision, augend.precision)}.
+     * @param subtrahend value subtracted from the original value.
+     * @return {@code this - augend}
+     */
     @Override
     public RationalNum subtract(RationalNum subtrahend) {
-        RationalNum thisNum = this.reduce();
-        subtrahend = subtrahend.reduce();
-
-        BigInteger newDenominator = findLCM(thisNum.denominator, subtrahend.denominator);
-
-        BigInteger newThisNumerator = thisNum.numerator.multiply(newDenominator.divide(thisNum.denominator));
-        BigInteger newSubNumerator = subtrahend.numerator.multiply(newDenominator.divide(subtrahend.denominator));
-
-        BigInteger newNumerator = newThisNumerator.subtract(newSubNumerator);
-        return (new RationalNum(newDenominator, newNumerator,
-                thisNum.precision > subtrahend.precision ? thisNum.precision : subtrahend.precision)).reduce();
+        return this.add(subtrahend.negate());
     }
 
+    /**
+     * Returns the value of {@code (this * augend)}, and whose precision
+     * is {@code max(this.precision, augend.precision)}.
+     * @param multiplicand value to be multiplied.
+     * @return {@code this * augend}
+     */
     @Override
     public RationalNum multiply(RationalNum multiplicand) {
         return (new RationalNum(this.denominator.multiply(multiplicand.denominator),
@@ -174,11 +204,18 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
                 this.precision > multiplicand.precision ? this.precision : multiplicand.precision)).reduce();
     }
 
+    /**
+     * Returns the value of {@code (this / augend)}, and whose precision 
+     * is {@code max(this.precision, augend.precision)}.
+     * @param divisor value divided from the original value.
+     * @return {@code this / augend}
+     */
     @Override
     public RationalNum divide(RationalNum divisor) {
-        return this.multiply(divisor.reverse()).reduce();
+        return this.multiply(divisor.inverse()).reduce();
     }
 
+    @Override
     public int compareTo(RationalNum o) {
         if (this.equals(o))
             return 0;
@@ -211,16 +248,17 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
             return false;
         if (getClass() != obj.getClass())
             return false;
-        RationalNum other = (RationalNum) obj;
-        if (denominator == null) {
+        RationalNum other = ((RationalNum) obj).reduce();
+        RationalNum thisNum = this.reduce();
+        if (thisNum.denominator == null) {
             if (other.denominator != null)
                 return false;
-        } else if (!denominator.equals(other.denominator))
+        } else if (!thisNum.denominator.equals(other.denominator))
             return false;
-        if (numerator == null) {
+        if (thisNum.numerator == null) {
             if (other.numerator != null)
                 return false;
-        } else if (!numerator.equals(other.numerator))
+        } else if (!thisNum.numerator.equals(other.numerator))
             return false;
         return true;
     }
@@ -250,6 +288,11 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
     @Override
     public String toString() {
         return numerator.toString() + "/" + denominator.toString();
+    }
+
+    @Override
+    public ComplexNum compute() {
+        return new ComplexNum((new BigDecimal(numerator)).divide(new BigDecimal(numerator), precision, RoundingMode.HALF_UP), precision);
     }
 
 }
