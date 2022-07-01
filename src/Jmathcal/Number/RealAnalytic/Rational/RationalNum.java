@@ -287,6 +287,9 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
 
     @Override
     public String toString() {
+        if (this.compareTo(ZERO) == 0) return "0";
+        if (this.compareTo(ONE) == 0) return "1";
+        if (this.denominator.compareTo(BigInteger.ONE) == 0) return numerator.toString();
         return numerator.toString() + "/" + denominator.toString();
     }
 
