@@ -294,7 +294,7 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
     }
 
     @Override
-    public ComplexNum compute() {
+    public ComplexNum compute(int precision) {
         return new ComplexNum((new BigDecimal(numerator)).divide(new BigDecimal(numerator), precision, RoundingMode.HALF_UP), precision);
     }
 

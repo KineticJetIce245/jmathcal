@@ -45,6 +45,7 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
         this.oprSign = oprSign;
     }
 
+    // clone()
     public AnalyticExp clone(){
         if (type != OperationType.NUM)
             return new AnalyticExp(val, type, this.oprSign);
@@ -163,12 +164,6 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
 
     public AnalyticExp negate() {
         return ZERO.subtract(this);
-    }
-
-    @Override
-    public ComplexNum compute() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override
