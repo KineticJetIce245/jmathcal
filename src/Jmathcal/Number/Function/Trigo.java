@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.Complex.ComplexNum;
 
 public class Trigo {
 
@@ -56,7 +57,7 @@ public class Trigo {
         BigDecimal reVal = BigDecimal.ONE;
         if (num.compareTo(BigDecimal.ZERO) == 0)
             return reVal;
-        num.abs();
+        num = num.abs();
         BigDecimal piVal;
         if (precision < 90) {
             piVal = PI100.round(new MathContext(precision + 10));
@@ -103,7 +104,8 @@ public class Trigo {
         if (num.compareTo(new BigDecimal("0.70711")) >= 0) {
             num = (BigDecimal.ONE.subtract(num.pow(2))).sqrt(new MathContext(precision + 10));
             BigDecimal piVal = PI(precision + 10).divide(TWO);
-            return piVal.subtract(rArcsin(num, precision + 10)).round(new MathContext(precision + 1));
+            BigDecimal reVal =  piVal.subtract(rArcsin(num, precision + 10)).round(new MathContext(precision + 1));
+            return sign ? reVal : reVal.negate();
         }
 
         // arcsin = x + (1/2)(x^3/3) + ((1*3)/(2*4))(x^5/5) + ((1*3*5)/(2*4*6))(x^7/7) + ...
@@ -141,11 +143,27 @@ public class Trigo {
      * @return {@code arccos(num)}
      */
     public static BigDecimal rArccos(BigDecimal num, int precision) {
+        // arccos(x) = pi/2 - arcsin(x)
         BigDecimal piVal = PI100.round(new MathContext(precision + 11)).divide(TWO);
         if (precision > 90) {
             piVal = PI(precision + 10).divide(TWO);
         }
         return piVal.subtract(rArcsin(num, precision + 10)).round(new MathContext(precision + 1));
+    }
+
+    /**
+     * Return the arctan of {@code num}
+     * @param num
+     * @param precision
+     * @return {@code arctan(num)}
+     */
+    public static BigDecimal arctan(BigDecimal num, int precision) {
+        // arctan(x) = arcsin(x/(sqrt(x^2+1)))
+        num = num.divide((num.pow(2).add(BigDecimal.ONE)).sqrt(new MathContext(precision + 10)),
+                precision + 10,
+                RoundingMode.HALF_UP);
+        
+        return rArcsin(num, precision);
     }
 
     /**
@@ -257,4 +275,42 @@ public class Trigo {
         return reVal.round(new MathContext(precision + 1));
     }
 
+    // Complex functions
+    /**
+     * Returns the sin of {@code num}.
+     * @param num
+     * @param precision
+     * @return {@code sin(num)}
+     */
+    public static ComplexNum sin(ComplexNum num, int precision) {
+        ComplexNum x = num.multiplyByI();
+        ComplexNum y = Exp.exp(x.negate(), precision + 10)
+                .subtract(Exp.exp(x, precision + 10)).multiplyByI();
+        return y.divide(new ComplexNum("2")).round(new MathContext(precision + 1));
+    }
+    /**
+     * Returns the cos of {@code num}.
+     * @param num
+     * @param precision
+     * @return {@code cos(num)}
+     */
+    public static ComplexNum cos(ComplexNum num, int precision) {
+        ComplexNum x = num.multiplyByI();
+        ComplexNum y = Exp.exp(x, precision + 10)
+                .add(Exp.exp(x.negate(), precision + 10));
+        return y.divide(new ComplexNum("2")).round(new MathContext(precision + 1));
+    }
+    /**
+     * Returns the tan of {@code num}.
+     * @param num
+     * @param precision
+     * @return {@code tan(num)}
+     */
+    public static ComplexNum tan(ComplexNum num, int precision) {
+        ComplexNum x = num.multiplyByI().multiply(new ComplexNum("2"));
+        ComplexNum y = Exp.exp(x, precision + 10);
+        return new ComplexNum("1").subtract(y)
+                .divide(y.add(new ComplexNum("1")), precision + 10)
+                .multiplyByI(precision);
+    }
 }

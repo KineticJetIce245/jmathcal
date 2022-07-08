@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.Complex.ComplexNum;
 
 public class Exp {
 
@@ -19,7 +20,7 @@ public class Exp {
 
     // Real functions
     /**
-     * Returns the value of e whose precision is {@code precision} to the
+     * Returns the value of <i>e</i> whose precision is {@code precision} to the
      * BigDecimal {@code num}th power.
      * 
      * @param num
@@ -43,13 +44,27 @@ public class Exp {
             // if it's greater than 90, then recalculate the euler number.
             // e to the 1/2th power converges faster than e
             EulerNum = findSqrtEulerNum(precision + 10);
-            reVal = EulerNum.pow(2 * Integer.valueOf(intNum.toPlainString()));
+            if (intNum.compareTo(BigDecimal.ZERO) < 0) {
+                BigDecimal intNumAbs = intNum.abs();
+                reVal = BigDecimal.ONE.divide(EulerNum.pow(2 * Integer.valueOf(intNumAbs.toPlainString())),
+                        precision + 10,
+                        RoundingMode.HALF_UP);
+            } else {
+                reVal = EulerNum.pow(2 * Integer.valueOf(intNum.toPlainString()));
+            }
             // Don't use toString() here.
             // It will be written in scientific notation.
         } else {
-            reVal = EulerNum.setScale(precision + 10, RoundingMode.DOWN).pow(Integer.valueOf(intNum.toPlainString()));
+            if (intNum.compareTo(BigDecimal.ZERO) < 0) {
+                BigDecimal intNumAbs = intNum.abs();
+                reVal = BigDecimal.ONE.divide(
+                        EulerNum.setScale(precision + 10, RoundingMode.DOWN).pow(Integer.valueOf(intNumAbs.toPlainString())),
+                        precision + 10,
+                        RoundingMode.HALF_UP);
+            } else {
+                reVal = EulerNum.setScale(precision + 10, RoundingMode.DOWN).pow(Integer.valueOf(intNum.toPlainString()));
+            }
         }
-
         // calculate decimal part
         reVal = reVal.multiply(findExp(num.subtract(intNum), precision + 10));
         return reVal.round(new MathContext(precision + 1));
@@ -57,7 +72,6 @@ public class Exp {
 
     /**
      * Returns the natural logarithm (base <i>e</i>) of {@code num}.
-     * 
      * @param num
      * @param precision
      * @return {@code ln(num)}
@@ -88,25 +102,37 @@ public class Exp {
 
     /**
      * Returns the logarithm {@code base} of {@code argument}.
-     * 
      * @param base
      * @param num
      * @param precision
      * @return {@code logb(argument)}
      */
-    public static BigDecimal log(BigDecimal base, BigDecimal argument, int precision) {
+    public static BigDecimal rLog(BigDecimal base, BigDecimal argument, int precision) {
         if (base.compareTo(BigDecimal.ZERO) <= 0 || argument.compareTo(BigDecimal.ZERO) <= 0)
             throw new ArithmeticException("base or argument smaller than zero.");
         return (ln(argument, precision + 10)).divide(ln(base, precision + 10), precision, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Returns the value of the {@code argument} to {@code power}th power.
+     * @param base
+     * @param num
+     * @param precision
+     * @return {@code (power)^(argument)}
+     */
     public static BigDecimal rPow(BigDecimal argument, BigDecimal power, int precision) {
+        // if any of argument or power is smaller than zero
         if (argument.compareTo(BigDecimal.ZERO) < 0)
             throw new ArithmeticException("smaller than zero");
+        
+        // if power is a integer
         if ((power.subtract(power.setScale(0, RoundingMode.FLOOR))).compareTo(BigDecimal.ZERO) == 0)
             return (argument.pow(power.intValue())).setScale(precision, RoundingMode.HALF_UP);
+        
+        // if power is 0.5
         if (power.compareTo(new BigDecimal("0.5")) == 0)
             return argument.sqrt(new MathContext(precision + 1));
+        
         BigDecimal exponent = power.multiply(ln(argument, precision + 10));
         return exp(exponent, precision + 10).round(new MathContext(precision + 1));
     }
@@ -198,8 +224,7 @@ public class Exp {
     }
 
     /**
-     * Find e^x of a large number
-     * 
+     * Find <i>e</i>^x of a large number
      * @param num
      * @param precision
      * @return {@code num}
@@ -228,13 +253,82 @@ public class Exp {
         }
     }
 
-    public static final BigDecimal SUPMAGNUM1 = new BigDecimal("0.8");
-    public static final BigDecimal SUPMAGNUM2 = new BigDecimal("1.073741824");
-
+    // super magic numbers
+    private static final BigDecimal SUPMAGNUM1 = new BigDecimal("0.8");
+    private static final BigDecimal SUPMAGNUM2 = new BigDecimal("1.073741824");
+    /**
+     * Returns the ln(10) with required precision
+     * @param precision
+     * @return {@code ln(10)}
+     */
     public static BigDecimal findLn10(int precision) {
         // ln10 = ln1.073741824 - 10ln0.8
         BigDecimal reVal = findLn(SUPMAGNUM2, precision + 10)
                 .subtract(findLn(SUPMAGNUM1, precision + 10).scaleByPowerOfTen(1));
         return reVal;
+    }
+
+    // Complex functions
+    /**
+     * Returns a complex number which is the result
+     * of <i>e</i>^({@code num})
+     * This {@code ComplexNum} that this method returns
+     * has the same precision as {@code num}.
+     * @param num
+     * @param precision
+     * @return {@code e^(num)}
+     */
+    public static ComplexNum exp(ComplexNum num, int precision) {
+        // e^(a+bi) = (e^a)*(e^(bi)) = (e^a)(cos(b) + i*sin(b))
+        BigDecimal coefficient = exp(num.getRealValue(), precision + 10);
+        BigDecimal rVal = Trigo.cos(num.getImaValue(), precision + 10);
+        BigDecimal iVal = Trigo.sin(num.getImaValue(), precision + 10);
+        rVal = coefficient.multiply(rVal).round(new MathContext(precision + 1));
+        iVal = coefficient.multiply(iVal).round(new MathContext(precision + 1));
+        return new ComplexNum(rVal, iVal, precision);
+    }
+
+    /**
+     * Compute the {@code ln(num)}, where num is any non
+     * zero number.
+     * @param num
+     * @param precision
+     * @return  {@code ln(num)}
+     */
+    public static ComplexNum compLn(BigDecimal num, int precision) {
+        BigDecimal iVal = BigDecimal.ZERO;
+        if (num.compareTo(BigDecimal.ZERO) < 0) {
+            iVal = Trigo.PI(precision);
+            num.abs();
+        }
+        BigDecimal rVal = ln(num, precision);
+        return new ComplexNum(rVal, iVal, precision);
+    }
+
+    /**
+     * Returns a complex number which is the result
+     * of ln(num). 
+     * This method recalculates the rValue and the phiValue
+     * of the num.
+     * @param num
+     * @param precision
+     * @return {@code ln(num)}
+     */
+    public static ComplexNum ln(ComplexNum num, int precision) {
+        BigDecimal rVal = ln(num.calRValue(precision), precision);
+        BigDecimal iVal = num.calPhiValue(precision);
+        return new ComplexNum(rVal, iVal, precision);
+    }
+
+    public static ComplexNum pow(ComplexNum base, ComplexNum exponent, int precision) {
+        // x = exponent * (ln(base))
+        ComplexNum x = ln(base, precision + 10).multiply(exponent, precision);
+        return exp(x, precision);
+    }
+
+    public static ComplexNum log(ComplexNum base, ComplexNum argument, int precision) {
+        return ln(argument, precision + 10)
+                .divide(ln(base, precision + 10), precision)
+                .round(new MathContext(precision + 1));
     }
 }
