@@ -7,6 +7,12 @@ import java.math.RoundingMode;
 import Jmathcal.Number.InfiniteValueException;
 import Jmathcal.Number.Complex.ComplexNum;
 
+/**
+ * Util class implementing some methods about trigonometry calculations of
+ * {@code BigDecimal} and {@code ComplexNum}.
+ * 
+ * @author KineticJetIce245
+ */
 public class Trigo {
 
     public static final BigDecimal TWO = new BigDecimal("2");
@@ -29,11 +35,11 @@ public class Trigo {
     public static int PRECITEST = 3;
 
     /**
-     * Find the sin of {@code num} with the required
+     * Returns the sin of {@code num} with the required
      * precision (significant figures).
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code sin(num)}
      */
     public static BigDecimal sin(BigDecimal num, int precision) {
@@ -45,7 +51,7 @@ public class Trigo {
      * precision (significant figures).
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code sin(num)}
      */
     public static BigDecimal sin(BigDecimal num, MathContext mc) {
@@ -84,7 +90,7 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code cos(num)}
      */
     public static BigDecimal cos(BigDecimal num, int precision) {
@@ -96,7 +102,7 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code cos(num)}
      */
     public static BigDecimal cos(BigDecimal num, MathContext mc) {
@@ -132,7 +138,7 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code tan(num)}
      */
     public static BigDecimal tan(BigDecimal num, int precision) {
@@ -144,7 +150,7 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code tan(num)}
      */
     public static BigDecimal tan(BigDecimal num, MathContext mc) {
@@ -162,7 +168,7 @@ public class Trigo {
      * Return the arcsin of {@code -1 <= num <= 1}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code arcsin(num)}
      */
     public static BigDecimal rArcsin(BigDecimal num, int precision) {
@@ -173,7 +179,7 @@ public class Trigo {
      * Return the arcsin of {@code -1 <= num <= 1}.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code arcsin(num)}
      */
     public static BigDecimal rArcsin(BigDecimal num, MathContext mc) {
@@ -200,9 +206,8 @@ public class Trigo {
             return sign ? reVal : reVal.negate();
         }
 
-        // arcsin x = x + (1/2)(x^3/3) + ((1*3)/(2*4))(x^5/5) + ((1*3*5)/(2*4*6))(x^7/7)
-        // +
-        // ...
+        // arcsin x = x + (1/2)(x^3/3) + ((1*3)/(2*4))(x^5/5) +
+        // ((1*3*5)/(2*4*6))(x^7/7) + ...
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
         BigDecimal reVal = BigDecimal.ZERO;
         BigDecimal currentTermVal = num;
@@ -234,7 +239,7 @@ public class Trigo {
      * Return the arccos of {@code -1 <= num <= 1}
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code arccos(num)}
      */
     public static BigDecimal rArccos(BigDecimal num, int precision) {
@@ -245,7 +250,7 @@ public class Trigo {
      * Return the arccos of {@code -1 <= num <= 1}
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code arccos(num)}
      */
     public static BigDecimal rArccos(BigDecimal num, MathContext mc) {
@@ -263,7 +268,7 @@ public class Trigo {
      * Return the arctan of {@code num}
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code arctan(num)}
      */
     public static BigDecimal arctan(BigDecimal num, int precision) {
@@ -274,7 +279,7 @@ public class Trigo {
      * Return the arctan of {@code num}
      * 
      * @param num
-     * @param precision
+     * @param mc  number of significant figures and rounding mode
      * @return {@code arctan(num)}
      */
     public static BigDecimal arctan(BigDecimal num, MathContext mc) {
@@ -290,7 +295,7 @@ public class Trigo {
      * precision with taylor approximation
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code sin(num)}
      */
     public static BigDecimal findSin(BigDecimal num, int precision) {
@@ -302,7 +307,7 @@ public class Trigo {
      * precision with taylor approximation
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code sin(num)}
      */
     public static BigDecimal findSin(BigDecimal num, MathContext mc) {
@@ -341,7 +346,7 @@ public class Trigo {
      * precision with taylor approximation
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code cos(num)}
      */
     public static BigDecimal findCos(BigDecimal num, int precision) {
@@ -353,7 +358,7 @@ public class Trigo {
      * precision with taylor approximation
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code cos(num)}
      */
     public static BigDecimal findCos(BigDecimal num, MathContext mc) {
@@ -390,7 +395,7 @@ public class Trigo {
     /**
      * Return pi with the required precision
      * 
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code pi}
      */
     public static BigDecimal PI(int precision) {
@@ -400,7 +405,7 @@ public class Trigo {
     /**
      * Return pi with the required precision
      * 
-     * @param precision
+     * @param mc number of significant figures and rounding mode
      * @return {@code pi}
      */
     public static BigDecimal PI(MathContext mc) {
@@ -437,42 +442,81 @@ public class Trigo {
      * Returns the sin of {@code num}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code sin(num)}
      */
     public static ComplexNum sin(ComplexNum num, int precision) {
+        return sin(num, new MathContext(precision));
+    }
+
+    /**
+     * Returns the sin of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code sin(num)}
+     */
+    public static ComplexNum sin(ComplexNum num, MathContext mc) {
+        // precision for calculation
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI();
-        ComplexNum y = Exp.exp(x.negate(), precision + 10)
-                .subtract(Exp.exp(x, precision + 10)).multiplyByI();
-        return y.divide(new ComplexNum("2")).round(new MathContext(precision + 1));
+        ComplexNum y = Exp.exp(x.negate(), calPrecision)
+                .subtract(Exp.exp(x, calPrecision)).multiplyByI();
+        return y.divide(new ComplexNum("2")).round(mc);
     }
 
     /**
      * Returns the cos of {@code num}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code cos(num)}
      */
     public static ComplexNum cos(ComplexNum num, int precision) {
+        return cos(num, new MathContext(precision));
+    }
+
+    /**
+     * Returns the cos of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code cos(num)}
+     */
+    public static ComplexNum cos(ComplexNum num, MathContext mc) {
+        // precision for calculation
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI();
-        ComplexNum y = Exp.exp(x, precision + 10)
-                .add(Exp.exp(x.negate(), precision + 10));
-        return y.divide(new ComplexNum("2")).round(new MathContext(precision + 1));
+        ComplexNum y = Exp.exp(x, calPrecision)
+                .add(Exp.exp(x.negate(), calPrecision));
+        return y.divide(new ComplexNum("2")).round(mc);
     }
 
     /**
      * Returns the tan of {@code num}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code tan(num)}
      */
     public static ComplexNum tan(ComplexNum num, int precision) {
+        return tan(num, new MathContext(precision));
+    }
+
+    /**
+     * Returns the tan of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code tan(num)}
+     */
+    public static ComplexNum tan(ComplexNum num, MathContext mc) {
+        // precision for calculation
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI().multiply(new ComplexNum("2"));
-        ComplexNum y = Exp.exp(x, precision + 10);
+        ComplexNum y = Exp.exp(x, calPrecision);
         return new ComplexNum("1").subtract(y)
-                .divide(y.add(new ComplexNum("1")), precision + 10)
-                .multiplyByI(precision);
+                .divide(y.add(new ComplexNum("1")), calPrecision)
+                .multiplyByI(mc);
     }
 }

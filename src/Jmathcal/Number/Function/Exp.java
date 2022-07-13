@@ -7,14 +7,34 @@ import java.math.RoundingMode;
 import Jmathcal.Number.InfiniteValueException;
 import Jmathcal.Number.Complex.ComplexNum;
 
+/**
+ * Util class implementing some methods about exponential calculations of
+ * {@code BigDecimal} and {@code ComplexNum}.
+ * 
+ * @author KineticJetIce245
+ */
 public class Exp {
-
+    /**
+     * Euler number with 100 significant figures precision
+     */
     public static final BigDecimal EulerNum100 = new BigDecimal(
             "2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274");
+    /**
+     * {@code ln(10)} with 100 significant figures precision
+     */
     public static final BigDecimal ln10 = new BigDecimal(
             "2.3025850929940456840179914546843642076011014886287729760333279009675726096773524802359972050895982983");
+    /**
+     * {@code BigDecimal} {@value 2}
+     */
     public static final BigDecimal TWO = new BigDecimal("2");
+    /**
+     * {@code BigDecimal} {@value 1 and 1/4}
+     */
     public static final BigDecimal ONEAQUARTER = new BigDecimal("1.25");
+    /**
+     * {@code BigDecimal} {@value 3}
+     */
     public static final BigDecimal THREE = new BigDecimal("3");
     /**
      * Additional precision for calculation.
@@ -26,20 +46,19 @@ public class Exp {
     /**
      * Additional precision for taylor series.
      * Used to compare to new terms of taylor series.
-     * If the terms is smaller than break the loop.
-     * 
-     * Default: {@code 3}
+     * If the terms is smaller this than break the loop.
+     * Default: {@value 3}
+     *
      */
     public static int PRECITEST = 3;
 
     // Real functions
     /**
-     * Returns the value of <i>e</i> to the
-     * BigDecimal {@code num}th power whose
-     * precision is {@code precision}.
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}-th power whose precision is defined by {@code precision}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code e^(num)}
      */
     public static BigDecimal exp(BigDecimal num, int precision) {
@@ -47,12 +66,12 @@ public class Exp {
     }
 
     /**
-     * Returns the value of <i>e</i> to the
-     * {@code num}th power whose precision and rounding
-     * mode is defined by {@code mc}
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}-th power whose precision and rounding
+     * mode are defined by {@code mc}.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code e^(num)}
      */
     public static BigDecimal exp(BigDecimal num, MathContext mc) {
@@ -117,10 +136,11 @@ public class Exp {
     }
 
     /**
-     * Returns the natural logarithm (base <i>e</i>) of {@code num}.
+     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
+     * of {@code num} whose precision is defined by {@code precision}.
      * 
-     * @param num
-     * @param precision
+     * @param num       any {@code BigDecimal} > 0
+     * @param precision number of significant figures
      * @return {@code ln(num)}
      */
     public static BigDecimal ln(BigDecimal num, int precision) {
@@ -128,10 +148,11 @@ public class Exp {
     }
 
     /**
-     * Returns the natural logarithm (base <i>e</i>) of {@code num}.
+     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
+     * of {@code num} whose precision and rounding mode are defined by {@code mc}.
      * 
-     * @param num
-     * @param mc
+     * @param num any {@code BigDecimal} > 0
+     * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
     public static BigDecimal ln(BigDecimal num, MathContext mc) {
@@ -168,11 +189,13 @@ public class Exp {
     }
 
     /**
-     * Returns the logarithm {@code base} of {@code argument}.
+     * Returns a {@code BigDecimal} which is value of the logarithm of
+     * {@code argument} to base {@code base} whose precision is defined
+     * by {@code precision}.
      * 
-     * @param base
-     * @param num
-     * @param precision
+     * @param base      any {@code BigDecimal} > 0
+     * @param argument  any {@code BigDecimal} > 0
+     * @param precision number of significant figures
      * @return {@code log(base)(argument)}
      */
     public static BigDecimal rLog(BigDecimal base, BigDecimal argument, int precision) {
@@ -180,11 +203,13 @@ public class Exp {
     }
 
     /**
-     * Returns the logarithm {@code base} of {@code argument}.
+     * Returns a {@code BigDecimal} which is value of the logarithm of
+     * {@code argument} to base {@code base} whose precision and rounding mode are
+     * defined by {@code mc}.
      * 
-     * @param base
-     * @param num
-     * @param mc
+     * @param base     any {@code BigDecimal} > 0
+     * @param argument any {@code BigDecimal} > 0
+     * @param mc       number of significant figures and rounding mode
      * @return {@code log(base)(argument)}
      */
     public static BigDecimal rLog(BigDecimal base, BigDecimal argument, MathContext mc) {
@@ -200,7 +225,7 @@ public class Exp {
      * 
      * @param base
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code (power)^(argument)}
      */
     public static BigDecimal rPow(BigDecimal argument, BigDecimal power, int precision) {
@@ -212,7 +237,7 @@ public class Exp {
      * 
      * @param base
      * @param num
-     * @param mc
+     * @param mc   number of significant figures and rounding mode
      * @return {@code (power)^(argument)}
      */
     public static BigDecimal rPow(BigDecimal argument, BigDecimal power, MathContext mc) {
@@ -241,7 +266,7 @@ public class Exp {
      * {@code num} close to 1.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code ln(num)}
      */
     public static BigDecimal findLn(BigDecimal num, int precision) {
@@ -255,7 +280,7 @@ public class Exp {
      * {@code num} close to 1.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
     public static BigDecimal findLn(BigDecimal num, MathContext mc) {
@@ -304,7 +329,7 @@ public class Exp {
      * {@code num} smaller than 10.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code e^(num)}
      */
     public static BigDecimal findExp(BigDecimal num, int precision) {
@@ -318,7 +343,7 @@ public class Exp {
      * to use this method for {@code num} smaller than 10.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code e^(num)}
      */
     public static BigDecimal findExp(BigDecimal num, MathContext mc) {
@@ -358,7 +383,7 @@ public class Exp {
      * Returns the value of the square root of <i>e</i>, whose precision
      * is defined by {@code precision}.
      * 
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code sqrt(e)}, rounded as necessary.
      */
     public static BigDecimal findSqrtEulerNum(int precision) {
@@ -369,7 +394,7 @@ public class Exp {
      * Returns the value of the square root of <i>e</i>, whose precision
      * and rounding mode are defined by {@code mc}.
      * 
-     * @param mc : MathContext setting
+     * @param mc number of significant figures and rounding mode
      * @return {@code sqrt(e)}
      */
     public static BigDecimal findSqrtEulerNum(MathContext mc) {
@@ -380,7 +405,7 @@ public class Exp {
      * Find <i>e</i>^x of a large number
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code e^num}
      */
     public static BigDecimal largeNumExp(BigDecimal num, int precision) {
@@ -391,7 +416,7 @@ public class Exp {
      * Find <i>e</i>^x of a large number
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code e^num}
      */
     public static BigDecimal largeNumExp(BigDecimal num, MathContext mc) {
@@ -432,7 +457,7 @@ public class Exp {
     /**
      * Returns the ln(10) with required precision.
      * 
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code ln(10)}
      */
     public static BigDecimal findLn10(int precision) {
@@ -442,7 +467,7 @@ public class Exp {
     /**
      * Returns the ln(10) with required precision.
      * 
-     * @param mc
+     * @param mc number of significant figures and rounding mode
      * @return {@code ln(10)}
      */
     public static BigDecimal findLn10(MathContext mc) {
@@ -462,7 +487,7 @@ public class Exp {
      * has the same precision as {@code num}.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code e^(num)}
      */
     public static ComplexNum exp(ComplexNum num, int precision) {
@@ -476,7 +501,7 @@ public class Exp {
      * has the same precision as {@code num}.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code e^(num)}
      */
     public static ComplexNum exp(ComplexNum num, MathContext mc) {
@@ -496,20 +521,19 @@ public class Exp {
      * zero number.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code ln(num)}
      */
     public static ComplexNum compLn(BigDecimal num, int precision) {
         return compLn(num, new MathContext(precision));
     }
 
-    
     /**
      * Compute the {@code ln(num)}, where num is any not
      * zero number.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
     public static ComplexNum compLn(BigDecimal num, MathContext mc) {
@@ -529,7 +553,7 @@ public class Exp {
      * of the num.
      * 
      * @param num
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code ln(num)}
      */
     public static ComplexNum ln(ComplexNum num, int precision) {
@@ -543,7 +567,7 @@ public class Exp {
      * of the num.
      * 
      * @param num
-     * @param mc
+     * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
     public static ComplexNum ln(ComplexNum num, MathContext mc) {
@@ -553,13 +577,13 @@ public class Exp {
         BigDecimal iVal = num.calPhiValue(mc);
         return new ComplexNum(rVal, iVal, mc);
     }
-    
+
     /**
      * Returns a complex number whose value is (base^exponent).
      * 
      * @param base
      * @param exponent
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, int precision) {
@@ -571,7 +595,7 @@ public class Exp {
      * 
      * @param base
      * @param exponent
-     * @param mc
+     * @param mc       number of significant figures and rounding mode
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
@@ -579,14 +603,15 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);
-        return exp(x, mc);
+        return exp(x, mc).round(mc);
     }
 
     /**
      * Returns a complex number whose value is log(base)(argument)
+     * 
      * @param base
      * @param argument
-     * @param mc
+     * @param mc       number of significant figures and rounding mode
      * @return {@code log(base)(argument)}
      */
     public static ComplexNum log(ComplexNum base, ComplexNum argument, MathContext mc) {
@@ -599,9 +624,10 @@ public class Exp {
 
     /**
      * Returns a complex number whose value is log(base)(argument)
+     * 
      * @param base
      * @param argument
-     * @param precision
+     * @param precision number of significant figures
      * @return {@code log(base)(argument)}
      */
     public static ComplexNum log(ComplexNum base, ComplexNum argument, int precision) {
