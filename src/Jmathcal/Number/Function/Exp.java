@@ -14,31 +14,23 @@ import Jmathcal.Number.Complex.ComplexNum;
  * @author KineticJetIce245
  */
 public class Exp {
-    /**
-     * Euler number with 100 significant figures precision
-     */
+
+    /** Euler number with 100 significant figures precision */
     public static final BigDecimal EulerNum100 = new BigDecimal(
             "2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274");
-    /**
-     * {@code ln(10)} with 100 significant figures precision
-     */
+
+    /** {@code ln(10)} with 100 significant figures precision */
     public static final BigDecimal ln10 = new BigDecimal(
             "2.3025850929940456840179914546843642076011014886287729760333279009675726096773524802359972050895982983");
-    /**
-     * {@code BigDecimal} {@value 2}
-     */
+
     public static final BigDecimal TWO = new BigDecimal("2");
-    /**
-     * {@code BigDecimal} {@value 1 and 1/4}
-     */
+    /** {@code BigDecimal} {@value 1 and 1/4} */
     public static final BigDecimal ONEAQUARTER = new BigDecimal("1.25");
-    /**
-     * {@code BigDecimal} {@value 3}
-     */
     public static final BigDecimal THREE = new BigDecimal("3");
+
     /**
      * Additional precision for calculation.
-     *
+     * <p>
      * Default: {@code 10}
      */
     public static int PRECI = 10;
@@ -47,8 +39,8 @@ public class Exp {
      * Additional precision for taylor series.
      * Used to compare to new terms of taylor series.
      * If the terms is smaller this than break the loop.
+     * <p>
      * Default: {@value 3}
-     *
      */
     public static int PRECITEST = 3;
 
@@ -83,49 +75,43 @@ public class Exp {
 
         // precision for calculations
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // return value
         BigDecimal reVal;
         // int part of the number
         BigDecimal intNum = BigDecimal.ZERO;
-        // get the int part
+
         if (num.abs().compareTo(BigDecimal.ONE) > 0) {
             intNum = num.setScale(0, RoundingMode.DOWN);
         }
-        // Euler number
+
         BigDecimal EulerNum = EulerNum100;
 
         // calculate int part
-        if (mc.getPrecision() > 90) {// high precision
+        if (mc.getPrecision() > 90) {
 
             // if it's greater than 90, then recalculate the euler number.
             // e to the 1/2th power converges faster than e
             EulerNum = findSqrtEulerNum(calPrecision);
 
-            // If int part is smaller then zero.
             if (intNum.compareTo(BigDecimal.ZERO) < 0) {
-                // get the absolute value of int part
                 BigDecimal intNumAbs = intNum.abs();
                 // e^(-x) = 1/(e^x)
                 reVal = BigDecimal.ONE.divide(EulerNum.pow(2 * Integer.valueOf(intNumAbs.toPlainString())),
                         calPrecision);
-            } else {// If int part is greater
+            } else {
                 reVal = EulerNum.pow(2 * Integer.valueOf(intNum.toPlainString()));
             }
             // Don't use toString() here.
             // It will be written in scientific notation.
 
-        } else {// low precision
-
-            // If int part is smaller then zero.
+        } else {
             if (intNum.compareTo(BigDecimal.ZERO) < 0) {
-                // get the absolute value of int part
                 BigDecimal intNumAbs = intNum.abs();
                 // e^(-x) = 1/(e^x)
                 reVal = BigDecimal.ONE.divide(
                         EulerNum.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP)
                                 .pow(Integer.valueOf(intNumAbs.toPlainString())),
                         calPrecision);
-            } else {// If int part is greater
+            } else {
                 reVal = EulerNum.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP)
                         .pow(Integer.valueOf(intNum.toPlainString()));
             }
@@ -158,33 +144,29 @@ public class Exp {
     public static BigDecimal ln(BigDecimal num, MathContext mc) {
         // precision for calculations
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // return value
         BigDecimal reVal;
         int tenthPow = 0;
 
-        // if the input is smaller than 0
         if (num.compareTo(BigDecimal.ZERO) <= 0)
             throw new InfiniteValueException(false);
 
         // ln(num) = ln(x*10^h) = lnx + hln10
+        // finding h
         while (num.compareTo(BigDecimal.ONE) == 1) {
             tenthPow++;
             num = num.scaleByPowerOfTen(-1);
         }
         // reVal = hln10
         if (mc.getPrecision() > 90) {
-            // if it's greater than 90, then recalculate the ln number
-            // hln10
             reVal = findLn10(calPrecision)
                     .multiply(new BigDecimal(String.valueOf(tenthPow)));
         } else {
-            // hln10
             reVal = ln10.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP)
                     .multiply(new BigDecimal(String.valueOf(tenthPow)));
         }
-        // reVal += lnx
-        reVal = reVal.add(findLn(num, calPrecision));
 
+        // lnx + hln10
+        reVal = reVal.add(findLn(num, calPrecision));
         return reVal.round(mc);
     }
 
@@ -213,9 +195,10 @@ public class Exp {
      * @return {@code log(base)(argument)}
      */
     public static BigDecimal rLog(BigDecimal base, BigDecimal argument, MathContext mc) {
+
         if (base.compareTo(BigDecimal.ZERO) <= 0 || argument.compareTo(BigDecimal.ZERO) <= 0)
             throw new ArithmeticException("base or argument smaller than zero.");
-        // precision for calculations
+
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         return (ln(argument, calPrecision)).divide(ln(base, calPrecision), mc);
     }
@@ -243,7 +226,7 @@ public class Exp {
     public static BigDecimal rPow(BigDecimal argument, BigDecimal power, MathContext mc) {
         // precision for calculations
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // if any of argument or power is smaller than zero
+
         if (argument.compareTo(BigDecimal.ZERO) < 0)
             throw new ArithmeticException("smaller than zero");
 
@@ -251,7 +234,6 @@ public class Exp {
         if ((power.subtract(power.setScale(0, RoundingMode.FLOOR))).compareTo(BigDecimal.ZERO) == 0)
             return (argument.pow(power.intValue())).setScale(mc.getPrecision(), RoundingMode.HALF_UP);
 
-        // if power is 0.5
         if (power.compareTo(new BigDecimal("0.5")) == 0)
             return argument.sqrt(mc);
 
@@ -287,26 +269,20 @@ public class Exp {
         // s = (x-1)/(x+1)
         // ln(x) = 2(s + s^3/3 + s^5/5 + ...)
 
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
-        // if the input is smaller than 0
         if (num.compareTo(BigDecimal.ZERO) <= 0)
             throw new InfiniteValueException(false);
 
         // optTerm = (x-1)/(x+1)
         BigDecimal optTerm = (num.subtract(BigDecimal.ONE)).divide(
                 num.add(BigDecimal.ONE), calPrecision);
-        // 0.0...1 to check precision (when the adding term is smaller enough, stop the
-        // addition)
+        // checking if adding term is smaller then required precision
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
-        // return value
         BigDecimal reVal = BigDecimal.ZERO;
-        // currentTerm
         BigDecimal currentTerm;
-        // current x value
         BigDecimal currentXVal = optTerm;
-        int divisor = -1;// the divisor
+        int divisor = -1;
 
         do {
             // 1, 3, 5, 7...
@@ -314,9 +290,9 @@ public class Exp {
             // 2/divisor * currentXVal
             currentTerm = currentXVal
                     .divide(new BigDecimal(String.valueOf(divisor)), calPrecision);
-            // reVal += currentTerm
+
             reVal = reVal.add(currentTerm);
-            // next x val, currentXVal = currentXVal * optTerm^2
+            // next x val
             currentXVal = currentXVal.multiply(optTerm.multiply(optTerm));
         } while (divisor < 25 || currentTerm.abs().compareTo(precisionTest) > 0);
         return reVal.multiply(TWO).round(mc);
@@ -348,32 +324,22 @@ public class Exp {
      */
     public static BigDecimal findExp(BigDecimal num, MathContext mc) {
 
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // return value
         BigDecimal reVal = BigDecimal.ZERO;
-        // 0.0...1 to check precision (when the adding term is smaller enough, stop the
-        // addition)
+        // checking if adding term is smaller then required precision
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
-        // currentTerm
         BigDecimal currentTerm = BigDecimal.ONE;
-        // term no.
         int taylorTC = 0;
         // x/(n+1)
         BigDecimal multiplicand;
-
-        // Taylor loops
         do {
             // x^(n+1)/(n+1)! = x^(n)/n! * x/(n+1)
             taylorTC++;
-            // reVal + currentTerm
             reVal = reVal.add(currentTerm);
-            // Find x/(n+1)
+            // x/(n+1)
             multiplicand = num.divide(new BigDecimal(String.valueOf(taylorTC)), calPrecision);
-            // x^(n+1)/(n+1)! = x^(n)/n! * x/(n+1)
             currentTerm = currentTerm.multiply(multiplicand);
-            // if reVal - reVal2 < precisionTest and computed 5 terms break the loop;
-            // HERE NEEDS AN ABS(), BECAUSE WHEN HANDLING THE NEGATIVE NUMBERS...
+            // HERE NEEDS AN ABS()
         } while (taylorTC < 5 || currentTerm.abs().compareTo(precisionTest) > 0);
 
         return (reVal.round(mc));
@@ -424,18 +390,17 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         // x = hln10 + f
+        // e^x = 10^h * e^f
         BigDecimal calLn10 = ln10;
         if (mc.getPrecision() > 90)
             calLn10 = findLn10(calPrecision);
 
-        // find h
+        // h
         BigDecimal intNum = num.divide(calLn10, calPrecision);
         intNum = intNum.setScale(0, RoundingMode.DOWN);
 
-        // find f
+        // e^f
         num = num.subtract(intNum.multiply(calLn10));
-
-        // reVal = e^f
         BigDecimal reVal = findExp(num, calPrecision);
 
         if (intNum.compareTo(new BigDecimal("-2147483648")) <= 0) {
@@ -445,7 +410,7 @@ public class Exp {
             throw new ArithmeticException("Unable to handle, the exponent is to " +
                     "big, causing an overflow of int used to express the exponent.");
         } else {
-            // reVal = 10^h * e^f
+            // 10^h * e^f
             return reVal.scaleByPowerOfTen(intNum.intValue()).round(mc);
         }
     }
@@ -471,7 +436,6 @@ public class Exp {
      * @return {@code ln(10)}
      */
     public static BigDecimal findLn10(MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // ln10 = ln1.073741824 - 10ln0.8
         BigDecimal reVal = findLn(SUPMAGNUM2, calPrecision)
@@ -537,6 +501,7 @@ public class Exp {
      * @return {@code ln(num)}
      */
     public static ComplexNum compLn(BigDecimal num, MathContext mc) {
+        // ln(-x) = ln(x) + pi*i
         BigDecimal iVal = BigDecimal.ZERO;
         if (num.compareTo(BigDecimal.ZERO) < 0) {
             iVal = Trigo.PI(mc);
@@ -571,7 +536,7 @@ public class Exp {
      * @return {@code ln(num)}
      */
     public static ComplexNum ln(ComplexNum num, MathContext mc) {
-        // precision for calculation
+        // ln(re^(i*x)) = ln(r) + x*i
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal rVal = ln(num.calRValue(calPrecision), mc);
         BigDecimal iVal = num.calPhiValue(mc);
@@ -599,7 +564,6 @@ public class Exp {
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);
@@ -615,7 +579,6 @@ public class Exp {
      * @return {@code log(base)(argument)}
      */
     public static ComplexNum log(ComplexNum base, ComplexNum argument, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         return ln(argument, calPrecision)
                 .divide(ln(base, calPrecision), mc)

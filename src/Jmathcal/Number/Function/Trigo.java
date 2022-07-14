@@ -20,7 +20,7 @@ public class Trigo {
             "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170680");
     /**
      * Additional precision for calculation.
-     *
+     * <p>
      * Default: {@code 10}
      */
     public static int PRECI = 10;
@@ -29,7 +29,7 @@ public class Trigo {
      * Additional precision for taylor series.
      * Used to compare to new terms of taylor series.
      * If the terms is smaller than break the loop.
-     * 
+     * <p>
      * Default: {@code 3}
      */
     public static int PRECITEST = 3;
@@ -55,31 +55,31 @@ public class Trigo {
      * @return {@code sin(num)}
      */
     public static BigDecimal sin(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // return value
         BigDecimal reVal = BigDecimal.ZERO;
-        // sign
         boolean reValSign = true;
-        // zero test
+
         if (num.compareTo(BigDecimal.ZERO) == 0)
-            return reVal;
-        // sign
+            return reVal;// sin(0) = 0
+
+        // sin(-x) = -sin(x)
         if (num.compareTo(BigDecimal.ZERO) < 0) {
             reValSign = false;
             num = num.abs();
         }
+
         // Pi value
         BigDecimal piVal;
         if (mc.getPrecision() < 90) {
             piVal = PI100.round(calPrecision);
+        } else {
+            piVal = PI(calPrecision);
         }
-        piVal = PI(calPrecision);
-        // num <= pi/2
-        if (num.compareTo(piVal.divide(TWO)) <= 0) {
+
+        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
             return findSin(num, mc);
         }
-        // num r/ 2pi
+        // sin(2k*pi + x) = sin(x)
         num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
         reVal = reValSign ? findSin(num, mc) : findSin(num, mc).negate();
         return reVal;
@@ -106,28 +106,24 @@ public class Trigo {
      * @return {@code cos(num)}
      */
     public static BigDecimal cos(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // return value
         BigDecimal reVal = BigDecimal.ONE;
-        // zero Test
         if (num.compareTo(BigDecimal.ZERO) == 0)
-            return BigDecimal.ONE;
+            return BigDecimal.ONE;// cos(0) = 1
         // cos(-x) = cos(x)
         num = num.abs();
-        // pi value
+
         BigDecimal piVal;
         if (mc.getPrecision() < 90) {
             piVal = PI100.round(calPrecision);
+        } else {
+            piVal = PI(calPrecision);
         }
-        piVal = PI(calPrecision);
 
-        // num <= pi/2
-        if (num.compareTo(piVal.divide(TWO)) <= 0) {
+        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
             return findCos(num, mc);
         }
-
-        // num r/ 2pi
+        // cos(2k*pi + x) = cos(x)
         num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
         reVal = findCos(num, mc);
         return reVal;
@@ -154,12 +150,13 @@ public class Trigo {
      * @return {@code tan(num)}
      */
     public static BigDecimal tan(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal reVal = cos(num, calPrecision);
+
         if (reVal.compareTo(BigDecimal.ZERO) == 0) {
             throw new InfiniteValueException();
         }
+        
         reVal = sin(num, calPrecision).divide(reVal, mc);
         return reVal;
     }
@@ -183,17 +180,15 @@ public class Trigo {
      * @return {@code arcsin(num)}
      */
     public static BigDecimal rArcsin(BigDecimal num, MathContext mc) {
-        // sign of the result
         boolean sign = true;
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
-        // set sign
+        // arcsin(-x) = -arcsin(x)
         if (num.compareTo(BigDecimal.ZERO) == -1) {
             num = num.abs();
             sign = false;
         }
-        // check if is real
+
         if (num.compareTo(BigDecimal.ONE) == 1) {
             throw new ArithmeticException("result is not a real number.");
         }
@@ -254,7 +249,6 @@ public class Trigo {
      * @return {@code arccos(num)}
      */
     public static BigDecimal rArccos(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // arccos(x) = pi/2 - arcsin(x)
         BigDecimal piVal = PI100.round(calPrecision).divide(TWO);
@@ -283,7 +277,6 @@ public class Trigo {
      * @return {@code arctan(num)}
      */
     public static BigDecimal arctan(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // arctan(x) = arcsin(x/(sqrt(x^2+1)))
         num = num.divide((num.pow(2).add(BigDecimal.ONE)).sqrt(calPrecision), calPrecision);
@@ -311,29 +304,22 @@ public class Trigo {
      * @return {@code sin(num)}
      */
     public static BigDecimal findSin(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // calculate sin(x)
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
-        // reVal = x
+        
         BigDecimal reVal = num;
-        // currentXVal = x^3
         BigDecimal currentXVal = num.multiply(num.multiply(num));
         BigDecimal currentTermVal;
-        // divisor = 1
         BigDecimal divisor = BigDecimal.ONE;
         BigDecimal taylorTC = TWO;
 
         do {
-            // divisor = divisor * taylorTC * (taylorTC + 1) * (-1)^n
-            // divisor = -3!, 5!, -7!, 9!...
+            // -3!, 5!, -7!, 9!...
             divisor = divisor.multiply(taylorTC.multiply(taylorTC.add(BigDecimal.ONE))).negate();
-            // x^n / n!
-            currentTermVal = currentXVal.divide(divisor, calPrecision);
 
+            currentTermVal = currentXVal.divide(divisor, calPrecision);
             reVal = reVal.add(currentTermVal);
 
-            // taylorTC = 2, 4, 6, 8...
             taylorTC = taylorTC.add(TWO);
             currentXVal = currentXVal.multiply(num.multiply(num));
         } while (currentTermVal.abs().compareTo(precisionTest) > 0);
@@ -362,29 +348,22 @@ public class Trigo {
      * @return {@code cos(num)}
      */
     public static BigDecimal findCos(BigDecimal num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // calculate cos(x)
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
-        // reVal = 1
+
         BigDecimal reVal = BigDecimal.ONE;
-        // currentXVal = x^2
         BigDecimal currentXVal = num.multiply(num);
         BigDecimal currentTermVal;
-        // divisor = 2
         BigDecimal divisor = BigDecimal.ONE;
         BigDecimal taylorTC = BigDecimal.ONE;
 
         do {
-            // divisor = divisor * taylorTC * (taylorTC + 1) * (-1)
-            // divisor = -2!, 4!, -6!, 8!...
+            // -2!, 4!, -6!, 8!...
             divisor = divisor.multiply(taylorTC.multiply(taylorTC.add(BigDecimal.ONE))).negate();
-            // x^n / n!
+
             currentTermVal = currentXVal.divide(divisor, calPrecision);
-
             reVal = reVal.add(currentTermVal);
-
-            // taylorTC = 1, 3, 5, 7...
+            
             taylorTC = taylorTC.add(TWO);
             currentXVal = currentXVal.multiply(num.multiply(num));
         } while (currentTermVal.abs().compareTo(precisionTest) > 0);
