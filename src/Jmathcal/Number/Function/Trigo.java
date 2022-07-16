@@ -36,7 +36,7 @@ public class Trigo {
 
     /**
      * Returns the sin of {@code num} with the required
-     * precision (significant figures).
+     * precision.
      * 
      * @param num
      * @param precision number of significant figures
@@ -48,7 +48,7 @@ public class Trigo {
 
     /**
      * Find the sin of {@code num} with the required
-     * precision (significant figures).
+     * precision.
      * 
      * @param num
      * @param mc  number of significant figures and rounding mode
@@ -76,17 +76,17 @@ public class Trigo {
             piVal = PI(calPrecision);
         }
 
-        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
-            return findSin(num, mc);
-        }
         // sin(2k*pi + x) = sin(x)
-        num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
+        if (num.compareTo(piVal.multiply(TWO)) > 0) {
+            num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
+        }
+
         reVal = reValSign ? findSin(num, mc) : findSin(num, mc).negate();
         return reVal;
     }
 
     /**
-     * Find the cos of {@code num} with the required
+     * Returns the cos of {@code num} with the required
      * precision.
      * 
      * @param num
@@ -98,7 +98,7 @@ public class Trigo {
     }
 
     /**
-     * Find the cos of {@code num} with the required
+     * Returns the cos of {@code num} with the required
      * precision.
      * 
      * @param num
@@ -120,17 +120,17 @@ public class Trigo {
             piVal = PI(calPrecision);
         }
 
-        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
-            return findCos(num, mc);
-        }
         // cos(2k*pi + x) = cos(x)
-        num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
+        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
+            num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
+        }
+        
         reVal = findCos(num, mc);
         return reVal;
     }
 
     /**
-     * Find the tan of {@code num} with the required
+     * Returns the tan of {@code num} with the required
      * precision.
      * 
      * @param num
@@ -142,7 +142,7 @@ public class Trigo {
     }
 
     /**
-     * Find the tan of {@code num} with the required
+     * Returns the tan of {@code num} with the required
      * precision.
      * 
      * @param num
@@ -156,7 +156,7 @@ public class Trigo {
         if (reVal.compareTo(BigDecimal.ZERO) == 0) {
             throw new InfiniteValueException();
         }
-        
+
         reVal = sin(num, calPrecision).divide(reVal, mc);
         return reVal;
     }
@@ -306,7 +306,7 @@ public class Trigo {
     public static BigDecimal findSin(BigDecimal num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
-        
+
         BigDecimal reVal = num;
         BigDecimal currentXVal = num.multiply(num.multiply(num));
         BigDecimal currentTermVal;
@@ -363,7 +363,7 @@ public class Trigo {
 
             currentTermVal = currentXVal.divide(divisor, calPrecision);
             reVal = reVal.add(currentTermVal);
-            
+
             taylorTC = taylorTC.add(TWO);
             currentXVal = currentXVal.multiply(num.multiply(num));
         } while (currentTermVal.abs().compareTo(precisionTest) > 0);
@@ -388,7 +388,6 @@ public class Trigo {
      * @return {@code pi}
      */
     public static BigDecimal PI(MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
         // Gauss–Legendre algorithm

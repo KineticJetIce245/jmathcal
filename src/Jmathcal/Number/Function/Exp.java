@@ -204,9 +204,10 @@ public class Exp {
     }
 
     /**
-     * Returns the value of the {@code argument} to {@code power}th power.
+     * Returns a {@code BigDecimal} which is the value of the {@code argument} to
+     * {@code power}th power.
      * 
-     * @param base
+     * @param base      any {@code BigDecimal} > 0
      * @param num
      * @param precision number of significant figures
      * @return {@code (power)^(argument)}
@@ -216,7 +217,8 @@ public class Exp {
     }
 
     /**
-     * Returns the value of the {@code argument} to {@code power}th power.
+     * Returns a {@code BigDecimal} which is the value of the {@code argument} to
+     * {@code power}th power.
      * 
      * @param base
      * @param num
@@ -242,12 +244,11 @@ public class Exp {
     }
 
     /**
-     * Returns the natural logarithm (base <i>e</i>) of {@code num}.
-     * This method uses taylor series. Hence, it's
-     * not obligatory but highly recommended to use this method for
-     * {@code num} close to 1.
+     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
+     * of {@code num}. This method uses taylor series. Hence, it's not obligatory
+     * but highly recommended to use this method for {@code num} close to 1.
      * 
-     * @param num
+     * @param num       any {@code BigDecimal} > 0, close to 1
      * @param precision number of significant figures
      * @return {@code ln(num)}
      */
@@ -256,12 +257,11 @@ public class Exp {
     }
 
     /**
-     * Returns the natural logarithm (base <i>e</i>) of {@code num}.
-     * This method uses taylor series. Hence, it's
-     * not obligatory but highly recommended to use this method for
-     * {@code num} close to 1.
+     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
+     * of {@code num}. This method uses taylor series. Hence, it's not obligatory
+     * but highly recommended to use this method for {@code num} close to 1.
      * 
-     * @param num
+     * @param num any {@code BigDecimal} > 0, close to 1
      * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
@@ -299,10 +299,10 @@ public class Exp {
     }
 
     /**
-     * Returns the value of <i>e</i> to the {@code num}th power, whose precision
-     * is defined by {@code precision}. This method uses taylor series. Hence, it's
-     * not obligatory but highly recommended to use this method for
-     * {@code num} smaller than 10.
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}th power, whose precision is defined by {@code precision}. This
+     * method uses taylor series. Hence, it's not obligatory but highly recommended
+     * to use this method for {@code num} smaller than 10.
      * 
      * @param num
      * @param precision number of significant figures
@@ -313,9 +313,9 @@ public class Exp {
     }
 
     /**
-     * Returns the value of <i>e</i> to the {@code num}th power, whose precision
-     * and rounding mode are defined by {@code mc}. This method uses
-     * taylor series. Hence, it's not obligatory but highly recommended
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}th power, whose precision is defined by {@code precision}. This
+     * method uses taylor series. Hence, it's not obligatory but highly recommended
      * to use this method for {@code num} smaller than 10.
      * 
      * @param num
@@ -346,19 +346,19 @@ public class Exp {
     }
 
     /**
-     * Returns the value of the square root of <i>e</i>, whose precision
-     * is defined by {@code precision}.
+     * Returns a {@code BigDecimal} which is the value of the square root of
+     * <i>e</i>, whose precision is defined by {@code precision}.
      * 
      * @param precision number of significant figures
-     * @return {@code sqrt(e)}, rounded as necessary.
+     * @return {@code sqrt(e)}
      */
     public static BigDecimal findSqrtEulerNum(int precision) {
         return findExp(new BigDecimal("0.5"), precision);
     }
 
     /**
-     * Returns the value of the square root of <i>e</i>, whose precision
-     * and rounding mode are defined by {@code mc}.
+     * Returns a {@code BigDecimal} which is the value of the square root of
+     * <i>e</i>, whose precision is defined by {@code precision}.
      * 
      * @param mc number of significant figures and rounding mode
      * @return {@code sqrt(e)}
@@ -368,7 +368,8 @@ public class Exp {
     }
 
     /**
-     * Find <i>e</i>^x of a large number
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}th power for a very large {@code num}.
      * 
      * @param num
      * @param precision number of significant figures
@@ -379,7 +380,8 @@ public class Exp {
     }
 
     /**
-     * Find <i>e</i>^x of a large number
+     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
+     * {@code num}, a very large number, th power.
      * 
      * @param num
      * @param mc  number of significant figures and rounding mode
@@ -564,6 +566,10 @@ public class Exp {
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
+        if (base.compareTo(ComplexNum.ZERO) == 0) {
+            return ComplexNum.ZERO;
+        }
+
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);

@@ -13,6 +13,9 @@ import Jmathcal.Number.Function.Trigo;
  * Immutable, arbitrary-precision signed decimal complex numbers. A
  * {@code ComplexNum} consists of a real part and an imaginary part
  * each stored as a {@code BigDecimal}.
+ * <p>
+ * The modulus and the argument of a {@code ComplexNum} are calculated and
+ * stored when the object is constructed, as <i>rValue</i> and <i>phiValue</i>.
  * 
  * @author KineticJetIce245
  */
@@ -22,30 +25,25 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     @java.io.Serial
     private static final long serialVersionUID = -3266019408160301724L;
 
-    /**
-     * Real part of this complex number
-     */
+    /** Real part of this complex number */
     private final BigDecimal realValue;
-    /**
-     * Imaginary part of this complex number
-     */
+    /** Imaginary part of this complex number */
     private final BigDecimal imaValue;
 
-    /**
-     * Modulus of this complex number
-     */
+    /** Modulus of this complex number */
     private final BigDecimal rValue;
-    /**
-     * Argument of this complex number
-     */
+    /** Argument of this complex number */
     private final BigDecimal phiValue;
-
-    public static ComplexNum I = new ComplexNum("0", "1", 32);
-
-    /**
-     * The default {@code MathContext} of the class.
-     */
+    
+    /** The default {@code MathContext} of the class. */
     public static MathContext DEF_CONTEXT = new MathContext(32, RoundingMode.HALF_UP);
+
+    public static ComplexNum I = new ComplexNum("0", "1");
+
+    public static ComplexNum ZERO = new ComplexNum("0");
+
+    public static ComplexNum ONE = new ComplexNum("1");
+
     /**
      * Additional precision for calculation.
      *
@@ -90,7 +88,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
 
     /**
      * Constructs a new {@code ComplexNum}, modulus and argument are calculated
-     * with the default precision.
+     * with the required precision.
      * 
      * @param realValue the real part of this.
      * @param imaValue  the imaginary part of this.
@@ -127,7 +125,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
 
     /**
      * Constructs a new {@code ComplexNum}, modulus and argument are calculated
-     * with the default precision.
+     * with the required precision.
      * 
      * @param realValue the real part of this.
      * @param imaValue  the imaginary part of this.
@@ -139,7 +137,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
 
     /**
      * Constructs a new {@code ComplexNum}, modulus and argument are calculated
-     * with the default precision.
+     * with the required precision.
      * 
      * @param realValue the real part of this.
      * @param imaValue  the imaginary part of this.
@@ -231,9 +229,8 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      * @return argument of this
      */
     public BigDecimal calPhiValue(MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        // zero test
+
         if (realValue.compareTo(BigDecimal.ZERO) == 0) {
             if (imaValue.compareTo(BigDecimal.ZERO) == 0)
                 return BigDecimal.ZERO;
@@ -265,43 +262,112 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
         }
     }
 
+    /**
+     * Returns the value of (this + augend). The precision of the modulus and the
+     * argument of the result is the default precision.
+     * 
+     * @param augend value to be added
+     * @return {@code this + augend}
+     */
     @Override
     public ComplexNum add(ComplexNum augend) {
         return this.add(augend, DEF_CONTEXT);
     }
 
+    /**
+     * Returns the value of (this + augend). The precision of the modulus and the
+     * argument of the result is defined by {@code precision}.
+     * 
+     * @param augend    value to be added
+     * @param precision number of significant figures
+     * @return {@code this + augend}
+     */
     public ComplexNum add(ComplexNum augend, int precision) {
         return this.add(augend, new MathContext(precision));
     }
 
+    /**
+     * Returns the value of (this + augend). The precision of the modulus and the
+     * argument of the result is defined by {@code mc}.
+     * 
+     * @param augend value to be added
+     * @param mc     number of significant figures and rounding mode
+     * @return {@code this + augend}
+     */
     public ComplexNum add(ComplexNum augend, MathContext mc) {
         return new ComplexNum(this.realValue.add(augend.realValue),
                 this.imaValue.add(augend.imaValue), mc);
     }
 
+    /**
+     * Returns the value of (this - augend). The precision of the modulus and the
+     * argument of the result is the default precision.
+     * 
+     * @param subtrahend value to be subtracted from the original value
+     * @return {@code this - augend}
+     */
     @Override
     public ComplexNum subtract(ComplexNum subtrahend) {
         return this.subtract(subtrahend, DEF_CONTEXT);
     }
 
+    /**
+     * Returns the value of (this - augend). The precision of the modulus and the
+     * argument of the result is defined by {@code precision}.
+     * 
+     * @param subtrahend value to be subtracted from the original value
+     * @param precision  number of significant figures
+     * @return {@code this - augend}
+     */
     public ComplexNum subtract(ComplexNum subtrahend, int precision) {
         return this.subtract(subtrahend, new MathContext(precision));
     }
 
+    /**
+     * Returns the value of (this - augend). The precision of the modulus and the
+     * argument of the result is defined by {@code mc}.
+     * 
+     * @param subtrahend value to be subtracted from the original value
+     * @param mc         number of significant figures and rounding mode
+     * @return {@code this - augend}
+     */
     public ComplexNum subtract(ComplexNum subtrahend, MathContext mc) {
         return new ComplexNum(this.realValue.subtract(subtrahend.realValue),
                 this.imaValue.subtract(subtrahend.imaValue), mc);
     }
 
+    /**
+     * Returns the value of (this * augend). The precision of the modulus and the
+     * argument of the result is default precision.
+     * 
+     * @param multiplicand value to be multiplied
+     * @return {@code this * augend}
+     */
     @Override
     public ComplexNum multiply(ComplexNum multiplicand) {
         return this.multiply(multiplicand, DEF_CONTEXT);
     }
 
+    /**
+     * Returns the value of (this * augend). The precision of the modulus and the
+     * argument of the result is defined by {@code precision}.
+     * 
+     * @param multiplicand value to be multiplied
+     * @param precision    number of significant figures
+     * @return {@code this * augend}
+     */
     public ComplexNum multiply(ComplexNum multiplicand, int precision) {
         return this.multiply(multiplicand, new MathContext(precision));
     }
 
+    /**
+     * Returns the value of (this * augend). The precision of the modulus and the
+     * argument of the result is defined by {@code mc}.
+     * 
+     * @param multiplicand value to be multiplied
+     * @param mc           number of significant figures
+     * @return {@code this * augend}
+     */
     public ComplexNum multiply(ComplexNum multiplicand, MathContext mc) {
         BigDecimal newRealVal = this.realValue.multiply(multiplicand.realValue)
                 .subtract(this.imaValue.multiply(multiplicand.imaValue));
@@ -310,11 +376,26 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
         return new ComplexNum(newRealVal, newImaVal, mc);
     }
 
+    /**
+     * Returns the value of (this / augend). The precision of the modulus and the
+     * argument of the result and the result itself is the default precision.
+     * 
+     * @param divisor value divided from the original value.
+     * @return {@code this * augend}
+     */
     @Override
     public ComplexNum divide(ComplexNum divisor) {
         return this.divide(divisor, DEF_CONTEXT);
     }
 
+    /**
+     * Returns the value of (this / augend). The precision of the modulus and the
+     * argument of the result and the result itself is defined by {@code precision}.
+     * 
+     * @param divisor   value divided from the original value.
+     * @param precision number of significant figures
+     * @return {@code this * augend}
+     */
     public ComplexNum divide(ComplexNum divisor, int precision) {
         ComplexNum product = this.multiply(divisor.conjugate());
         BigDecimal divisorAbs = divisor.abs(false, precision + 10);
@@ -326,8 +407,15 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
                 precision);
     }
 
+    /**
+     * Returns the value of (this / augend). The precision of the modulus and the
+     * argument of the result and the result itself is defined by {@code mc}.
+     * 
+     * @param divisor value divided from the original value.
+     * @param mc      number of significant figures and rounding mode
+     * @return {@code this * augend}
+     */
     public ComplexNum divide(ComplexNum divisor, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum product = this.multiply(divisor.conjugate());
         BigDecimal divisorAbs = divisor.abs(false, calPrecision);
@@ -339,14 +427,34 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
                 mc);
     }
 
+    /**
+     * Returns the negative value of this. The precision of the modulus and the
+     * argument of the result is the default precision.
+     * 
+     * @return {@code -this}
+     */
     public ComplexNum negate() {
         return new ComplexNum(realValue.negate(), imaValue.negate(), DEF_CONTEXT);
     }
 
+    /**
+     * Returns the negative value of this. The precision of the modulus and the
+     * argument of the result is defined by {@code precision}.
+     * 
+     * @param precision number of significant figures
+     * @return {@code -this}
+     */
     public ComplexNum negate(int precision) {
         return new ComplexNum(realValue.negate(), imaValue.negate(), precision);
     }
 
+    /**
+     * Returns the negative value of this. The precision of the modulus and the
+     * argument of the result is defined by {@code mc}.
+     * 
+     * @param mc number of significant figures and rounding mode
+     * @return {@code -this}
+     */
     public ComplexNum negate(MathContext mc) {
         return new ComplexNum(realValue.negate(), imaValue.negate(), mc);
     }
@@ -370,14 +478,14 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      * @return {@code this^exponent}
      */
     public ComplexNum pow(ComplexNum exponent) {
-        return Exp.pow(this, exponent, PRECI);
+        return Exp.pow(this, exponent, DEF_CONTEXT);
     }
 
     /**
      * Return the value of {@code this^exponent}.
      * 
      * @param exponent
-     * @param precision : the precision of the result
+     * @param precision number of significant figures
      * @return {@code this^exponent}
      */
     public ComplexNum pow(ComplexNum exponent, int precision) {
@@ -431,10 +539,10 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Returns the absolute value of this {@code ComplexNum}
-     * with 32 significant numbers precision.
+     * Returns a {@code BigDecimal} which is the absolute value of this whose
+     * precision is the default precision.
      * 
-     * @param ifRoot : if takes the root
+     * @param ifRoot if takes the root
      * @return {@code |this|} or {@code |this|^2}
      */
     public BigDecimal abs(boolean ifRoot) {
@@ -442,9 +550,11 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Returns the absolute value of this {@code ComplexNum}.
+     * Returns a {@code BigDecimal} which is the absolute value of this whose
+     * precision is defined by {@code precision}.
      * 
-     * @param ifRoot : if takes the root
+     * @param ifRoot    if takes the root
+     * @param precision number of significant figures
      * @return {@code |this|} or {@code |this|^2}
      */
     public BigDecimal abs(boolean ifRoot, int precision) {
@@ -452,9 +562,11 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Returns the absolute value of this {@code ComplexNum}.
+     * Returns a {@code BigDecimal} which is the absolute value of this whose
+     * precision is defined by {@code mc}.
      * 
-     * @param ifRoot : if takes the root
+     * @param ifRoot if takes the root
+     * @param mc     number of significant figures and rounding mode
      * @return {@code |this|} or {@code |this|^2}
      */
     public BigDecimal abs(boolean ifRoot, MathContext mc) {
@@ -468,19 +580,43 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Returns the rounded complex number.
+     * Returns a {@code ComplexNum} which is rounded according {@code mc}.
      * 
-     * @param mc
+     * @param mc number of significant figures and rounding mode.
      * @return {@code this}
      */
     public ComplexNum round(MathContext mc) {
         return new ComplexNum(this.realValue.round(mc), this.imaValue.round(mc), mc);
     }
 
+    /**
+     * Returns a {@code ComplexNum} whose scale (number of digits after decimal
+     * separator) of the imaginary part and the real part is defined by
+     * {@code precision}
+     * 
+     * @param precision number of digits after decimal separator
+     * @return a {@code ComplexNum} whose scale is the specified value.
+     * @see java.math.BigDecimal.setScale
+     * @apiNote (From java.math.BigDecimal.setScale): Since {@code ComplexNum}
+     *          objects are immutable, calls of this method do not result in the
+     *          original object being modified.
+     */
     public ComplexNum scale(int precision) {
         return scale(new MathContext(precision));
     }
 
+    /**
+     * Returns a {@code ComplexNum} whose scale (number of digits after decimal
+     * separator) of the imaginary part and the real part is defined by
+     * {@code precision}
+     * 
+     * @param mc number of digits after decimal separator and rounding mode
+     * @return a {@code ComplexNum} whose scale is the specified value.
+     * @see java.math.BigDecimal.setScale
+     * @apiNote (From java.math.BigDecimal.setScale): Since {@code ComplexNum}
+     *          objects are immutable, calls of this method do not result in the
+     *          original object being modified.
+     */
     public ComplexNum scale(MathContext mc) {
         return new ComplexNum(this.realValue.setScale(mc.getPrecision(), mc.getRoundingMode()),
                 this.imaValue.setScale(mc.getPrecision(), mc.getRoundingMode()), mc);

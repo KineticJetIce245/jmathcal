@@ -1,13 +1,14 @@
 package Jmathcal.Number.RealAnalytic;
 
 import java.io.Serializable;
+import java.math.MathContext;
 
 import Jmathcal.Number.Computable;
 import Jmathcal.Number.Complex.*;
 import Jmathcal.Number.RealAnalytic.Rational.*;
 
 public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analytic {
-    //Appease the serialization god, LOL
+    // Appease the serialization god, LOL
     private static final long serialVersionUID = 8547052652255377391L;
 
     private final Analytic[] val;
@@ -46,21 +47,21 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
     }
 
     // clone()
-    public AnalyticExp clone(){
+    public AnalyticExp clone() {
         if (type != OperationType.NUM)
             return new AnalyticExp(val, type, this.oprSign);
-        return new AnalyticExp((RationalNum)val[0], this.oprSign);
+        return new AnalyticExp((RationalNum) val[0], this.oprSign);
     }
 
     // Constructor for clone()
     private AnalyticExp(Analytic[] val, OperationType type, boolean sign) {
         this.val = new Analytic[val.length];
         for (int i = 0; i < val.length; i++) {
-            this.val[i] = ((AnalyticExp)val[i]).clone();
+            this.val[i] = ((AnalyticExp) val[i]).clone();
         }
         this.type = type;
         this.oprSign = sign;
-    }   
+    }
 
     // Constructor for operations
     // This method is not safe
@@ -100,11 +101,15 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
         return this.mergeN(divisor, OperationType.MUL);
     }
 
+    public AnalyticExp pow(AnalyticExp argument) {
+        return this.mergeP(argument, OperationType.POW);
+    }
+
     private AnalyticExp mergeP(AnalyticExp num, OperationType opType) {
         AnalyticExp reVal;
         AnalyticExp thisShadow = this.clone();
         AnalyticExp numShadow = num.clone();
-        boolean[] sign = {true, true};
+        boolean[] sign = { true, true };
 
         if (thisShadow.type == numShadow.type && thisShadow.type == opType) {
             Analytic[] vals = new Analytic[thisShadow.val.length + numShadow.val.length];
@@ -112,7 +117,7 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
                 vals[i] = thisShadow.val[i];
             }
             for (int j = thisShadow.val.length; j < thisShadow.val.length + numShadow.val.length; j++) {
-                vals[j] = numShadow.val[j-thisShadow.val.length];
+                vals[j] = numShadow.val[j - thisShadow.val.length];
             }
             reVal = new AnalyticExp(vals, opType);
 
@@ -134,7 +139,7 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
         AnalyticExp reVal;
         AnalyticExp thisShadow = this.clone();
         AnalyticExp numShadow = num.clone();
-        boolean[] sign = {true, false};
+        boolean[] sign = { true, false };
 
         if (thisShadow.type == numShadow.type && thisShadow.type == opType) {
             Analytic[] vals = new Analytic[thisShadow.val.length + numShadow.val.length];
@@ -143,8 +148,8 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
             }
             // switch sign
             for (int j = thisShadow.val.length; j < thisShadow.val.length + numShadow.val.length; j++) {
-                vals[j] = numShadow.val[j-thisShadow.val.length];
-                ((AnalyticExp)vals[j]).oprSign = !((AnalyticExp)vals[j]).oprSign;
+                vals[j] = numShadow.val[j - thisShadow.val.length];
+                ((AnalyticExp) vals[j]).oprSign = !((AnalyticExp) vals[j]).oprSign;
             }
             reVal = new AnalyticExp(vals, opType);
 
@@ -174,19 +179,19 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
         switch (this.type) {
             case ADD:
                 for (int i = 1; i < val.length; i++) {
-                    sign = ((AnalyticExp)val[i]).oprSign ? " + " : " - ";
-                    reVal = reVal + sign + "(" + ((AnalyticExp)val[i]).toString() + ")";
+                    sign = ((AnalyticExp) val[i]).oprSign ? " + " : " - ";
+                    reVal = reVal + sign + "(" + ((AnalyticExp) val[i]).toString() + ")";
                 }
                 break;
             case MUL:
                 for (int i = 1; i < val.length; i++) {
-                    sign = ((AnalyticExp)val[i]).oprSign ? " * " : " / ";
-                    reVal = reVal + sign + "(" + ((AnalyticExp)val[i]).toString() + ")";
+                    sign = ((AnalyticExp) val[i]).oprSign ? " * " : " / ";
+                    reVal = reVal + sign + "(" + ((AnalyticExp) val[i]).toString() + ")";
                 }
                 break;
             case POW:
                 for (int i = 1; i < val.length; i++) {
-                    reVal = reVal + "^" + "(" + ((AnalyticExp)val[i]).toString() + ")";
+                    reVal = reVal + "^" + "(" + ((AnalyticExp) val[i]).toString() + ")";
                 }
                 break;
             case NUM:
@@ -195,4 +200,53 @@ public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analy
         }
         return reVal;
     }
+
+    @Override
+    public ComplexNum compute(int precision) {
+        return this.compute(new MathContext(precision));
+    }
+
+    @Override
+    public ComplexNum compute(MathContext mc) {
+        return this.compute(mc, true);
+    }
+
+    public ComplexNum compute(MathContext mc, boolean ifFirstCal) {
+        MathContext calMC = mc;
+
+        if (ifFirstCal)
+            calMC = new MathContext(mc.getPrecision() + 10, mc.getRoundingMode());
+        
+        ComplexNum reVal = val[0] instanceof AnalyticExp ? ((AnalyticExp) val[0]).compute(calMC, false)
+                : val[0].compute(calMC);
+        switch (this.type) {
+            case ADD:
+                for (int i = 1; i < val.length; i++) {
+                    if (((AnalyticExp) val[i]).oprSign) {
+                        reVal = reVal.add(((AnalyticExp) val[i]).compute(calMC, false));
+                    } else {
+                        reVal = reVal.subtract(((AnalyticExp) val[i]).compute(calMC, false));
+                    }
+                }
+                break;
+            case MUL:
+                for (int i = 1; i < val.length; i++) {
+                    if (((AnalyticExp) val[i]).oprSign) {
+                        reVal = reVal.multiply(((AnalyticExp) val[i]).compute(calMC, false)).round(mc);
+                    } else {
+                        reVal = reVal.divide(((AnalyticExp) val[i]).compute(calMC, false), mc);
+                    }
+                }
+                break;
+            case POW:
+                reVal = reVal.pow(((AnalyticExp) val[1]).compute(calMC, false), mc);
+                break;
+            default:
+                break;
+        }
+        if (ifFirstCal)
+            reVal = reVal.round(mc);
+        return reVal;
+    }
+
 }
