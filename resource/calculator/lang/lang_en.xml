@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="calGuiFrameTitle">Jmathcal - Scientific Calculator</entry>
+    <entry key="calGuiMenu1">Menu1(m1)</entry>
+    <entry key="calGuiMenu2">Menu1(m2)</entry>
+</properties>

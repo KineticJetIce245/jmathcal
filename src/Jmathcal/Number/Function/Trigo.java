@@ -124,7 +124,7 @@ public class Trigo {
         if (num.compareTo(piVal.multiply(TWO)) <= 0) {
             num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
         }
-        
+
         reVal = findCos(num, mc);
         return reVal;
     }
@@ -489,12 +489,38 @@ public class Trigo {
      * @return {@code tan(num)}
      */
     public static ComplexNum tan(ComplexNum num, MathContext mc) {
-        // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI().multiply(new ComplexNum("2"));
         ComplexNum y = Exp.exp(x, calPrecision);
         return new ComplexNum("1").subtract(y)
                 .divide(y.add(new ComplexNum("1")), calPrecision)
                 .multiplyByI(mc);
+    }
+
+    public static ComplexNum arcsin(ComplexNum num, MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+
+        ComplexNum reVal = ComplexNum.ONE.subtract(num.pow("2", calPrecision)).pow("0.5", calPrecision);
+        reVal = reVal.add(num.multiplyByI());
+        reVal = Exp.ln(reVal, calPrecision);
+        return reVal.multiplyByI().round(mc).negate(mc);
+    }
+
+    public static ComplexNum arccos(ComplexNum num, MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+
+        ComplexNum reVal = num.pow("2", calPrecision).subtract(ComplexNum.ONE).pow("0.5", calPrecision);
+        reVal = reVal.add(num);
+        reVal = Exp.ln(reVal, calPrecision);
+        return reVal.multiplyByI().round(mc).negate(mc);
+    }
+
+    public static ComplexNum arctan(ComplexNum num, MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+
+        ComplexNum reVal = num.multiplyByI();
+        reVal = reVal.add(ComplexNum.ONE).divide(ComplexNum.ONE.subtract(reVal), calPrecision);
+        reVal = Exp.ln(reVal, calPrecision);
+        return reVal.divide(new ComplexNum("2"), mc).multiplyByI().negate(mc);
     }
 }

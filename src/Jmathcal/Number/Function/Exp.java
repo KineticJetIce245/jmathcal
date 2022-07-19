@@ -479,7 +479,7 @@ public class Exp {
         BigDecimal iVal = Trigo.sin(num.getImaValue(), calPrecision);
         rVal = coefficient.multiply(rVal).round(mc);
         iVal = coefficient.multiply(iVal).round(mc);
-        return new ComplexNum(rVal, iVal, mc);
+        return new ComplexNum(rVal, iVal);
     }
 
     /**
@@ -510,21 +510,7 @@ public class Exp {
             num.abs();
         }
         BigDecimal rVal = ln(num, mc);
-        return new ComplexNum(rVal, iVal, mc);
-    }
-
-    /**
-     * Returns a complex number which is the result
-     * of ln(num).
-     * This method recalculates the rValue and the phiValue
-     * of the num.
-     * 
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code ln(num)}
-     */
-    public static ComplexNum ln(ComplexNum num, int precision) {
-        return ln(num, new MathContext(precision));
+        return new ComplexNum(rVal, iVal);
     }
 
     /**
@@ -542,19 +528,7 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal rVal = ln(num.calRValue(calPrecision), mc);
         BigDecimal iVal = num.calPhiValue(mc);
-        return new ComplexNum(rVal, iVal, mc);
-    }
-
-    /**
-     * Returns a complex number whose value is (base^exponent).
-     * 
-     * @param base
-     * @param exponent
-     * @param precision number of significant figures
-     * @return {@code (base)^(exponent)}
-     */
-    public static ComplexNum pow(ComplexNum base, ComplexNum exponent, int precision) {
-        return pow(base, exponent, new MathContext(precision));
+        return new ComplexNum(rVal, iVal);
     }
 
     /**
@@ -573,7 +547,7 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);
-        return exp(x, mc).round(mc);
+        return exp(x, mc);
     }
 
     /**
@@ -587,19 +561,6 @@ public class Exp {
     public static ComplexNum log(ComplexNum base, ComplexNum argument, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         return ln(argument, calPrecision)
-                .divide(ln(base, calPrecision), mc)
-                .round(mc);
-    }
-
-    /**
-     * Returns a complex number whose value is log(base)(argument)
-     * 
-     * @param base
-     * @param argument
-     * @param precision number of significant figures
-     * @return {@code log(base)(argument)}
-     */
-    public static ComplexNum log(ComplexNum base, ComplexNum argument, int precision) {
-        return log(base, argument, new MathContext(precision));
+                .divide(ln(base, calPrecision), mc);
     }
 }
