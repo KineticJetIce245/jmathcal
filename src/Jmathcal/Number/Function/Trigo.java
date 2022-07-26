@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
 
 /**
@@ -121,7 +122,7 @@ public class Trigo {
         }
 
         // cos(2k*pi + x) = cos(x)
-        if (num.compareTo(piVal.multiply(TWO)) <= 0) {
+        if (num.compareTo(piVal.multiply(TWO)) > 0) {
             num = num.subtract(num.divide(piVal.multiply(TWO), 0, RoundingMode.HALF_UP).multiply(piVal.multiply(TWO)));
         }
 
@@ -500,7 +501,7 @@ public class Trigo {
     public static ComplexNum arcsin(ComplexNum num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
-        ComplexNum reVal = ComplexNum.ONE.subtract(num.pow("2", calPrecision)).pow("0.5", calPrecision);
+        ComplexNum reVal = ComplexNum.ONE.subtract(num.multiply(num)).pow("0.5", calPrecision);
         reVal = reVal.add(num.multiplyByI());
         reVal = Exp.ln(reVal, calPrecision);
         return reVal.multiplyByI().round(mc).negate(mc);
@@ -509,7 +510,7 @@ public class Trigo {
     public static ComplexNum arccos(ComplexNum num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
-        ComplexNum reVal = num.pow("2", calPrecision).subtract(ComplexNum.ONE).pow("0.5", calPrecision);
+        ComplexNum reVal = num.multiply(num).subtract(ComplexNum.ONE).pow("0.5", calPrecision);
         reVal = reVal.add(num);
         reVal = Exp.ln(reVal, calPrecision);
         return reVal.multiplyByI().round(mc).negate(mc);
@@ -522,5 +523,68 @@ public class Trigo {
         reVal = reVal.add(ComplexNum.ONE).divide(ComplexNum.ONE.subtract(reVal), calPrecision);
         reVal = Exp.ln(reVal, calPrecision);
         return reVal.divide(new ComplexNum("2"), mc).multiplyByI().negate(mc);
+    }
+
+    // ComplexDbl Functions
+    /**
+     * Returns the sin of {@code num}.
+     * 
+     * @param num
+     * @return {@code sin(num)}
+     */
+    public static ComplexDbl sin(ComplexDbl num) {
+        ComplexDbl x = num.multiplyByI();
+        ComplexDbl y = Exp.exp(x.negate())
+                .subtract(Exp.exp(x)).multiplyByI();
+        return y.divide(new ComplexDbl(2));
+    }
+    
+    /**
+     * Returns the cos of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code cos(num)}
+     */
+    public static ComplexDbl cos(ComplexDbl num) {
+        ComplexDbl x = num.multiplyByI();
+        ComplexDbl y = Exp.exp(x).add(Exp.exp(x.negate()));
+        return y.divide(new ComplexDbl(2));
+    }
+
+    /**
+     * Returns the tan of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code tan(num)}
+     */
+    public static ComplexDbl tan(ComplexDbl num) {
+        ComplexDbl x = num.multiplyByI().multiply(new ComplexDbl(2));
+        ComplexDbl y = Exp.exp(x);
+        return ComplexDbl.ONE.subtract(y)
+                .divide(y.add(ComplexDbl.ONE))
+                .multiplyByI();
+    }
+
+    public static ComplexDbl arcsin(ComplexDbl num) {
+        ComplexDbl reVal = Exp.pow(ComplexDbl.ONE.subtract(num.multiply(num)), new ComplexDbl(0.5));
+        reVal = reVal.add(num.multiplyByI());
+        reVal = Exp.ln(reVal);
+        return reVal.multiplyByI().negate();
+    }
+
+    public static ComplexDbl arccos(ComplexDbl num) {
+        ComplexDbl reVal = Exp.pow(num.multiply(num).subtract(ComplexDbl.ONE), new ComplexDbl(0.5));
+        reVal = reVal.add(num);
+        reVal = Exp.ln(reVal);
+        return reVal.multiplyByI().negate();
+    }
+
+    public static ComplexDbl arctan(ComplexDbl num) {
+        ComplexDbl reVal = num.multiplyByI();
+        reVal = reVal.add(ComplexDbl.ONE).divide(ComplexDbl.ONE.subtract(reVal));
+        reVal = Exp.ln(reVal);
+        return reVal.divide(new ComplexDbl(2.0)).multiplyByI().negate();
     }
 }

@@ -5,7 +5,7 @@ import java.math.MathContext;
 
 import Jmathcal.Number.Computable;
 import Jmathcal.Number.Complex.*;
-import Jmathcal.Number.RealAnalytic.Rational.*;
+import Jmathcal.Number.Rational.*;
 
 public class AnalyticExp implements Serializable, Computable<AnalyticExp>, Analytic {
     // Appease the serialization god, LOL

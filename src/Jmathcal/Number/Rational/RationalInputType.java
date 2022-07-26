@@ -1,4 +1,4 @@
-package Jmathcal.Number.RealAnalytic.Rational;
+package Jmathcal.Number.Rational;
 
 /**
  * Specify the String format for {@code RationalNum}'s constructor.
@@ -11,7 +11,7 @@ public enum RationalInputType {
      * In {@code "5/6"}, {@code 5} is the numerator and {@code 6} is the
      * denominator.
      */
-    INT_FRACTION,
+    FRACTION,
 
     /**
      * Same format as a normal decimal number.<p>

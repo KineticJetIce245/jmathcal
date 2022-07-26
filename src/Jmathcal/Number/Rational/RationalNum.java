@@ -1,4 +1,4 @@
-package Jmathcal.Number.RealAnalytic.Rational;
+package Jmathcal.Number.Rational;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -34,7 +34,7 @@ public class RationalNum extends Number implements Comparable<RationalNum>, Comp
         RationalNum thisNum = null;
 
         switch (inputType) {
-            case INT_FRACTION:
+            case FRACTION:
                 this.precision = precision;
 
                 separatedStr = val.split("/");

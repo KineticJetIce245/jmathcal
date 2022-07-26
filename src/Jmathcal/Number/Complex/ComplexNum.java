@@ -13,7 +13,6 @@ import Jmathcal.Number.Function.Trigo;
  * Immutable, arbitrary-precision signed decimal complex numbers. A
  * {@code ComplexNum} consists of a real part and an imaginary part
  * each stored as a {@code BigDecimal}.
- * <p>
  * 
  * @author KineticJetIce245
  */
@@ -84,6 +83,33 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      */
     public ComplexNum(String realValue, String imaValue) {
         this(new BigDecimal(realValue), new BigDecimal(imaValue));
+    }
+
+    /**
+     * Constructs a new {@code ComplexNum} by given modulus and argument.
+     * The precision of the {@code ComplexNum} is the default precision.
+     * 
+     * @param rValue
+     * @param phiValue
+     * @return {@code ComplexNum}
+     */
+    public static ComplexNum getComplexNum(BigDecimal rValue, BigDecimal phiValue) {
+        return getComplexNum(rValue, phiValue, DEF_CONTEXT);
+    }
+
+    /**
+     * Constructs a new {@code ComplexNum} by given modulus and argument.
+     * The precision of the {@code ComplexNum} is defined by {@code mc}.
+     * 
+     * @param rValue
+     * @param phiValue
+     * @param mc       number of significant figures and rounding mode
+     * @return {@code ComplexNum}
+     */
+    public static ComplexNum getComplexNum(BigDecimal rValue, BigDecimal phiValue, MathContext mc) {
+        BigDecimal realVal = rValue.multiply(Trigo.cos(phiValue, mc));
+        BigDecimal imaVal = rValue.multiply(Trigo.sin(phiValue, mc));
+        return new ComplexNum(realVal, imaVal);
     }
 
     /**
@@ -249,7 +275,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      * Multiplies this by <i>i</i>.
      * 
      * @param mc number of significant figures and rounding mode
-     * @return {@code -this}
+     * @return {@code i*this}
      */
     public ComplexNum multiplyByI() {
         return new ComplexNum(imaValue.negate(), realValue);
@@ -259,7 +285,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      * Multiplies this by <i>i</i>, and round the result with {@code mc}.
      * 
      * @param mc number of significant figures and rounding mode
-     * @return {@code -this}
+     * @return {@code i*this}
      */
     public ComplexNum multiplyByI(MathContext mc) {
         return new ComplexNum(imaValue.negate().round(mc), realValue.round(mc));
@@ -322,7 +348,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Returns the conjugate of this {@code ComplexNum} and round 
+     * Returns the conjugate of this {@code ComplexNum} and round
      * the result with {@code mc}.
      * 
      * @return {@code conjugate of this}
@@ -331,6 +357,15 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
         return new ComplexNum(realValue.round(mc), imaValue.negate().round(mc));
     }
 
+    /**
+     * Compares the absolute value of two {@code ComplexNum}.
+     * 
+     * @param o
+     * @return a negative integer, zero, or a positive integer as the absolute value
+     *         of this {@code ComplexNum} is less than, equal to, or greater than
+     *         the absolute value of specified {@code ComplexNum}.
+     * @see java.lang.Override
+     */
     @Override
     public int compareTo(ComplexNum o) {
         return this.abs().compareTo(o.abs());

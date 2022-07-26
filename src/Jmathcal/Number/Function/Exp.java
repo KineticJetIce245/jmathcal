@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
 
 /**
@@ -24,7 +25,7 @@ public class Exp {
             "2.3025850929940456840179914546843642076011014886287729760333279009675726096773524802359972050895982983");
 
     public static final BigDecimal TWO = new BigDecimal("2");
-    /** {@code BigDecimal} {@value 1 and 1/4} */
+    /** {@code BigDecimal} {@value 1 + 1/4} */
     public static final BigDecimal ONEAQUARTER = new BigDecimal("1.25");
     public static final BigDecimal THREE = new BigDecimal("3");
 
@@ -193,6 +194,7 @@ public class Exp {
      * @param argument any {@code BigDecimal} > 0
      * @param mc       number of significant figures and rounding mode
      * @return {@code log(base)(argument)}
+     * @throws ArithmeticException if base or argument are smaller than zero.
      */
     public static BigDecimal rLog(BigDecimal base, BigDecimal argument, MathContext mc) {
 
@@ -224,13 +226,14 @@ public class Exp {
      * @param num
      * @param mc   number of significant figures and rounding mode
      * @return {@code (power)^(argument)}
+     * @throws ArithmeticException if argument is smaller than zero
      */
     public static BigDecimal rPow(BigDecimal argument, BigDecimal power, MathContext mc) {
         // precision for calculations
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         if (argument.compareTo(BigDecimal.ZERO) < 0)
-            throw new ArithmeticException("smaller than zero");
+            throw new ArithmeticException("argument smaller than zero");
 
         // if power is a integer
         if ((power.subtract(power.setScale(0, RoundingMode.FLOOR))).compareTo(BigDecimal.ZERO) == 0)
@@ -449,7 +452,7 @@ public class Exp {
     /**
      * Returns a complex number which is the result
      * of <i>e</i>^({@code num})
-     * This {@code ComplexNum} that this method returns
+     * The {@code ComplexNum} that this method returns
      * has the same precision as {@code num}.
      * 
      * @param num
@@ -463,7 +466,7 @@ public class Exp {
     /**
      * Returns a complex number which is the result
      * of <i>e</i>^({@code num})
-     * This {@code ComplexNum} that this method returns
+     * The {@code ComplexNum} that this method returns
      * has the same precision as {@code num}.
      * 
      * @param num
@@ -533,6 +536,18 @@ public class Exp {
 
     /**
      * Returns a complex number whose value is (base^exponent).
+     * <p>
+     * <ul>
+     * <li>
+     * Special cases :
+     * <ul>
+     * <li>Returns 1, if base = 0 and exponent = 0.</li>
+     * <li>Returns 1, if exponent = 0.</li>
+     * <li>Returns 0, if base = 0.</li>
+     * </ul>
+     * </li>
+     * </ul>
+     * 
      * 
      * @param base
      * @param exponent
@@ -541,13 +556,37 @@ public class Exp {
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
         if (base.compareTo(ComplexNum.ZERO) == 0) {
-            return ComplexNum.ZERO;
+            return exponent.compareTo(ComplexNum.ZERO) == 0 ? ComplexNum.ONE : ComplexNum.ZERO;
         }
+
+        if (exponent.compareTo(ComplexNum.ZERO) == 0)
+            return ComplexNum.ONE;
 
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);
         return exp(x, mc);
+    }
+
+    public static ComplexNum pow2(ComplexNum base, ComplexNum exponent, MathContext mc) {
+        if (base.compareTo(ComplexNum.ZERO) == 0) {
+            return exponent.compareTo(ComplexNum.ZERO) == 0 ? ComplexNum.ONE : ComplexNum.ZERO;
+        }
+
+        if (exponent.compareTo(ComplexNum.ZERO) == 0)
+            return ComplexNum.ONE;
+
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+
+        BigDecimal lnR = ln(base.calRValue(calPrecision), calPrecision);
+        BigDecimal phi = base.calPhiValue(calPrecision);
+
+        return ComplexNum.getComplexNum(
+                // e^(c*ln⁡[r_1] - d*φ_1)
+                exp((exponent.getRealValue().multiply(lnR).subtract(exponent.getImaValue().multiply(phi))),
+                        calPrecision),
+                exponent.getRealValue().multiply(phi).add(exponent.getImaValue().multiply(lnR))).round(mc);
+
     }
 
     /**
@@ -562,5 +601,79 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         return ln(argument, calPrecision)
                 .divide(ln(base, calPrecision), mc);
+    }
+
+    // ComplexDbl Functions
+    /**
+     * Returns a complex number which is the result
+     * of <i>e</i>^({@code num})
+     * 
+     * @param num
+     * @return {@code e^(num)}
+     */
+    public static ComplexDbl exp(ComplexDbl num) {
+        double coefficient = Math.exp(num.getRealValue());
+        double rVal = Math.cos(num.getImaValue());
+        double iVal = Math.sin(num.getImaValue());
+        rVal = coefficient * rVal;
+        iVal = coefficient * iVal;
+        return new ComplexDbl(rVal, iVal);
+    }
+
+    /**
+     * Returns a complex number which is the result
+     * of ln(num).
+     * 
+     * @param num
+     * @return {@code ln(num)}
+     */
+    public static ComplexDbl ln(ComplexDbl num) {
+        // ln(re^(i*x)) = ln(r) + x*i
+        double rVal = Math.log(num.getRValue());
+        double iVal = num.getPhiValue();
+        return new ComplexDbl(rVal, iVal);
+    }
+
+    /**
+     * Returns a complex number whose value is (base^exponent).
+     * <p>
+     * <ul>
+     * <li>
+     * Special cases :
+     * <ul>
+     * <li>Returns 1, if base = 0 and exponent = 0.</li>
+     * <li>Returns 1, if exponent = 0.</li>
+     * <li>Returns 0, if base = 0.</li>
+     * </ul>
+     * </li>
+     * </ul>
+     * 
+     * 
+     * @param base
+     * @param exponent
+     * @return {@code (base)^(exponent)}
+     */
+    public static ComplexDbl pow(ComplexDbl base, ComplexDbl exponent) {
+        if (base.compareTo(ComplexDbl.ZERO) == 0) {
+            return exponent.compareTo(ComplexDbl.ZERO) == 0 ? ComplexDbl.ONE : ComplexDbl.ZERO;
+        }
+
+        if (exponent.compareTo(ComplexDbl.ZERO) == 0)
+            return ComplexDbl.ONE;
+
+        // x = exponent * (ln(base))
+        ComplexDbl x = Exp.ln(base).multiply(exponent);
+        return exp(x);
+    }
+
+    /**
+     * Returns a complex number whose value is log(base)(argument)
+     * 
+     * @param base
+     * @param argument
+     * @return {@code log(base)(argument)}
+     */
+    public static ComplexDbl log(ComplexDbl base, ComplexDbl argument) {
+        return ln(argument).divide(ln(base));
     }
 }
