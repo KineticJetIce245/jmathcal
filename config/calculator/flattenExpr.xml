@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="+">ADD</entry>
+    <entry key="-">SUB</entry>
+    <entry key="*">MUL</entry>
+    <entry key="/">DIV</entry>
+    <entry key="^">POW</entry>
+    <entry key="sin">SIN</entry>
+    <entry key="cos">COS</entry>
+    <entry key="tan">TAN</entry>
+    <entry key="arcsin">ASIN</entry>
+    <entry key="arccos">ACOS</entry>
+    <entry key="arctan">ATAN</entry>
+    <entry key="log">LOG</entry>
+    <entry key="ln">LN</entry>
+
+</properties>

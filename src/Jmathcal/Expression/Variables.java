@@ -1,5 +1,5 @@
 package Jmathcal.Expression;
 
-public class Variables {
+public class Variables implements ExprElements{
     
 }

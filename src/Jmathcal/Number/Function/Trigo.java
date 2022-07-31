@@ -498,6 +498,13 @@ public class Trigo {
                 .multiplyByI(mc);
     }
 
+    /**
+     * Returns the arcsin of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arcsin(num)}
+     */
     public static ComplexNum arcsin(ComplexNum num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
@@ -507,6 +514,13 @@ public class Trigo {
         return reVal.multiplyByI().round(mc).negate(mc);
     }
 
+    /**
+     * Returns the arccos of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arccos(num)}
+     */
     public static ComplexNum arccos(ComplexNum num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
@@ -516,6 +530,13 @@ public class Trigo {
         return reVal.multiplyByI().round(mc).negate(mc);
     }
 
+    /**
+     * Returns the arctan of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arctan(num)}
+     */
     public static ComplexNum arctan(ComplexNum num, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
@@ -538,7 +559,7 @@ public class Trigo {
                 .subtract(Exp.exp(x)).multiplyByI();
         return y.divide(new ComplexDbl(2));
     }
-    
+
     /**
      * Returns the cos of {@code num}.
      * 
@@ -567,6 +588,13 @@ public class Trigo {
                 .multiplyByI();
     }
 
+    /**
+     * Returns the arcsin of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arcsin(num)}
+     */
     public static ComplexDbl arcsin(ComplexDbl num) {
         ComplexDbl reVal = Exp.pow(ComplexDbl.ONE.subtract(num.multiply(num)), new ComplexDbl(0.5));
         reVal = reVal.add(num.multiplyByI());
@@ -574,6 +602,13 @@ public class Trigo {
         return reVal.multiplyByI().negate();
     }
 
+    /**
+     * Returns the arccos of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arccos(num)}
+     */
     public static ComplexDbl arccos(ComplexDbl num) {
         ComplexDbl reVal = Exp.pow(num.multiply(num).subtract(ComplexDbl.ONE), new ComplexDbl(0.5));
         reVal = reVal.add(num);
@@ -581,10 +616,32 @@ public class Trigo {
         return reVal.multiplyByI().negate();
     }
 
+    /**
+     * Returns the arctan of {@code num}.
+     * 
+     * @param num
+     * @param mc  number of significant figures and rounding mode
+     * @return {@code arctan(num)}
+     */
     public static ComplexDbl arctan(ComplexDbl num) {
         ComplexDbl reVal = num.multiplyByI();
         reVal = reVal.add(ComplexDbl.ONE).divide(ComplexDbl.ONE.subtract(reVal));
         reVal = Exp.ln(reVal);
         return reVal.divide(new ComplexDbl(2.0)).multiplyByI().negate();
+    }
+
+    /**
+     * Converts the an angle from one unit to another with specified precision and
+     * rounding mode.
+     * 
+     * @param value
+     * @param original   original angle unit
+     * @param targetType result's angle unit
+     * @param mc
+     * @return the result of the conversion of the angle from one unit to another
+     */
+    public static BigDecimal angleConvert(BigDecimal value, AngleType original, AngleType targetType, MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+        return value.multiply(targetType.cal(calPrecision)).divide(original.cal(calPrecision), mc);
     }
 }

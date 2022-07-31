@@ -1,14 +1,32 @@
 package Jmathcal.Number;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
 
-import Jmathcal.Number.Function.Trigo;
 
 public class Test {
     public static void main(String[] args) {
-        MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
-        System.out.println(Trigo.sin(new BigDecimal("3.14159"), mc));
+        Properties keyWords = new Properties();
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream("config/calculator/flattenExpr.xml");
+            keyWords.loadFromXML(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        System.out.println(keyWords.getProperty("sin"));
     }
 }

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import Jmathcal.Expression.ExprElements;
 import Jmathcal.Number.Computable;
 import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
@@ -16,7 +17,7 @@ import Jmathcal.Number.Function.Trigo;
  * 
  * @author KineticJetIce245
  */
-public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computable<ComplexNum> {
+public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computable<ComplexNum>, ExprElements {
 
     // Serialization
     @java.io.Serial

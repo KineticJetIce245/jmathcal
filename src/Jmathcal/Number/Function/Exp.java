@@ -474,6 +474,11 @@ public class Exp {
      * @return {@code e^(num)}
      */
     public static ComplexNum exp(ComplexNum num, MathContext mc) {
+
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0) {
+            return new ComplexNum(exp(num.getRealValue(), mc));
+        }
+
         // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         // e^(a+bi) = (e^a)*(e^(bi)) = (e^a)(cos(b) + i*sin(b))
@@ -527,6 +532,11 @@ public class Exp {
      * @return {@code ln(num)}
      */
     public static ComplexNum ln(ComplexNum num, MathContext mc) {
+
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0) {
+            return new ComplexNum(ln(num.getRealValue(), mc));
+        }
+
         // ln(re^(i*x)) = ln(r) + x*i
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         BigDecimal rVal = ln(num.calRValue(calPrecision), mc);

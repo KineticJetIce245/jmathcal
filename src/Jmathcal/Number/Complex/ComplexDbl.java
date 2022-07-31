@@ -2,6 +2,7 @@ package Jmathcal.Number.Complex;
 
 import java.io.Serializable;
 
+import Jmathcal.Expression.ExprElements;
 import Jmathcal.Number.Computable;
 /**
  * A {@code ComplexDbl} consists of a real part and an imaginary part
@@ -9,7 +10,7 @@ import Jmathcal.Number.Computable;
  * 
  * @author KineticJetIce245
  */
-public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computable<ComplexDbl> {
+public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computable<ComplexDbl>, ExprElements {
 
     // Serialization
     @java.io.Serial

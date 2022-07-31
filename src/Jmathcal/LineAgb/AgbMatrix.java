@@ -19,7 +19,8 @@ public class AgbMatrix {
         MatrixLength = matrix.length;
         int vectorSize = 0;
         for (int i = 0; i < matrix.length; i++) {
-            if (vectorSize < matrix[i].length) vectorSize = matrix[i].length;
+            if (vectorSize < matrix[i].length)
+                vectorSize = matrix[i].length;
         }
         VectorLength = vectorSize;
         this.vectors = new AgbVector[MatrixLength];
@@ -48,6 +49,16 @@ public class AgbMatrix {
         return vectors[indexInMatrix].expandVector(0);
     }
 
+    public AgbVector getVectorByVIndex(int indexInVector) {
+        AgbVector returnVector = new AgbVector(MatrixLength);
+
+        for (int i = 0; i < MatrixLength; i++) {
+            returnVector.addValue(vectors[i].getValue(indexInVector), i);
+        }
+
+        return returnVector;
+    }
+
     public void addValue(BigDecimal value, int indexInMatrix, int indexInVector) {
         if (vectors[indexInMatrix] == null)
             vectors[indexInMatrix] = new AgbVector(indexInVector);
@@ -57,14 +68,14 @@ public class AgbMatrix {
     public void addVector(AgbVector vector, int indexInMatrix) {
         if (vector.getLength() != VectorLength) {
             throw new VectorOutOfMatrixBoundException();
-        } else if(vectors[indexInMatrix] != null) {
+        } else if (vectors[indexInMatrix] != null) {
             throw new ArithmeticException("spaced already filled.");
         } else {
             vectors[indexInMatrix] = vector;
         }
     }
 
-    public AgbMatrix multiply (BigDecimal scalar) {
+    public AgbMatrix multiply(BigDecimal scalar) {
 
         AgbMatrix returnMatrix = new AgbMatrix(MatrixLength, VectorLength);
 
@@ -73,16 +84,6 @@ public class AgbMatrix {
         }
 
         return returnMatrix;
-    }
-
-    public AgbVector getVectorByVIndex(int indexInVector) {
-        AgbVector returnVector = new AgbVector(MatrixLength);
-
-        for (int i = 0; i < MatrixLength; i++) {
-            returnVector.addValue(vectors[i].getValue(indexInVector), i);
-        }
-
-        return returnVector;
     }
 
     public AgbMatrix add(AgbMatrix augend) {
@@ -100,7 +101,7 @@ public class AgbMatrix {
     }
 
     public AgbVector multiplyByVector(AgbVector multiplicand) {
-        return multiplicand.multiplyByMatrix(this);
+        return multiplicand.multiply(this);
     }
 
     @Override
@@ -131,19 +132,27 @@ public class AgbMatrix {
         return true;
     }
 
+    public boolean ifComplete() {
+        for (AgbVector i : this.vectors) {
+            if (!i.ifComplete())
+                return false;
+        }
+        return true;
+    }
+
     public boolean ifSameSize(AgbMatrix other) {
         if (MatrixLength != other.MatrixLength)
             return false;
         if (VectorLength != other.VectorLength)
             return false;
-        return true;   
+        return true;
     }
 
     @Override
     public String toString() {
         String returnValue = "";
         for (int i = 0; i < vectors.length; i++) {
-            returnValue = returnValue + vectors[i].toString();
+            returnValue = returnValue + vectors[i].toString() + "\n";
         }
         return returnValue;
     }
@@ -159,4 +168,3 @@ public class AgbMatrix {
     }
 
 }
-
