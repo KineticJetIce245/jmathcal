@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
+    <!-- Math Symbols -->
     <entry key="+">ADD</entry>
     <entry key="-">SUB</entry>
     <entry key="*">MUL</entry>
     <entry key="/">DIV</entry>
     <entry key="^">POW</entry>
+    <entry key="(">OPEN_P</entry>
+    <entry key=")">CLOSE_P</entry>
+
+    <!-- Seprater Symbols-->
+    <entry key=",">SEP_C</entry>
+    <entry key=";">SEP_SC</entry>
+    <entry key="\\s">SPACE</entry>
+    <entry key="\\_">SUBS</entry>
+
+    <!-- Basic Functions -->
+    <entry key="sqrt">SQRT</entry>
     <entry key="sin">SIN</entry>
     <entry key="cos">COS</entry>
     <entry key="tan">TAN</entry>
@@ -14,5 +26,19 @@
     <entry key="arctan">ATAN</entry>
     <entry key="log">LOG</entry>
     <entry key="ln">LN</entry>
+
+    <!-- Functions -->
+    <entry key="sum\(">SUM</entry>
+    <entry key="pro\(">PRO</entry>
+
+    <!-- Linear Algebra -->
+    <entry key="vec\(">VEC</entry>
+    <entry key="mat\(">MAT</entry>
+
+    <!-- Constants -->
+    <entry key="\\i">I</entry>
+    <entry key="\\pi">PI</entry>
+    <entry key="\\e">E</entry>
+
 
 </properties>
