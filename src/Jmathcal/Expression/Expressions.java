@@ -3,9 +3,11 @@ package Jmathcal.Expression;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Stack;
@@ -14,11 +16,18 @@ import java.util.regex.Pattern;
 
 import Jmathcal.Number.Complex.ComplexNum;
 
-public class Expressions {
+public class Expressions implements ExprElements {
+
+    public static int PRECI = 10;
+
     // Reverse Poland notation
-    private ExprElements[] tokens;
+    private LinkedList<ExprElements> tokens;
 
     public Expressions(ExprElements[] tokens) {
+        this.tokens = new LinkedList<ExprElements>(Arrays.asList(tokens));
+    }
+
+    public Expressions(LinkedList<ExprElements> tokens) {
         this.tokens = tokens;
     }
 
@@ -27,20 +36,17 @@ public class Expressions {
         String a = sc.nextLine();
         sc.close();
         VariablePool vp = new VariablePool();
-        System.out.println(parseFromFlattenExpr(a, vp));
+        Expressions myExpressions = parseFromFlattenExpr(a, vp);
+        System.out.println(myExpressions);
+        MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
+        System.out.println(myExpressions.calculate(vp, mc));
     }
 
     /**
-     * <ul>
-     * <li>
-     * Examples :
-     * <ul>
-     * <li>2*3-4/5sin(sqrt(6^(8/0.36))</li>
-     * </ul>
-     * </li>
-     * </ul>
+     * Parse an expression from its flatten form.
      * 
      * @param expression
+     * @param varPool
      * @return
      */
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool) {
@@ -50,9 +56,10 @@ public class Expressions {
 
         StringBuffer exprBuffer = new StringBuffer(expression);
         StringBuffer token = new StringBuffer();
-        ArrayList<ExprElements> tokensList = new ArrayList<ExprElements>();
+        LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
         Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
 
+        // Numbers
         Pattern numPattern = Pattern.compile("^\\d+(\\.\\d+)?");
         Matcher numMatcher = numPattern.matcher(exprBuffer);
 
@@ -62,10 +69,42 @@ public class Expressions {
             System.out.print(tokensList);
             System.out.println(operationsStack);
             char firstChar = exprBuffer.charAt(0);
-            // see if is \
+
+            // see if is constant, all constant starts with \
             if (firstChar == 92) {
-            
-            // see if is a number
+                Iterator<String> iterator = keyWords.stringPropertyNames().iterator();
+                String keyword;
+                boolean ifFound = false;
+                while (iterator.hasNext()) {
+                    // one char keyword causes problems
+                    keyword = iterator.next();
+                    if (keyword.length() == 1)
+                        continue;
+
+                    Pattern keywordPat = Pattern.compile(keyword);
+                    Matcher keywordMat = keywordPat.matcher(exprBuffer);
+
+                    if (keywordMat.lookingAt()) {
+                        Constant c = new Constant(Constants.valueOf(keyWords.getProperty(keyword)));
+                        tokensList.add(c);
+                        // delete the right amount of char
+                        exprBuffer.delete(0, keyword.replace("\\\\", "\\").length());
+                        numMatcher = numPattern.matcher(exprBuffer);
+                        ifFound = true;
+                        break;
+                    }
+                }
+                if (!ifFound)
+                    throw new ExprSyntaxErrorException("Constant not found exception.");
+
+                Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
+                Matcher letMatcher = letPattern.matcher(exprBuffer);
+                if (letMatcher.find())
+                    exprBuffer.insert(0, "*");
+
+                numMatcher = numPattern.matcher(exprBuffer);
+
+                // see if is a number
             } else if (numMatcher.lookingAt()) {
 
                 token.append(exprBuffer.substring(numMatcher.start(), numMatcher.end()));
@@ -77,37 +116,39 @@ public class Expressions {
                 numMatcher = numPattern.matcher(exprBuffer);
 
                 if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '.')
-                    throw new ExprSyntaxErrorException();
+                    throw new ExprSyntaxErrorException("Number format exception.");
                 continue;
 
+                // separator
             } else if (exprBuffer.charAt(0) == ';' || exprBuffer.charAt(0) == ',') {
                 exprBuffer.delete(0, 1);
                 numMatcher = numPattern.matcher(exprBuffer);
-            
-            // see if is + - * / ^ ( )
+
+                // see if is + - * / ^ ( )
             } else if (keyWords.getProperty(String.valueOf(firstChar)) != null) {
 
                 String opType = keyWords.getProperty(String.valueOf(exprBuffer.charAt(0)));
                 ExprFunction f = new ExprFunction(OpsType.valueOf(opType));
-                
+
                 // )
                 if (f.getType() == OpsType.CLOSE_P) {
                     // popping all operation utile (
                     if (operationsStack.isEmpty())
-                        throw new ExprSyntaxErrorException();
+                        throw new ExprSyntaxErrorException("Unexpected \")\" exception.");
                     while (operationsStack.peek().getType().precedence != 0) {
                         tokensList.add(operationsStack.pop());
                         if (operationsStack.isEmpty())
-                            throw new ExprSyntaxErrorException();
+                            throw new ExprSyntaxErrorException("Unexpected \")\" exception.");
                     }
                     // popping (
                     if (operationsStack.peek().getType() == OpsType.OPEN_P) {
                         operationsStack.pop();
                     } else {
+                        // if is function with multiple parameters
                         tokensList.add(operationsStack.pop());
                     }
 
-                // + - * / ^ 
+                    // + - * / ^
                 } else if (f.getType().precedence != 0 && !operationsStack.isEmpty()) {
                     while (operationsStack.peek().compPrecedence(f) >= 0) {
                         tokensList.add(operationsStack.pop());
@@ -115,8 +156,8 @@ public class Expressions {
                             break;
                     }
                     operationsStack.push(f);
-                
-                // (
+
+                    // (
                 } else {
                     operationsStack.push(f);
                 }
@@ -125,10 +166,11 @@ public class Expressions {
                 exprBuffer.delete(0, 1);
                 numMatcher = numPattern.matcher(exprBuffer);
 
+                // letters
             } else if ((65 <= firstChar && firstChar <= 90) || (97 <= firstChar && firstChar <= 122)) {
-                
+
                 // variable with subscript
-                Pattern valPattern = Pattern.compile("^[a-zA-Z]\\\\_(\\()?[A-Za-z0-9]+(\\))?");
+                Pattern valPattern = Pattern.compile("^[a-zA-Z]_(\\()?[A-Za-z0-9]+(\\))?");
                 Matcher valMatcher = valPattern.matcher(exprBuffer);
                 if (valMatcher.find()) {
                     token.delete(0, token.length());
@@ -139,13 +181,14 @@ public class Expressions {
                     if (varPool.contains(token.toString())) {
                         tokensList.add(varPool.getVariable(token.toString()));
                     } else {
-                        varPool.addVariable(new Variable(token.toString()));
+                        varPool.new Variable(token.toString());
                         tokensList.add(varPool.getVariable(token.toString()));
                     }
-
-                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9]");
+                    // check if there is a letter, number after
+                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
                     Matcher letMatcher = letPattern.matcher(exprBuffer);
-                    if (letMatcher.find()) exprBuffer.insert(0, "*");
+                    if (letMatcher.find())
+                        exprBuffer.insert(0, "*");
 
                     numMatcher = numPattern.matcher(exprBuffer);
                     continue;
@@ -157,7 +200,8 @@ public class Expressions {
                 boolean ifFound = false;
                 while (iterator.hasNext()) {
                     keyword = iterator.next();
-                    if (keyword.length() == 1) continue;
+                    if (keyword.length() == 1)
+                        continue;
 
                     Pattern keywordPat = Pattern.compile(keyword);
                     Matcher keywordMat = keywordPat.matcher(exprBuffer);
@@ -177,21 +221,23 @@ public class Expressions {
                     token.delete(0, token.length());
                     token.append(exprBuffer.charAt(0));
                     exprBuffer.delete(0, 1);
+
                     if (varPool.contains(token.toString())) {
                         tokensList.add(varPool.getVariable(token.toString()));
                     } else {
-                        varPool.addVariable(new Variable(token.toString()));
+                        varPool.new Variable(token.toString());
                         tokensList.add(varPool.getVariable(token.toString()));
                     }
-                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9]");
+                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
                     Matcher letMatcher = letPattern.matcher(exprBuffer);
-                    if (letMatcher.find()) exprBuffer.insert(0, "*");
+                    if (letMatcher.find())
+                        exprBuffer.insert(0, "*");
 
                     numMatcher = numPattern.matcher(exprBuffer);
                 }
 
             } else {
-                throw new ExprSyntaxErrorException();
+                throw new ExprSyntaxErrorException("Invalided character exception.");
             }
         }
 
@@ -212,7 +258,7 @@ public class Expressions {
 
         StringBuffer buffer = new StringBuffer(expr);
 
-        Pattern mulPattern = Pattern.compile("\\d[A-Za-z]");
+        Pattern mulPattern = Pattern.compile("\\d[A-Za-z\\\\\\(]");
         Matcher mulMatcher = mulPattern.matcher(buffer);
         while (mulMatcher.find()) {
             buffer.insert(mulMatcher.start() + 1, "*");
@@ -246,7 +292,43 @@ public class Expressions {
 
     @Override
     public String toString() {
-        return Arrays.toString(this.tokens);
+        return this.tokens.toString();
+    }
+
+    public ComplexNum calculate(VariablePool vp, MathContext mc) {
+        // TODO
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+        while (this.tokens.size() > 1) {
+            int parameterCount = 0;
+            Iterator<ExprElements> i = this.tokens.iterator();
+            while (i.hasNext()) {
+                ExprElements element = i.next();
+                if (element instanceof ExprFunction) {
+                    parameterCount = ((ExprFunction) element).getType().parameterNum;
+                    if (parameterCount == 0) {
+                        this.tokens.remove(element);
+                        i = this.tokens.iterator();
+                        continue;
+                    }
+                    ComplexNum[] tokenList = new ComplexNum[parameterCount];
+                    int currentIndex = this.tokens.indexOf(element) - parameterCount;
+                    for (int j = 0; parameterCount > 0; parameterCount--) {
+                        ExprElements currentNumOrVar = this.tokens.remove(currentIndex);
+                        if (currentNumOrVar instanceof VariablePool.Variable) {
+                            currentNumOrVar = ((VariablePool.Variable) currentNumOrVar).askForValue();
+                        }
+                        System.out.println(currentNumOrVar);
+                        tokenList[j] = ((ComplexNum) currentNumOrVar);
+                        j++;
+                    }
+                    this.tokens.set(this.tokens.indexOf(element),
+                            ((ExprFunction) element).getType().calculate(tokenList, calPrecision));
+                    break;
+                }
+
+            }
+        }
+        return ((ComplexNum) this.tokens.getFirst()).round(mc);
     }
 
 }

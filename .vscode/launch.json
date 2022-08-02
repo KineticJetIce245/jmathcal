@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Constants",
+            "request": "launch",
+            "mainClass": "Jmathcal.Expression.Constants",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"

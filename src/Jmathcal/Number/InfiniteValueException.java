@@ -3,7 +3,7 @@ package Jmathcal.Number;
  * Thrown when infinite value occurs in calculations. 
  * The sign of the infinite is represented by {@code ifPositive}.
  */
-public class InfiniteValueException extends ArithmeticException{
+public class InfiniteValueException extends ArithmeticException {
 
     // Serialization
     private static final long serialVersionUID = -4256255149625549448L;

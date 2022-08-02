@@ -434,4 +434,13 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
                 this.imaValue.setScale(mc.getPrecision(), mc.getRoundingMode()));
     }
 
+    /**
+     * Converts a {@code ComplexNum} to a {@code ComplexDbl}.
+     * 
+     * @return a {@code ComplexDbl} converted from this {@code ComplexNum}
+     */
+    public ComplexDbl toComplexDbl() {
+        return new ComplexDbl(this.realValue.doubleValue(), this.imaValue.doubleValue());
+    }
+
 }

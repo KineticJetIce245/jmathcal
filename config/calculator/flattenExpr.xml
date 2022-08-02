@@ -13,8 +13,7 @@
     <!-- Seprater Symbols-->
     <entry key=",">SEP_C</entry>
     <entry key=";">SEP_SC</entry>
-    <entry key="\\s">SPACE</entry>
-    <entry key="\\_">SUBS</entry>
+    <entry key="_">SUBS</entry>
 
     <!-- Basic Functions -->
     <entry key="sqrt">SQRT</entry>
@@ -24,7 +23,7 @@
     <entry key="arcsin">ASIN</entry>
     <entry key="arccos">ACOS</entry>
     <entry key="arctan">ATAN</entry>
-    <entry key="log">LOG</entry>
+    <entry key="log\(">LOG</entry>
     <entry key="ln">LN</entry>
 
     <!-- Functions -->
@@ -36,9 +35,11 @@
     <entry key="mat\(">MAT</entry>
 
     <!-- Constants -->
-    <entry key="\\i">I</entry>
-    <entry key="\\pi">PI</entry>
-    <entry key="\\e">E</entry>
+    <entry key="\\i">i</entry>
+    <entry key="\\pi">pi</entry>
+    <entry key="\\e">e</entry>
+    <entry key="\\g">g</entry>
+    <entry key="\\g">G</entry>
 
 
 </properties>
