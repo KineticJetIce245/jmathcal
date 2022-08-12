@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import Jmathcal.Expression.ExprElements;
+import Jmathcal.Expression.ExprNumber;
 import Jmathcal.Number.Computable;
 import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
@@ -17,7 +19,7 @@ import Jmathcal.Number.Function.Trigo;
  * 
  * @author KineticJetIce245
  */
-public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computable<ComplexNum>, ExprElements {
+public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computable<ComplexNum> {
 
     // Serialization
     @java.io.Serial
@@ -73,6 +75,27 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      */
     public ComplexNum(String realValue) {
         this(new BigDecimal(realValue));
+    }
+
+    /**
+     * Constructs a new {@code ComplexNum} strictly represented by the following
+     * form : {@value a+bi}, where {@code a} and {@code b} are {@code String} that can be
+     * directly turned into {@code BigDecimal}.
+     * 
+     * @param complexValue
+     */
+    public ComplexNum(ExprNumber exprNumber) {
+        StringBuffer complexValue = new StringBuffer(exprNumber.toString());
+        Pattern numPattern = Pattern.compile("^(\\+|\\-)?\\d+(\\.\\d+)?");
+        Matcher numMatcher = numPattern.matcher(complexValue);
+        if (numMatcher.find()) {
+            this.realValue = new BigDecimal(complexValue.substring(numMatcher.start(), numMatcher.end()));
+            complexValue.delete(numMatcher.start(), numMatcher.end() + 1);
+            complexValue.deleteCharAt(complexValue.length() - 1);
+            this.imaValue = new BigDecimal(complexValue.toString());
+        } else {
+            throw new NumberFormatException();
+        }
     }
 
     /**
@@ -245,6 +268,11 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      * @return {@code this / augend}
      */
     public ComplexNum divide(ComplexNum divisor, MathContext mc) {
+        if (divisor.imaValue.compareTo(BigDecimal.ZERO) == 0) {
+            return new ComplexNum(
+                    realValue.divide(divisor.realValue, mc),
+                    imaValue.divide(divisor.realValue, mc));
+        }
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum product = this.multiply(divisor.conjugate());
         BigDecimal divisorAbs = divisor.abs(false, calPrecision);
@@ -408,7 +436,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
 
     @Override
     public String toString() {
-        return this.realValue.toString() + " + " + this.imaValue.toString() + "i";
+        return this.realValue.toString() + "+" + this.imaValue.toString() + "i";
     }
 
     /**
@@ -432,6 +460,10 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     public ComplexNum scale(MathContext mc) {
         return new ComplexNum(this.realValue.setScale(mc.getPrecision(), mc.getRoundingMode()),
                 this.imaValue.setScale(mc.getPrecision(), mc.getRoundingMode()));
+    }
+
+    public ComplexNum scaleByPowerOfTen(int factor) {
+        return new ComplexNum(this.realValue.scaleByPowerOfTen(factor), this.imaValue.scaleByPowerOfTen(factor));
     }
 
     /**

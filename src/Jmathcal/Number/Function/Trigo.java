@@ -36,18 +36,6 @@ public class Trigo {
     public static int PRECITEST = 3;
 
     /**
-     * Returns the sin of {@code num} with the required
-     * precision.
-     * 
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code sin(num)}
-     */
-    public static BigDecimal sin(BigDecimal num, int precision) {
-        return sin(num, new MathContext(precision));
-    }
-
-    /**
      * Find the sin of {@code num} with the required
      * precision.
      * 
@@ -91,18 +79,6 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code cos(num)}
-     */
-    public static BigDecimal cos(BigDecimal num, int precision) {
-        return cos(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns the cos of {@code num} with the required
-     * precision.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code cos(num)}
      */
@@ -135,18 +111,6 @@ public class Trigo {
      * precision.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code tan(num)}
-     */
-    public static BigDecimal tan(BigDecimal num, int precision) {
-        return tan(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns the tan of {@code num} with the required
-     * precision.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code tan(num)}
      */
@@ -160,17 +124,6 @@ public class Trigo {
 
         reVal = sin(num, calPrecision).divide(reVal, mc);
         return reVal;
-    }
-
-    /**
-     * Return the arcsin of {@code -1 <= num <= 1}.
-     * 
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code arcsin(num)}
-     */
-    public static BigDecimal rArcsin(BigDecimal num, int precision) {
-        return rArcsin(num, new MathContext(precision));
     }
 
     /**
@@ -235,17 +188,6 @@ public class Trigo {
      * Return the arccos of {@code -1 <= num <= 1}
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code arccos(num)}
-     */
-    public static BigDecimal rArccos(BigDecimal num, int precision) {
-        return rArccos(num, new MathContext(precision));
-    }
-
-    /**
-     * Return the arccos of {@code -1 <= num <= 1}
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code arccos(num)}
      */
@@ -263,17 +205,6 @@ public class Trigo {
      * Return the arctan of {@code num}
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code arctan(num)}
-     */
-    public static BigDecimal arctan(BigDecimal num, int precision) {
-        return arctan(num, new MathContext(precision));
-    }
-
-    /**
-     * Return the arctan of {@code num}
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code arctan(num)}
      */
@@ -282,18 +213,6 @@ public class Trigo {
         // arctan(x) = arcsin(x/(sqrt(x^2+1)))
         num = num.divide((num.pow(2).add(BigDecimal.ONE)).sqrt(calPrecision), calPrecision);
         return rArcsin(num, mc);
-    }
-
-    /**
-     * Find the sin of {@code num} with the demanded
-     * precision with taylor approximation
-     * 
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code sin(num)}
-     */
-    public static BigDecimal findSin(BigDecimal num, int precision) {
-        return findSin(num, new MathContext(precision));
     }
 
     /**
@@ -333,18 +252,6 @@ public class Trigo {
      * precision with taylor approximation
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code cos(num)}
-     */
-    public static BigDecimal findCos(BigDecimal num, int precision) {
-        return findCos(num, new MathContext(precision));
-    }
-
-    /**
-     * Find the cos of {@code num} with the demanded
-     * precision with taylor approximation
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code cos(num)}
      */
@@ -370,16 +277,6 @@ public class Trigo {
         } while (currentTermVal.abs().compareTo(precisionTest) > 0);
 
         return reVal.round(mc);
-    }
-
-    /**
-     * Return pi with the required precision
-     * 
-     * @param precision number of significant figures
-     * @return {@code pi}
-     */
-    public static BigDecimal PI(int precision) {
-        return PI(new MathContext(precision));
     }
 
     /**
@@ -421,21 +318,12 @@ public class Trigo {
      * Returns the sin of {@code num}.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code sin(num)}
-     */
-    public static ComplexNum sin(ComplexNum num, int precision) {
-        return sin(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns the sin of {@code num}.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code sin(num)}
      */
     public static ComplexNum sin(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0)
+            return new ComplexNum(sin(num.getRealValue(), mc));
         // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI();
@@ -448,21 +336,12 @@ public class Trigo {
      * Returns the cos of {@code num}.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code cos(num)}
-     */
-    public static ComplexNum cos(ComplexNum num, int precision) {
-        return cos(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns the cos of {@code num}.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code cos(num)}
      */
     public static ComplexNum cos(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0)
+            return new ComplexNum(cos(num.getRealValue(), mc));
         // precision for calculation
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI();
@@ -475,21 +354,12 @@ public class Trigo {
      * Returns the tan of {@code num}.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code tan(num)}
-     */
-    public static ComplexNum tan(ComplexNum num, int precision) {
-        return tan(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns the tan of {@code num}.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code tan(num)}
      */
     public static ComplexNum tan(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0)
+            return new ComplexNum(tan(num.getRealValue(), mc));
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
         ComplexNum x = num.multiplyByI().multiply(new ComplexNum("2"));
         ComplexNum y = Exp.exp(x, calPrecision);
@@ -554,6 +424,8 @@ public class Trigo {
      * @return {@code sin(num)}
      */
     public static ComplexDbl sin(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.sin(num.getRealValue()));
         ComplexDbl x = num.multiplyByI();
         ComplexDbl y = Exp.exp(x.negate())
                 .subtract(Exp.exp(x)).multiplyByI();
@@ -568,6 +440,8 @@ public class Trigo {
      * @return {@code cos(num)}
      */
     public static ComplexDbl cos(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.cos(num.getRealValue()));
         ComplexDbl x = num.multiplyByI();
         ComplexDbl y = Exp.exp(x).add(Exp.exp(x.negate()));
         return y.divide(new ComplexDbl(2));

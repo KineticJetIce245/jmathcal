@@ -533,9 +533,8 @@ public class Exp {
      */
     public static ComplexNum ln(ComplexNum num, MathContext mc) {
 
-        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().compareTo(BigDecimal.ZERO) > 0)
             return new ComplexNum(ln(num.getRealValue(), mc));
-        }
 
         // ln(re^(i*x)) = ln(r) + x*i
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
@@ -565,9 +564,8 @@ public class Exp {
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
-        if (base.compareTo(ComplexNum.ZERO) == 0) {
+        if (base.compareTo(ComplexNum.ZERO) == 0)
             return exponent.compareTo(ComplexNum.ZERO) == 0 ? ComplexNum.ONE : ComplexNum.ZERO;
-        }
 
         if (exponent.compareTo(ComplexNum.ZERO) == 0)
             return ComplexNum.ONE;

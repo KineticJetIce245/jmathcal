@@ -7,6 +7,7 @@
     <entry key="*">MUL</entry>
     <entry key="/">DIV</entry>
     <entry key="^">POW</entry>
+    <entry key="%">PER_CEN</entry>
     <entry key="(">OPEN_P</entry>
     <entry key=")">CLOSE_P</entry>
 
@@ -39,7 +40,7 @@
     <entry key="\\pi">pi</entry>
     <entry key="\\e">e</entry>
     <entry key="\\g">g</entry>
-    <entry key="\\g">G</entry>
+    <entry key="\\G">G</entry>
 
 
 </properties>

@@ -2,15 +2,15 @@ package Jmathcal.Number.Complex;
 
 import java.io.Serializable;
 
-import Jmathcal.Expression.ExprElements;
 import Jmathcal.Number.Computable;
+import Jmathcal.Number.Function.Exp;
 /**
  * A {@code ComplexDbl} consists of a real part and an imaginary part
  * each stored as a {@code double}.
  * 
  * @author KineticJetIce245
  */
-public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computable<ComplexDbl>, ExprElements {
+public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computable<ComplexDbl> {
 
     // Serialization
     @java.io.Serial
@@ -157,6 +157,10 @@ public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computa
         return new ComplexDbl(product.realValue / divisorAbs, product.imaValue / divisorAbs);
     }
 
+    public ComplexDbl pow(ComplexDbl complexDbl) {
+        return Exp.pow(this, complexDbl);
+    }
+
     /**
      * Returns the negative value of this.
      * 
@@ -211,7 +215,7 @@ public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computa
 
     @Override
     public String toString() {
-        return String.valueOf(realValue) + " + " + String.valueOf(imaValue) + "i";
+        return String.valueOf(realValue) + "+" + String.valueOf(imaValue) + "i";
     }
 
     @Override
@@ -241,5 +245,4 @@ public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computa
             return false;
         return true;
     }
-
 }

@@ -1,3 +1,7 @@
 package Jmathcal.Expression;
 
-public interface ExprElements {}
+import java.math.MathContext;
+
+public interface ExprElements {
+    public ExprNumber toNumber(MathContext mc);
+}

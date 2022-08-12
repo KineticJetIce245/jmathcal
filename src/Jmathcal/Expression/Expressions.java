@@ -1,11 +1,12 @@
 package Jmathcal.Expression;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
@@ -14,32 +15,57 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import Jmathcal.Number.Complex.ComplexNum;
+import Jmathcal.IOControl.IOBridge;
 
 public class Expressions implements ExprElements {
 
     public static int PRECI = 10;
+    public static File configPath = new File("config/calculator/flattenExpr.xml");
 
     // Reverse Poland notation
     private LinkedList<ExprElements> tokens;
+    private VariablePool varPool;
+    private IOBridge bridge;
 
-    public Expressions(ExprElements[] tokens) {
-        this.tokens = new LinkedList<ExprElements>(Arrays.asList(tokens));
-    }
-
-    public Expressions(LinkedList<ExprElements> tokens) {
+    public Expressions(LinkedList<ExprElements> tokens, VariablePool vp, IOBridge bridge) {
         this.tokens = tokens;
+        this.varPool = vp;
+        this.bridge = bridge;
     }
 
     public static void main(String args[]) {
-        Scanner sc = new Scanner(System.in);
-        String a = sc.nextLine();
-        sc.close();
-        VariablePool vp = new VariablePool();
-        Expressions myExpressions = parseFromFlattenExpr(a, vp);
-        System.out.println(myExpressions);
         MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
-        System.out.println(myExpressions.calculate(vp, mc));
+        IOBridge panel = new IOBridge() {
+
+            @Override
+            public void outSendMessage(String msg) {
+                System.out.println(msg);
+            }
+
+            @Override
+            public String askForInput(String msg) {
+                System.out.println(msg);
+                InputStreamReader inputStream = new InputStreamReader(System.in) {
+                    @Override
+                    public void close() throws IOException {}
+                };
+                Scanner sc = new Scanner(inputStream);
+                String input = sc.nextLine();
+                sc.close();
+                return input;
+            }
+            
+            @Override
+            public File getPropertiesLoc() {
+                return configPath;
+            }
+
+        };
+        String a = panel.askForInput("Input: ");
+        VariablePool vp = new VariablePool();
+        Expressions expr = parseFromFlattenExpr(a, vp, panel);
+        System.out.println(expr);
+        System.out.println(expr.calculate(mc));
     }
 
     /**
@@ -49,9 +75,9 @@ public class Expressions implements ExprElements {
      * @param varPool
      * @return
      */
-    public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool) {
+    public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
-        Properties keyWords = getKeyWords();
+        Properties keyWords = getKeyWords(bridge.getPropertiesLoc());
         expression = formattingFlattenExpr(expression);
 
         StringBuffer exprBuffer = new StringBuffer(expression);
@@ -85,7 +111,7 @@ public class Expressions implements ExprElements {
                     Matcher keywordMat = keywordPat.matcher(exprBuffer);
 
                     if (keywordMat.lookingAt()) {
-                        Constant c = new Constant(Constants.valueOf(keyWords.getProperty(keyword)));
+                        Constant c = new Constant(Constant.Constants.valueOf(keyWords.getProperty(keyword)));
                         tokensList.add(c);
                         // delete the right amount of char
                         exprBuffer.delete(0, keyword.replace("\\\\", "\\").length());
@@ -108,15 +134,12 @@ public class Expressions implements ExprElements {
             } else if (numMatcher.lookingAt()) {
 
                 token.append(exprBuffer.substring(numMatcher.start(), numMatcher.end()));
-                ComplexNum tokenVal = new ComplexNum(token.toString());
+                ExprNumber tokenVal = new ExprNumber(token.toString()+"+0i");
                 tokensList.add(tokenVal);
                 exprBuffer.delete(0, token.length());
                 token.delete(0, token.length());
 
                 numMatcher = numPattern.matcher(exprBuffer);
-
-                if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '.')
-                    throw new ExprSyntaxErrorException("Number format exception.");
                 continue;
 
                 // separator
@@ -128,20 +151,20 @@ public class Expressions implements ExprElements {
             } else if (keyWords.getProperty(String.valueOf(firstChar)) != null) {
 
                 String opType = keyWords.getProperty(String.valueOf(exprBuffer.charAt(0)));
-                ExprFunction f = new ExprFunction(OpsType.valueOf(opType));
+                ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(opType));
 
                 // )
-                if (f.getType() == OpsType.CLOSE_P) {
+                if (f.getType() == ExprFunction.OpsType.CLOSE_P) {
                     // popping all operation utile (
                     if (operationsStack.isEmpty())
-                        throw new ExprSyntaxErrorException("Unexpected \")\" exception.");
+                        throw new ExprSyntaxErrorException("Unexpected \")\".");
                     while (operationsStack.peek().getType().precedence != 0) {
                         tokensList.add(operationsStack.pop());
                         if (operationsStack.isEmpty())
-                            throw new ExprSyntaxErrorException("Unexpected \")\" exception.");
+                            throw new ExprSyntaxErrorException("Unexpected \")\".");
                     }
                     // popping (
-                    if (operationsStack.peek().getType() == OpsType.OPEN_P) {
+                    if (operationsStack.peek().getType() == ExprFunction.OpsType.OPEN_P) {
                         operationsStack.pop();
                     } else {
                         // if is function with multiple parameters
@@ -150,10 +173,8 @@ public class Expressions implements ExprElements {
 
                     // + - * / ^
                 } else if (f.getType().precedence != 0 && !operationsStack.isEmpty()) {
-                    while (operationsStack.peek().compPrecedence(f) >= 0) {
+                    while (!operationsStack.isEmpty() && operationsStack.peek().compPrecedence(f) >= 0) {
                         tokensList.add(operationsStack.pop());
-                        if (operationsStack.isEmpty())
-                            break;
                     }
                     operationsStack.push(f);
 
@@ -207,7 +228,7 @@ public class Expressions implements ExprElements {
                     Matcher keywordMat = keywordPat.matcher(exprBuffer);
 
                     if (keywordMat.lookingAt()) {
-                        ExprFunction f = new ExprFunction(OpsType.valueOf(keyWords.getProperty(keyword)));
+                        ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(keyWords.getProperty(keyword)));
                         operationsStack.push(f);
                         exprBuffer.delete(0, keyword.replace("\\", "").length());
                         numMatcher = numPattern.matcher(exprBuffer);
@@ -242,12 +263,14 @@ public class Expressions implements ExprElements {
         }
 
         while (!operationsStack.isEmpty()) {
-            tokensList.add(operationsStack.pop());
+            ExprFunction f = operationsStack.pop();
+            if (f.getType() != ExprFunction.OpsType.OPEN_P) {
+                tokensList.add(f);
+            }
         }
-
-        ExprElements[] tokens = new ExprElements[tokensList.size()];
-        tokens = tokensList.toArray(tokens);
-        return new Expressions(tokens);
+        Expressions reVal = new Expressions(tokensList, varPool, bridge);
+        reVal.encapsulateParts();
+        return reVal;
     }
 
     public static String formattingFlattenExpr(String expr) {
@@ -267,11 +290,11 @@ public class Expressions implements ExprElements {
         return buffer.toString();
     }
 
-    private static Properties getKeyWords() {
+    private static Properties getKeyWords(File path) {
         Properties keyWords = new Properties();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream("config/calculator/flattenExpr.xml");
+            fis = new FileInputStream(path);
             keyWords.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -295,40 +318,66 @@ public class Expressions implements ExprElements {
         return this.tokens.toString();
     }
 
-    public ComplexNum calculate(VariablePool vp, MathContext mc) {
-        // TODO
-        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        while (this.tokens.size() > 1) {
-            int parameterCount = 0;
-            Iterator<ExprElements> i = this.tokens.iterator();
-            while (i.hasNext()) {
-                ExprElements element = i.next();
-                if (element instanceof ExprFunction) {
-                    parameterCount = ((ExprFunction) element).getType().parameterNum;
-                    if (parameterCount == 0) {
-                        this.tokens.remove(element);
-                        i = this.tokens.iterator();
-                        continue;
-                    }
-                    ComplexNum[] tokenList = new ComplexNum[parameterCount];
-                    int currentIndex = this.tokens.indexOf(element) - parameterCount;
-                    for (int j = 0; parameterCount > 0; parameterCount--) {
-                        ExprElements currentNumOrVar = this.tokens.remove(currentIndex);
-                        if (currentNumOrVar instanceof VariablePool.Variable) {
-                            currentNumOrVar = ((VariablePool.Variable) currentNumOrVar).askForValue();
-                        }
-                        System.out.println(currentNumOrVar);
-                        tokenList[j] = ((ComplexNum) currentNumOrVar);
-                        j++;
-                    }
-                    this.tokens.set(this.tokens.indexOf(element),
-                            ((ExprFunction) element).getType().calculate(tokenList, calPrecision));
-                    break;
-                }
+    public ExprNumber toNumber(MathContext mc) {
+        return this.calculate(mc);
+    }
 
+    private void encapsulateParts() {
+        Iterator<ExprElements> i = this.tokens.iterator();
+        while (true) {
+            ExprElements element = i.next();
+            if (this.tokens.indexOf(element) == this.tokens.size() - 1) {
+                if (element instanceof ExprFunction) {
+                    break;
+                } else if (this.tokens.size() == 1 && !(element instanceof ExprFunction)) {
+                    break;
+                } else {
+                    throw new ExprSyntaxErrorException("Unfinished expression");
+                } 
+            }
+            if (element instanceof ExprFunction) {
+                ExprFunction f = (ExprFunction)element;
+                // it's always the first element that it gets
+                int index = this.tokens.indexOf(element);
+                LinkedList<ExprElements> expr = new LinkedList<ExprElements>();
+                for (int j = 0; j < f.getType().parameterNum; j++) {
+                    expr.add(this.tokens.remove(index - f.getType().parameterNum));
+                }
+                expr.add(element);
+                this.tokens.set(index - f.getType().parameterNum, new Expressions(expr, this.varPool, this.bridge));
+                i = this.tokens.iterator();
             }
         }
-        return ((ComplexNum) this.tokens.getFirst()).round(mc);
+    }
+
+    public ExprNumber calculate(MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+        if (this.tokens.size() == 1) {
+            if (!(this.tokens.get(0) instanceof ExprFunction)){
+                if (this.tokens.get(0) instanceof VariablePool.Variable)
+                    ((VariablePool.Variable)this.tokens.get(0)).askForValue(this.bridge, mc);
+                return new ExprNumber(this.tokens.get(0).toStrVal(mc));
+            }
+            throw new ExprSyntaxErrorException();
+        }
+        LinkedList<ExprElements> parameters = new LinkedList<ExprElements>();
+        Iterator<ExprElements> i = this.tokens.iterator();
+        while (i.hasNext()) {
+            ExprElements element = i.next();
+            if (element instanceof VariablePool.Variable) {
+                ((VariablePool.Variable)element).askForValue(this.bridge, mc);
+            }
+            parameters.add(element);
+        }
+        parameters.removeLast();
+        return ((ExprFunction)this.tokens.getLast()).calculate(parameters, calPrecision);
+    }
+
+    public void insert(int index, Expressions expr) {
+        Iterator<ExprElements> i = expr.tokens.iterator();
+        while (i.hasNext()) {
+            this.tokens.add(index, i.next());
+        }
     }
 
 }

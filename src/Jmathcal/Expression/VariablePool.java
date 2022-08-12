@@ -1,13 +1,17 @@
 package Jmathcal.Expression;
 
+import java.math.MathContext;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
-import Jmathcal.Number.Complex.ComplexNum;
+import Jmathcal.IOControl.IOBridge;
 
 public class VariablePool {
 
     private HashMap<String, Variable> variablePool = new HashMap<String, Variable>();
     public VariablePool() {}
+
     public boolean contains(String valLabel) {
         return this.variablePool.containsKey(valLabel);
     }
@@ -21,9 +25,16 @@ public class VariablePool {
     public String toString() {
         return this.variablePool.toString();
     }
+    public void askForValue(IOBridge bridge, MathContext mc) {
+        Set<String> keySet = this.variablePool.keySet();
+        for (String i : keySet) {
+            this.variablePool.get(i).askForValue(bridge, mc);
+        }
+    }
 
     public class Variable implements ExprElements {
-        private ComplexNum value;
+
+        private ExprNumber value;
         private String name;
         public final String label;
     
@@ -32,10 +43,10 @@ public class VariablePool {
             if (getOuter().contains(this.label)) throw new VariableLabelOccupiedException();
             getOuter().variablePool.put(label, this);
         }
-        public ComplexNum getValue() {
+        public ExprNumber getValue() {
             return value;
         }
-        public void setValue(ComplexNum value) {
+        public void setValue(ExprNumber value) {
             this.value = value;
         }
         public String getName() {
@@ -45,12 +56,20 @@ public class VariablePool {
             this.name = name;
         }
         @Override
+        public ExprNumber toNumber(MathContext mc) {
+            return this.value;
+        }
+        @Override
         public String toString() {
             return "(" + this.label + ", " + this.name + ", " + this.value + ")";
         }
-        public ComplexNum askForValue() {
-            //TODO
-            return new ComplexNum("1");
+        public ExprNumber askForValue(IOBridge bridge, MathContext mc) {
+            Expressions inputExpressions =
+                    Expressions.parseFromFlattenExpr(bridge.askForInput("Ask For Variable"),
+                            getOuter(), bridge);
+
+            this.value = inputExpressions.calculate(mc);
+            return this.value;
         }
     
     }

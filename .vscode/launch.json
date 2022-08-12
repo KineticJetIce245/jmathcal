@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ComplexDbl",
+            "request": "launch",
+            "mainClass": "Jmathcal.Number.Complex.ComplexDbl",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
+            "name": "Launch ComplexNum",
+            "request": "launch",
+            "mainClass": "Jmathcal.Number.Complex.ComplexNum",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch Constants",
             "request": "launch",
             "mainClass": "Jmathcal.Expression.Constants",
