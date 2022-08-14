@@ -4,11 +4,6 @@ import java.io.Serializable;
 import java.math.MathContext;
 import java.util.LinkedList;
 
-import Jmathcal.Number.Complex.ComplexDbl;
-import Jmathcal.Number.Complex.ComplexNum;
-import Jmathcal.Number.Function.Exp;
-import Jmathcal.Number.Function.Trigo;
-
 public class ExprFunction implements Serializable, ExprElements {
 
     private static final long serialVersionUID = -4376930957526847386L;
@@ -35,8 +30,10 @@ public class ExprFunction implements Serializable, ExprElements {
     public String toString() {
         return type.name();
     }
-    public String toStrVal(MathContext mc) {
-        return this.toStrVal(mc);
+
+    @Override
+    public ExprNumber toNumber(MathContext mc) {
+        return null;
     }
 
     public static enum OpsType {
@@ -84,156 +81,122 @@ public class ExprFunction implements Serializable, ExprElements {
             }
         }),
 
-        SQRT(1, 4, new CalBridge() {
+        SQRT(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
                 return parameters.get(0).toNumber(mc).sqrt(mc);
             }
         }),
-        
-        SIN(1, 4, new CalBridge() {
+
+        SIN(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.sin(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.sin(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).sin(mc);
             }
         }),
 
-        COS(1, 4, new CalBridge() {
+        COS(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.cos(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.cos(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).cos(mc);
             }
         }),
 
-        TAN(1, 4, new CalBridge() {
+        TAN(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.tan(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.tan(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).tan(mc);
             }
         }),
 
-        ASIN(1, 4, new CalBridge() {
+        ASIN(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.arcsin(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.arcsin(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).arcsin(mc);
             }
         }),
 
-        ACOS(1, 4, new CalBridge() {
+        ACOS(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.arccos(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.arccos(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).arccos(mc);
             }
         }),
 
-        ATAN(1, 4, new CalBridge() {
+        ATAN(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Trigo.arctan(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber(Trigo.arctan(a, mc).toString());
-                }
+                return parameters.get(0).toNumber(mc).arctan(mc);
             }
         }),
 
         LOG(2, 4, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    ComplexDbl b = new ComplexNum(new StringBuffer(parameters.get(1).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Exp.log(a, b)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    ComplexNum b = new ComplexNum(new StringBuffer(parameters.get(1).toStrVal(mc)));
-                    return new ExprNumber((Exp.log(a, b, mc)).toString());
-                }
+                return parameters.get(1).toNumber(mc).log(parameters.get(0).toNumber(mc), mc);
             }
         }),
 
-        LN(2, 4, new CalBridge() {
+        LN(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                if (mc.getPrecision() < DBL) {
-                    ComplexDbl a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc))).toComplexDbl();
-                    return new ExprNumber((Exp.ln(a)).toString());
-                } else {
-                    ComplexNum a = new ComplexNum(new StringBuffer(parameters.get(0).toStrVal(mc)));
-                    return new ExprNumber((Exp.ln(a, mc)).toString());
-                }
+                return parameters.get(0).toNumber(mc).ln(mc);
             }
         }),
-
 
         SUM(4, 0, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                final String ERROR_MSG = 
-                        "Syntax error on \"sum(\" method, should be : " +
+                final String ERROR_MSG = "Syntax error on \"sum(\" method, should be : " +
                         "sum(variable,start integer,end integer,expression), " +
-                        "where start integer should be smaller than end integer";
-                              
+                        "where start integer should be smaller than end integer.";
+
+                ExprNumber reVal = new ExprNumber("0+0i");
+                ExprNumber valueOfVariable;
+                String label;
+                VariablePool currentVp;
                 try {
-                    int startInt = Integer.valueOf(parameters.get(1).toStrVal(mc));
-                    int endInt = Integer.valueOf(parameters.get(0).toStrVal(mc));
+                    int startInt = Integer.valueOf(parameters.get(1).toNumber(mc).intValue());
+                    int endInt = Integer.valueOf(parameters.get(2).toNumber(mc).intValue());
                     if (!(parameters.get(0) instanceof VariablePool.Variable)) {
                         throw new ExprSyntaxErrorException(ERROR_MSG);
-                    } else if (!(parameters.get(3) instanceof Expressions)) {
-                        throw new ExprSyntaxErrorException(ERROR_MSG);
+                    } else {
+                        valueOfVariable = parameters.get(0).toNumber(mc);
+                        label = ((VariablePool.Variable) parameters.get(0)).label;
+                        currentVp = ((VariablePool.Variable) parameters.get(0)).getPool();
+
+                    }
+                    if (!(parameters.get(3) instanceof Expressions)) {
+                        if (!(parameters.get(3) instanceof VariablePool.Variable))
+                            throw new ExprSyntaxErrorException(ERROR_MSG);
+
+                        LinkedList<ExprElements> tokens = new LinkedList<ExprElements>();
+                        tokens.add(new ExprNumber("1+0i"));
+                        tokens.add(parameters.get(3));
+                        tokens.add(new ExprFunction(OpsType.MUL));
+                        parameters.set(3, new Expressions(tokens,
+                                currentVp,
+                                null));
+
                     } else if (startInt > endInt) {
                         throw new ExprSyntaxErrorException(ERROR_MSG);
                     }
 
-                    ExprNumber reVal = new ExprNumber("0");
-
                     while (startInt <= endInt) {
-                        ((VariablePool.Variable)parameters.get(0)).setValue(new ExprNumber(String.valueOf(startInt)));
-                        ExprNumber num = ((Expressions)parameters.get(3)).calculate(mc);
-                        if (mc.getPrecision() < DBL) {
-                            reVal = new ExprNumber(reVal.toComplexDbl().add(num.toComplexDbl()).toString());
-                        }
+                        ((VariablePool.Variable) parameters.get(0))
+                                .setValue(new ExprNumber(String.valueOf(startInt) + "+0i"));
+                        ExprNumber num = ((Expressions) parameters.get(3)).calculate(mc);
+                        reVal = reVal.add(num, mc);
                         startInt++;
                     }
+                    // reset variable's value
+                    currentVp.getVariable(label).setValue(valueOfVariable);
 
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                     throw new ExprSyntaxErrorException(ERROR_MSG);
                 }
-
-                return null;
+                return reVal;
             };
         }),
 
@@ -247,8 +210,7 @@ public class ExprFunction implements Serializable, ExprElements {
             public ExprNumber calculate(java.util.LinkedList<ExprElements> parameters, MathContext mc) {
                 throw new ExprSyntaxErrorException();
             };
-        })
-        ;
+        });
 
         public static int DBL = 10;
         public final int parameterNum;

@@ -15,63 +15,55 @@ public class Constant implements ExprElements {
         this.value = value;
     }
 
-    public ComplexNum getValue(MathContext mc) {
-        return this.value.getValue(mc);
-    }
-
     @Override
     public String toString() {
         return this.value.name();
     }
     @Override
     public ExprNumber toNumber(MathContext mc) {
-        return this.getValue(mc).toString();
+        return this.value.val.getValue(mc);
     }
 
     public static enum Constants {
         i(new ValFinder() {
             @Override
-            public ComplexNum getValue(MathContext mc) {
-                return ComplexNum.I;
+            public ExprNumber getValue(MathContext mc) {
+                return new ExprNumber(ComplexNum.I.toString());
             }
         }),
         e(new ValFinder() {
             @Override
-            public ComplexNum getValue(MathContext mc) {
-                return new ComplexNum(Exp.findExp(BigDecimal.ONE, mc));
+            public ExprNumber getValue(MathContext mc) {
+                return new ExprNumber(new ComplexNum(Exp.findExp(BigDecimal.ONE, mc)).toString());
             }
         }),
         pi(new ValFinder() {
             @Override
-            public ComplexNum getValue(MathContext mc) {
-                return new ComplexNum(Trigo.PI(mc));
+            public ExprNumber getValue(MathContext mc) {
+                return new ExprNumber(new ComplexNum(Trigo.PI(mc)).toString());
             }
         }),
         g(new ValFinder() {
             @Override
-            public ComplexNum getValue(MathContext mc) {
-                return new ComplexNum(new BigDecimal("9.80665"));
+            public ExprNumber getValue(MathContext mc) {
+                return new ExprNumber(new ComplexNum(new BigDecimal("9.80665")).toString());
             }
         }),
         G(new ValFinder() {
             @Override
-            public ComplexNum getValue(MathContext mc) {
-                return new ComplexNum(new BigDecimal(new BigInteger("667430"), 16));
+            public ExprNumber getValue(MathContext mc) {
+                return new ExprNumber(new ComplexNum(new BigDecimal(new BigInteger("667430"), 16)).toString());
             }
         });
 
         private final ValFinder val;
 
         private interface ValFinder {
-            ComplexNum getValue(MathContext mc);
+            ExprNumber getValue(MathContext mc);
         }
 
         Constants(ValFinder val) {
             this.val = val;
-        }
-
-        public ComplexNum getValue(MathContext mc) {
-            return this.val.getValue(mc);
         }
     }
 

@@ -376,6 +376,10 @@ public class Trigo {
      * @return {@code arcsin(num)}
      */
     public static ComplexNum arcsin(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
+            return new ComplexNum(rArcsin(num.getRealValue(), mc));
+        }
+        
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         ComplexNum reVal = ComplexNum.ONE.subtract(num.multiply(num)).pow("0.5", calPrecision);
@@ -392,6 +396,9 @@ public class Trigo {
      * @return {@code arccos(num)}
      */
     public static ComplexNum arccos(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
+            return new ComplexNum(rArccos(num.getRealValue(), mc));
+        }
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         ComplexNum reVal = num.multiply(num).subtract(ComplexNum.ONE).pow("0.5", calPrecision);
@@ -408,6 +415,9 @@ public class Trigo {
      * @return {@code arctan(num)}
      */
     public static ComplexNum arctan(ComplexNum num, MathContext mc) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0) {
+            return new ComplexNum(arctan(num.getRealValue(), mc));
+        }
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         ComplexNum reVal = num.multiplyByI();

@@ -86,7 +86,7 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
      */
     public ComplexNum(ExprNumber exprNumber) {
         StringBuffer complexValue = new StringBuffer(exprNumber.toString());
-        Pattern numPattern = Pattern.compile("^(\\+|\\-)?\\d+(\\.\\d+)?");
+        Pattern numPattern = Pattern.compile("^(\\+|\\-)?\\d+(\\.\\d+)?(E(\\+|\\-)?\\d+)?");
         Matcher numMatcher = numPattern.matcher(complexValue);
         if (numMatcher.find()) {
             this.realValue = new BigDecimal(complexValue.substring(numMatcher.start(), numMatcher.end()));

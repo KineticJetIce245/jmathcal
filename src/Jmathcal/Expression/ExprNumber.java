@@ -1,9 +1,12 @@
 package Jmathcal.Expression;
 
 import java.math.MathContext;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
+import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
 
 public class ExprNumber implements ExprElements {
@@ -24,7 +27,16 @@ public class ExprNumber implements ExprElements {
     }
     @Override
     public ExprNumber toNumber(MathContext mc) {
-        return this;
+        return this.round(mc);
+    }
+    public int intValue() {
+        Pattern intPat = Pattern.compile("^\\d+");
+        Matcher intMat = intPat.matcher(this.value);
+        if (intMat.find()) {
+            return (Integer.valueOf(this.value.substring(intMat.start(), intMat.end())));
+        } else {
+            throw new NumberFormatException();
+        }
     }
     public ExprNumber add(ExprNumber augend, MathContext mc) {
         if (mc.getPrecision() < DBL) {
@@ -116,5 +128,64 @@ public class ExprNumber implements ExprElements {
             ComplexNum a = new ComplexNum(this);
             return new ExprNumber(Trigo.cos(a, mc).toString());
         }
+    }
+    public ExprNumber tan(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Trigo.tan(a)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber(Trigo.tan(a, mc).toString());
+        }
+    }
+    public ExprNumber arcsin(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Trigo.arcsin(a)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber(Trigo.arcsin(a, mc).toString());
+        }
+    }
+    public ExprNumber arccos(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Trigo.arccos(a)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber(Trigo.arccos(a, mc).toString());
+        }
+    }
+    public ExprNumber arctan(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Trigo.arctan(a)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber(Trigo.arctan(a, mc).toString());
+        }
+    }
+    public ExprNumber log(ExprNumber baseExpr,MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl num = new ComplexNum(this).toComplexDbl();
+            ComplexDbl base = new ComplexNum(baseExpr).toComplexDbl();
+            return new ExprNumber((Exp.log(base, num)).toString());
+        } else {
+            ComplexNum num = new ComplexNum(this);
+            ComplexNum base = new ComplexNum(baseExpr);
+            return new ExprNumber((Exp.log(base, num, mc)).toString());
+        }
+    }
+    public ExprNumber ln(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Exp.ln(a)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber(Exp.ln(a, mc).toString());
+        }
+    }
+    public ExprNumber round(MathContext mc) {
+        return new ExprNumber(new ComplexNum(this).round(mc).toString());
     }
 }

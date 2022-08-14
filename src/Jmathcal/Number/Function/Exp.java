@@ -495,18 +495,6 @@ public class Exp {
      * zero number.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code ln(num)}
-     */
-    public static ComplexNum compLn(BigDecimal num, int precision) {
-        return compLn(num, new MathContext(precision));
-    }
-
-    /**
-     * Compute the {@code ln(num)}, where num is any not
-     * zero number.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
      */
@@ -533,8 +521,8 @@ public class Exp {
      */
     public static ComplexNum ln(ComplexNum num, MathContext mc) {
 
-        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().compareTo(BigDecimal.ZERO) > 0)
-            return new ComplexNum(ln(num.getRealValue(), mc));
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0)
+            return compLn(num.getRealValue(), mc);
 
         // ln(re^(i*x)) = ln(r) + x*i
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);

@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch VariablePool",
+            "request": "launch",
+            "mainClass": "Jmathcal.Expression.VariablePool",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch ComplexDbl",
             "request": "launch",
             "mainClass": "Jmathcal.Number.Complex.ComplexDbl",
