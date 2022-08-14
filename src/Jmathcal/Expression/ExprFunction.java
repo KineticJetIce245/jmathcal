@@ -130,7 +130,7 @@ public class ExprFunction implements Serializable, ExprElements {
             }
         }),
 
-        LOG(2, 4, new CalBridge() {
+        LOG(2, 0, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
                 return parameters.get(1).toNumber(mc).log(parameters.get(0).toNumber(mc), mc);
@@ -187,6 +187,62 @@ public class ExprFunction implements Serializable, ExprElements {
                                 .setValue(new ExprNumber(String.valueOf(startInt) + "+0i"));
                         ExprNumber num = ((Expressions) parameters.get(3)).calculate(mc);
                         reVal = reVal.add(num, mc);
+                        startInt++;
+                    }
+                    // reset variable's value
+                    currentVp.getVariable(label).setValue(valueOfVariable);
+
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    throw new ExprSyntaxErrorException(ERROR_MSG);
+                }
+                return reVal;
+            };
+        }),
+
+        PRO(4, 0, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                final String ERROR_MSG = "Syntax error on \"pro(\" method, should be : " +
+                        "sum(variable,start integer,end integer,expression), " +
+                        "where start integer should be smaller than end integer.";
+
+                ExprNumber reVal = new ExprNumber("1+0i");
+                ExprNumber valueOfVariable;
+                String label;
+                VariablePool currentVp;
+                try {
+                    int startInt = Integer.valueOf(parameters.get(1).toNumber(mc).intValue());
+                    int endInt = Integer.valueOf(parameters.get(2).toNumber(mc).intValue());
+                    if (!(parameters.get(0) instanceof VariablePool.Variable)) {
+                        throw new ExprSyntaxErrorException(ERROR_MSG);
+                    } else {
+                        valueOfVariable = parameters.get(0).toNumber(mc);
+                        label = ((VariablePool.Variable) parameters.get(0)).label;
+                        currentVp = ((VariablePool.Variable) parameters.get(0)).getPool();
+
+                    }
+                    if (!(parameters.get(3) instanceof Expressions)) {
+                        if (!(parameters.get(3) instanceof VariablePool.Variable))
+                            throw new ExprSyntaxErrorException(ERROR_MSG);
+
+                        LinkedList<ExprElements> tokens = new LinkedList<ExprElements>();
+                        tokens.add(new ExprNumber("1+0i"));
+                        tokens.add(parameters.get(3));
+                        tokens.add(new ExprFunction(OpsType.MUL));
+                        parameters.set(3, new Expressions(tokens,
+                                currentVp,
+                                null));
+
+                    } else if (startInt > endInt) {
+                        throw new ExprSyntaxErrorException(ERROR_MSG);
+                    }
+
+                    while (startInt <= endInt) {
+                        ((VariablePool.Variable) parameters.get(0))
+                                .setValue(new ExprNumber(String.valueOf(startInt) + "+0i"));
+                        ExprNumber num = ((Expressions) parameters.get(3)).calculate(mc);
+                        reVal = reVal.multiply(num, mc);
                         startInt++;
                     }
                     // reset variable's value

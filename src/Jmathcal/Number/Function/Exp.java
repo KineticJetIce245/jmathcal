@@ -503,7 +503,7 @@ public class Exp {
         BigDecimal iVal = BigDecimal.ZERO;
         if (num.compareTo(BigDecimal.ZERO) < 0) {
             iVal = Trigo.PI(mc);
-            num.abs();
+            num  = num.abs();
         }
         BigDecimal rVal = ln(num, mc);
         return new ComplexNum(rVal, iVal);

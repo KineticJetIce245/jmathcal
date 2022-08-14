@@ -71,91 +71,44 @@ public class Expressions implements ExprElements {
         System.out.println(expr.calculate(calMc).round(mc));
     }
 
-    /**
-     * Parse an expression from its flatten form to reverse poland notation.
-     * <p>
-     * <b>Syntax:</b>
-     * <ul>
-     * <li>Arithmetic operations:
-     * <p>
-     * Keywords: {@code +,-,*,/,^,(,)}
-     * <ul>
-     * <li>{@code 1 -2 * 3} will be parsed as {@code 1,2,3,*,-}</li>
-     * <li>{@code 1/3 +0.1} will be parsed as {@code 1,3,/,0.1,+}</li>
-     * <li>{@code 4*3^0.9/6} will be parsed as {@code 4,3,0.9,^,*,6,/}</li>
-     * <li><b>Important:</b> when using "-" as negative sign,
-     * it adds parentheses which encloses all operations following
-     * the "-" sign and having higher order then "-" sign.</li>
-     * <li>{@code 4+-1} will be transformed to {@code 4+(0-1)} then parsed
-     * as {@code 4,0,1,-,+}</li>
-     * <li>{@code 5*-6/2^7} will be transformed to {@code 5*(0-6/2^7)} then parsed
-     * as {@code 5,0,6,2,7,^,/,-,*}</li>
-     * <li>For parentheses, it is permitted to <b></b>
-     * </ul>
-     * </li>
-     * <li>Trigonometry functions:
-     * <p>
-     * Keywords： {@code sin, cos, tan, arcsin, arccos, arctan}
-     * <ul>
-     * <li>{@code si nx y^3 + 9} will be parsed as {@code x,y,3,^,*,sin,9,+}</li>
-     * <li>{@code t an(x -6)^ 3-9 /4} will be parsed as
-     * {@code x,6,-,3,^,tan,9,4,/,-}</li>
-     * <li>{@code ar cs in ta n9 /4} will be parsed as {@code 9,4,/,tan,arcsin}</li>
-     * </ul>
-     * </li>
-     * <li>:
-     * <ul>
-     * <li>{@code si nx y^3 + 9} will be parsed as {@code x,y,3,^,*,sin,9,+}</li>
-     * <li>{@code t an(x -6)^ 3-9 /4} will be parsed as
-     * {@code x,6,-,3,^,tan,9,4,/,-}</li>
-     * <li>{@code ar cs in ta n9 /4} will be parsed as {@code 9,4,/,tan,arcsin}</li>
-     * </ul>
-     * </li>
-     * </li>
-     * </ul>
-     * 
-     * @param expression
-     * @param varPool
-     * @return
-     */
-    public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
-
-        Properties keyWords = getKeyWords(bridge.getPropertiesLoc());
-        expression = formattingFlattenExpr(expression);
-
-        StringBuffer exprBuffer = new StringBuffer(expression);
-        StringBuffer token = new StringBuffer();
-        LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
-        Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
-
-        // negative test
-        if (exprBuffer.charAt(0) == '-') {
-            exprBuffer.delete(0, 1);
-            tokensList.add(new ExprNumber("0+0i"));
-            operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
+    private static class ParserInfo {
+        public StringBuffer exprBuffer;
+        public LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
+        public Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
+        public Properties keyWords;
+        public ParserInfo(StringBuffer expressions, Properties keyWords) {
+            this.keyWords = keyWords;
+            this.exprBuffer = expressions;
+        }
+        /**
+         * Check if the first char is '-'. If it is, handle the '-'.
+         */
+        public void checkNegativeSign() {
+            if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '-') {
+                exprBuffer.delete(0, 1);
+                tokensList.add(new ExprNumber("0+0i"));
+                operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
+            }
         }
 
-        // Numbers
-        Pattern numPattern = Pattern.compile("^\\d+(\\.\\d+)?");
-        Matcher numMatcher = numPattern.matcher(exprBuffer);
-
-        while (exprBuffer.length() > 0) {
-            token.delete(0, token.length());
-            char firstChar = exprBuffer.charAt(0);
-
-            // see if is constant, all constant starts with \
+        /**
+         * Check if the first char is '\'. If it is, handle the '\'.
+         */
+        public boolean checkBackSlash() {
+            char firstChar = this.exprBuffer.charAt(0);
             if (firstChar == 92) {
                 Iterator<String> iterator = keyWords.stringPropertyNames().iterator();
                 String keyword;
                 boolean ifFound = false;
                 while (iterator.hasNext()) {
+
                     // one char keyword causes problems
                     keyword = iterator.next();
                     if (keyword.length() == 1)
                         continue;
 
                     Pattern keywordPat = Pattern.compile(keyword);
-                    Matcher keywordMat = keywordPat.matcher(exprBuffer);
+                    Matcher keywordMat = keywordPat.matcher(this.exprBuffer);
 
                     if (keywordMat.lookingAt()) {
                         Constant c = new Constant(Constant.Constants.valueOf(keyWords.getProperty(keyword)));
@@ -169,34 +122,38 @@ public class Expressions implements ExprElements {
                 if (!ifFound)
                     throw new ExprSyntaxErrorException("Constant not found exception.");
 
-                Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
-                Matcher letMatcher = letPattern.matcher(exprBuffer);
-                if (letMatcher.find())
-                    exprBuffer.insert(0, "*");
+                insertMUL();
+                return true;
+            }
+            return false;
+        }
 
-                // see if is a number
-            } else if (numMatcher.lookingAt()) {
-
+        public boolean checkNumber() {
+            Pattern numPattern = Pattern.compile("^\\d+(\\.\\d+)?");
+            Matcher numMatcher = numPattern.matcher(this.exprBuffer);
+            if (numMatcher.lookingAt()) {
+                StringBuffer token = new StringBuffer();
                 token.append(exprBuffer.substring(numMatcher.start(), numMatcher.end()));
                 ExprNumber tokenVal = new ExprNumber(token.toString() + "+0i");
                 tokensList.add(tokenVal);
                 exprBuffer.delete(0, token.length());
-                token.delete(0, token.length());
+                return true;
+            }
+            return false;
+        }
 
-                continue;
-
-                // separator
-            } else if (exprBuffer.charAt(0) == ';' || exprBuffer.charAt(0) == ',') {
+        public boolean checkSeparator() {
+            if (exprBuffer.charAt(0) == ';' || exprBuffer.charAt(0) == ',') {
                 exprBuffer.delete(0, 1);
+                this.checkNegativeSign();
+                return true;
+            }
+            return false;
+        }
 
-                // negative test
-                if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '-') {
-                    exprBuffer.delete(0, 1);
-                    tokensList.add(new ExprNumber("0+0i"));
-                    operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
-                }
-                // see if is + - * / ^ ( )
-            } else if (keyWords.getProperty(String.valueOf(firstChar)) != null) {
+        public boolean checkArithmetic() {
+            char firstChar = this.exprBuffer.charAt(0);
+            if (keyWords.getProperty(String.valueOf(firstChar)) != null) {
 
                 String opType = keyWords.getProperty(String.valueOf(exprBuffer.charAt(0)));
                 ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(opType));
@@ -220,47 +177,35 @@ public class Expressions implements ExprElements {
                     }
                     exprBuffer.delete(0, 1);
 
+                    
+                } else {
                     // + - * / ^ %
-                } else if (f.getType().precedence != 0 && !operationsStack.isEmpty()) {
-                    while (!operationsStack.isEmpty() && operationsStack.peek().compPrecedence(f) >= 0) {
-                        tokensList.add(operationsStack.pop());
+                    if (f.getType().precedence != 0) {
+                        while (!operationsStack.isEmpty() && operationsStack.peek().compPrecedence(f) >= 0) {
+                            tokensList.add(operationsStack.pop());
+                        }
                     }
                     operationsStack.push(f);
                     exprBuffer.delete(0, 1);
                     if (f.getType() == ExprFunction.OpsType.PER_CEN) {
-                        Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
-                        Matcher letMatcher = letPattern.matcher(exprBuffer);
-                        if (letMatcher.find())
-                            exprBuffer.insert(0, "*");
-                    }
-
-                    // negative test
-                    if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '-') {
-                        exprBuffer.delete(0, 1);
-                        tokensList.add(new ExprNumber("0+0i"));
-                        operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
-                    }
-
-                    // (
-                } else {
-                    operationsStack.push(f);
-                    exprBuffer.delete(0, 1);
-                    // negative test
-                    if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '-') {
-                        exprBuffer.delete(0, 1);
-                        tokensList.add(new ExprNumber("0+0i"));
-                        operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
+                        this.insertMUL();
+                    } else {
+                        this.checkNegativeSign();
                     }
                 }
 
-                // letters
-            } else if ((65 <= firstChar && firstChar <= 90) || (97 <= firstChar && firstChar <= 122)) {
+                return true;
+            }
+            return false;
+        }
 
-                // variable with subscript
+        public boolean checkLetter(VariablePool varPool) {
+            char firstChar = this.exprBuffer.charAt(0);
+            if ((65 <= firstChar && firstChar <= 90) || (97 <= firstChar && firstChar <= 122)) {
+                StringBuffer token = new StringBuffer();
                 Pattern valPattern = Pattern.compile("^[a-zA-Z]_(\\()?[A-Za-z0-9]+(\\))?");
                 Matcher valMatcher = valPattern.matcher(exprBuffer);
                 if (valMatcher.find()) {
-                    token.delete(0, token.length());
                     token.append(exprBuffer.substring(0, valMatcher.end()));
 
                     exprBuffer.delete(0, valMatcher.end());
@@ -272,11 +217,8 @@ public class Expressions implements ExprElements {
                         tokensList.add(varPool.getVariable(token.toString()));
                     }
                     // check if there is a letter, number after
-                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
-                    Matcher letMatcher = letPattern.matcher(exprBuffer);
-                    if (letMatcher.find())
-                        exprBuffer.insert(0, "*");
-                    continue;
+                    this.insertMUL();
+                    return true;
                 }
 
                 // functions
@@ -297,11 +239,7 @@ public class Expressions implements ExprElements {
                         exprBuffer.delete(0, keyword.replace("\\", "").length());
 
                         // negative test
-                        if (exprBuffer.length() > 0 && exprBuffer.charAt(0) == '-') {
-                            exprBuffer.delete(0, 1);
-                            tokensList.add(new ExprNumber("0+0i"));
-                            operationsStack.push(new ExprFunction(ExprFunction.OpsType.SUB));
-                        }
+                        this.checkNegativeSign();
                         ifFound = true;
                         break;
                     }
@@ -319,29 +257,123 @@ public class Expressions implements ExprElements {
                         varPool.new Variable(token.toString());
                         tokensList.add(varPool.getVariable(token.toString()));
                     }
-                    Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
-                    Matcher letMatcher = letPattern.matcher(exprBuffer);
-                    if (letMatcher.find())
-                        exprBuffer.insert(0, "*");
+                    this.insertMUL();
                 }
-
-            } else {
-                throw new ExprSyntaxErrorException("Invalided character exception.");
+                return true;
             }
-            System.out.print(tokensList);
-            System.out.println(operationsStack);
-
-            // reset numMatcher
-            numMatcher = numPattern.matcher(exprBuffer);
+            return false;
         }
 
-        while (!operationsStack.isEmpty()) {
-            ExprFunction f = operationsStack.pop();
+        public void insertMUL() {
+            Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
+            Matcher letMatcher = letPattern.matcher(exprBuffer);
+            if (letMatcher.find())
+                exprBuffer.insert(0, "*");
+        }
+    
+    }
+
+    /**
+     * Parse an expression from its flatten form to reverse poland notation.
+     * The parser will first delete any space in the expression.
+     * <p>
+     * <b>Syntax:</b>
+     * <ul>
+     * <li>Arithmetic operations:
+     * <p>
+     * Keywords: {@code +,-,*,/,^,(,)}
+     * <ul>
+     * <li>{@code 1 -2 * 3} will be parsed to {@code 1,2,3,*,-}.</li>
+     * <li>{@code 1/3 +0.1} will be parsed to {@code 1,3,/,0.1,+}.</li>
+     * <li>{@code 4*3^0.9/6} will be parsed to {@code 4,3,0.9,^,*,6,/}.</li>
+     * <li><b>Important:</b> when using "-" as negative sign, it adds parentheses
+     * which enclose all operations following and having higher precedence then negative sign.
+     * <b>The negative sign can not be stacked, meaning that inputting expressions
+     * as "1---3" will lead to syntax problem.</b></li>
+     * <li>{@code 4+-1} will be transformed to {@code 4+(0-1)} then parsed
+     * to {@code 4,0,1,-,+}.</li>
+     * <li>{@code 5*-6/2^7} will be transformed to {@code 5*(0-6/2^7)} then parsed
+     * to {@code 5,0,6,2,7,^,/,-,*}.</li>
+     * <li><b>Important:</b> Adding parenthesis but not closing them will not lead
+     * to any syntax problem. However, the inverse is not permitted.</li>
+     * <li>{@code 3-(6/9*(3+2} will be transformed to {@code 3-(6/9*(3+2))} then
+     * parsed to {@code 3,6,9,/,3,2,+,*,-}.</li>
+     * <li>{@code 8-2/5)} will not be successfully parsed.</li>
+     * </ul>
+     * </li>
+     * <li>Trigonometry functions:
+     * <p>
+     * Keywords： {@code sin, cos, tan, arcsin, arccos, arctan}
+     * <ul>
+     * <li>Theses functions have the same precedence to addition and
+     * subtraction.</li>
+     * <li>{@code si nx y^3 + 9} will be parsed to {@code x,y,3,^,*,sin,9,+}.</li>
+     * <li>{@code t an(x -6)^ 3-9 /4} will be parsed to
+     * {@code x,6,-,3,^,tan,9,4,/,-}.</li>
+     * <li>{@code ar cs in ta n9 /4} will be parsed to
+     * {@code 9,4,/,tan,arcsin}.</li>
+     * </ul>
+     * </li>
+     * <li>Logarithm:
+     * <p>
+     * Keywords: {@code ln, log()}
+     * <ul>
+     * <li>{@code ln1.9^0.39*3} will be parsed to {@code 1.9,0.39,^,3,*,ln}.</li>
+     * <li>{@code log(3,13*0.39)^3.1} will be parsed to
+     * {@code 3,13,0.39,*,log,3.1,^}.</li>
+     * <li>{@code log(3)} will not be successfully parsed.</li>
+     * </ul>
+     * </li>
+     * </li>
+     * </ul>
+     * 
+     * @param expression
+     * @param varPool
+     * @return
+     */
+    public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
+
+        Properties keyWords = getKeyWords(bridge.getPropertiesLoc());
+        expression = formattingFlattenExpr(expression);
+
+        ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords);
+
+        // Eliminate the negative sign
+        parserInfo.checkNegativeSign();
+
+        while (parserInfo.exprBuffer.length() > 0) {
+            System.out.print(parserInfo.tokensList);
+            System.out.println(parserInfo.operationsStack);
+
+            // see if is constant, all constant starts with \
+            if(parserInfo.checkBackSlash())
+                continue;
+
+            // see if is number
+            if(parserInfo.checkNumber())
+                continue;
+
+            // see if is ';' or ','
+            if(parserInfo.checkSeparator())
+                continue;
+
+            // see if is +,-,*,/,^,%,(,)
+            if(parserInfo.checkArithmetic())
+                continue;
+
+            if(parserInfo.checkLetter(varPool))
+                continue;
+
+            throw new ExprSyntaxErrorException("Invalided character exception.");
+        }
+
+        while (!parserInfo.operationsStack.isEmpty()) {
+            ExprFunction f = parserInfo.operationsStack.pop();
             if (f.getType() != ExprFunction.OpsType.OPEN_P) {
-                tokensList.add(f);
+                parserInfo.tokensList.add(f);
             }
         }
-        Expressions reVal = new Expressions(tokensList, varPool, bridge);
+        Expressions reVal = new Expressions(parserInfo.tokensList, varPool, bridge);
         reVal.encapsulateParts();
         return reVal;
     }
@@ -360,7 +392,7 @@ public class Expressions implements ExprElements {
             buffer.replace(powMatcher.start() + 1, powMatcher.end(), "*10^");
         }
 
-        Pattern mulPattern = Pattern.compile("\\d[A-Za-z\\\\\\(]");
+        Pattern mulPattern = Pattern.compile("(\\d|%)[A-Za-z\\\\\\(]");
         Matcher mulMatcher = mulPattern.matcher(buffer);
         while (mulMatcher.find()) {
             buffer.insert(mulMatcher.start() + 1, "*");
@@ -450,6 +482,8 @@ public class Expressions implements ExprElements {
             parameters.add(element);
         }
         parameters.removeLast();
+        if (((ExprFunction) this.tokens.getLast()).getType().parameterNum != parameters.size())
+            throw new ExprSyntaxErrorException();
         return ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
     }
 
