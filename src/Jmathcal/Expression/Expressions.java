@@ -76,10 +76,12 @@ public class Expressions implements ExprElements {
         public LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
         public Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
         public Properties keyWords;
+
         public ParserInfo(StringBuffer expressions, Properties keyWords) {
             this.keyWords = keyWords;
             this.exprBuffer = expressions;
         }
+
         /**
          * Check if the first char is '-'. If it is, handle the '-'.
          */
@@ -177,7 +179,6 @@ public class Expressions implements ExprElements {
                     }
                     exprBuffer.delete(0, 1);
 
-                    
                 } else {
                     // + - * / ^ %
                     if (f.getType().precedence != 0) {
@@ -270,7 +271,7 @@ public class Expressions implements ExprElements {
             if (letMatcher.find())
                 exprBuffer.insert(0, "*");
         }
-    
+
     }
 
     /**
@@ -287,13 +288,16 @@ public class Expressions implements ExprElements {
      * <li>{@code 1/3 +0.1} will be parsed to {@code 1,3,/,0.1,+}.</li>
      * <li>{@code 4*3^0.9/6} will be parsed to {@code 4,3,0.9,^,*,6,/}.</li>
      * <li><b>Important:</b> when using "-" as negative sign, it adds parentheses
-     * which enclose all operations following and having higher precedence then negative sign.
+     * which enclose all operations following and having higher precedence then
+     * negative sign.
      * <b>The negative sign can not be stacked, meaning that inputting expressions
      * as "1---3" will lead to syntax problem.</b></li>
      * <li>{@code 4+-1} will be transformed to {@code 4+(0-1)} then parsed
      * to {@code 4,0,1,-,+}.</li>
      * <li>{@code 5*-6/2^7} will be transformed to {@code 5*(0-6/2^7)} then parsed
      * to {@code 5,0,6,2,7,^,/,-,*}.</li>
+     * <li>{@code 4*1.36^-3*2.4-7} will be transformed to {@code 4*1.36^(0-3*2.4)-7}
+     * then parsed to {@code 4,1.36,0,3,2.4,*,-,^,*,7,-}.</li>
      * <li><b>Important:</b> Adding parenthesis but not closing them will not lead
      * to any syntax problem. However, the inverse is not permitted.</li>
      * <li>{@code 3-(6/9*(3+2} will be transformed to {@code 3-(6/9*(3+2))} then
@@ -316,7 +320,7 @@ public class Expressions implements ExprElements {
      * </li>
      * <li>Logarithm:
      * <p>
-     * Keywords: {@code ln, log()}
+     * Keywords: {@code ln, log(base, power)}
      * <ul>
      * <li>{@code ln1.9^0.39*3} will be parsed to {@code 1.9,0.39,^,3,*,ln}.</li>
      * <li>{@code log(3,13*0.39)^3.1} will be parsed to
@@ -324,12 +328,49 @@ public class Expressions implements ExprElements {
      * <li>{@code log(3)} will not be successfully parsed.</li>
      * </ul>
      * </li>
+     * <li>Constants:
+     * <p>
+     * Keywords: {@code \i, \e, \pi, \g, \G}
+     * <p>
+     * Constants as {@code e} or {@code π} are calculated during calculation.
+     * <ul>
+     * <li>{@code (5+1.3\i)/(4-\i)} will be parsed as
+     * {@code 5,1.3,\i,*,+,4,\i,-,/}</li>
+     * <li>{@code \i} is the imaginary unit.</li>
+     * <li>{@code \e} is the Euler's number.{@value e = 2.718281...}.</li>
+     * <li>{@code \pi} is π. {@value π = 3.141592...}.</li>
+     * <li>{@code \g} is the standard acceleration due to gravity of earth.
+     * {@value g = 9.80665(m/s²)}.</li>
+     * <li>{@code \G} is the gravitational constant. {@value G =
+     * 6.67430E-11(m³/(kg*s²))}.</li>
+     * </ul>
+     * </li>
+     * <li>Summation and product operator:
+     * <p>
+     * Keywords:
+     * <p>
+     * {@code sum(variable, start integer, end integer, expression),}
+     * <p>
+     * {@code pro(variable, start integer, end integer, expression)}
+     * <ul>
+     * <li>{@code sum(x, 4, 13-3, x^3)} will be parsed to
+     * {@code [x,3,^],[13,3,-],4,x,sum}.</li>
+     * <li>{@code pro(i, 1, 3, 5i+y)*9.3} will be parsed to
+     * {@code i,1,3,[5,i,*,y,+],pro,9.3,*}.</li>
+     * </ul>
+     * </li>
+     * <li>Variable:
+     * <ul>
+     * <li>{@code 5xy-4sin-x+5\i} will be parsed as {@code 5,x,*,y,*,4,0,x,-,sin,*,-,5,\i,*,+}</li>
+     * </ul>
+     * </li>
      * </li>
      * </ul>
      * 
-     * @param expression
-     * @param varPool
-     * @return
+     * @param expression expression to be parsed
+     * @param varPool    set of variables
+     * @param bridge     control of input and output
+     * @return parsed expression in {@code Expressions}
      */
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
@@ -346,22 +387,22 @@ public class Expressions implements ExprElements {
             System.out.println(parserInfo.operationsStack);
 
             // see if is constant, all constant starts with \
-            if(parserInfo.checkBackSlash())
+            if (parserInfo.checkBackSlash())
                 continue;
 
             // see if is number
-            if(parserInfo.checkNumber())
+            if (parserInfo.checkNumber())
                 continue;
 
             // see if is ';' or ','
-            if(parserInfo.checkSeparator())
+            if (parserInfo.checkSeparator())
                 continue;
 
             // see if is +,-,*,/,^,%,(,)
-            if(parserInfo.checkArithmetic())
+            if (parserInfo.checkArithmetic())
                 continue;
 
-            if(parserInfo.checkLetter(varPool))
+            if (parserInfo.checkLetter(varPool))
                 continue;
 
             throw new ExprSyntaxErrorException("Invalided character exception.");
@@ -390,12 +431,14 @@ public class Expressions implements ExprElements {
         Matcher powMatcher = powPattern.matcher(buffer);
         while (powMatcher.find()) {
             buffer.replace(powMatcher.start() + 1, powMatcher.end(), "*10^");
+            powMatcher = powPattern.matcher(buffer);
         }
 
         Pattern mulPattern = Pattern.compile("(\\d|%)[A-Za-z\\\\\\(]");
         Matcher mulMatcher = mulPattern.matcher(buffer);
         while (mulMatcher.find()) {
             buffer.insert(mulMatcher.start() + 1, "*");
+            mulMatcher = mulPattern.matcher(buffer);
         }
 
         System.out.println(buffer);

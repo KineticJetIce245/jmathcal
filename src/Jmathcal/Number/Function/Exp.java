@@ -48,18 +48,6 @@ public class Exp {
     // Real functions
     /**
      * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
-     * {@code num}-th power whose precision is defined by {@code precision}.
-     * 
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code e^(num)}
-     */
-    public static BigDecimal exp(BigDecimal num, int precision) {
-        return exp(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
      * {@code num}-th power whose precision and rounding
      * mode are defined by {@code mc}.
      * 
@@ -124,18 +112,6 @@ public class Exp {
 
     /**
      * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
-     * of {@code num} whose precision is defined by {@code precision}.
-     * 
-     * @param num       any {@code BigDecimal} > 0
-     * @param precision number of significant figures
-     * @return {@code ln(num)}
-     */
-    public static BigDecimal ln(BigDecimal num, int precision) {
-        return ln(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
      * of {@code num} whose precision and rounding mode are defined by {@code mc}.
      * 
      * @param num any {@code BigDecimal} > 0
@@ -153,7 +129,11 @@ public class Exp {
 
         // ln(num) = ln(x*10^h) = lnx + hln10
         // finding h
-        while (num.compareTo(BigDecimal.ONE) == 1) {
+        while (num.compareTo(BigDecimal.ONE) < 0) {
+            tenthPow--;
+            num = num.scaleByPowerOfTen(1);
+        }
+        while (num.compareTo(BigDecimal.ONE) > 0) {
             tenthPow++;
             num = num.scaleByPowerOfTen(-1);
         }
@@ -251,19 +231,6 @@ public class Exp {
      * of {@code num}. This method uses taylor series. Hence, it's not obligatory
      * but highly recommended to use this method for {@code num} close to 1.
      * 
-     * @param num       any {@code BigDecimal} > 0, close to 1
-     * @param precision number of significant figures
-     * @return {@code ln(num)}
-     */
-    public static BigDecimal findLn(BigDecimal num, int precision) {
-        return findLn(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the natural logarithm (base <i>e</i>)
-     * of {@code num}. This method uses taylor series. Hence, it's not obligatory
-     * but highly recommended to use this method for {@code num} close to 1.
-     * 
      * @param num any {@code BigDecimal} > 0, close to 1
      * @param mc  number of significant figures and rounding mode
      * @return {@code ln(num)}
@@ -308,20 +275,6 @@ public class Exp {
      * to use this method for {@code num} smaller than 10.
      * 
      * @param num
-     * @param precision number of significant figures
-     * @return {@code e^(num)}
-     */
-    public static BigDecimal findExp(BigDecimal num, int precision) {
-        return findExp(num, new MathContext(precision));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
-     * {@code num}th power, whose precision is defined by {@code precision}. This
-     * method uses taylor series. Hence, it's not obligatory but highly recommended
-     * to use this method for {@code num} smaller than 10.
-     * 
-     * @param num
      * @param mc  number of significant figures and rounding mode
      * @return {@code e^(num)}
      */
@@ -346,17 +299,6 @@ public class Exp {
         } while (taylorTC < 5 || currentTerm.abs().compareTo(precisionTest) > 0);
 
         return (reVal.round(mc));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the value of the square root of
-     * <i>e</i>, whose precision is defined by {@code precision}.
-     * 
-     * @param precision number of significant figures
-     * @return {@code sqrt(e)}
-     */
-    public static BigDecimal findSqrtEulerNum(int precision) {
-        return findExp(new BigDecimal("0.5"), precision);
     }
 
     /**
@@ -503,7 +445,7 @@ public class Exp {
         BigDecimal iVal = BigDecimal.ZERO;
         if (num.compareTo(BigDecimal.ZERO) < 0) {
             iVal = Trigo.PI(mc);
-            num  = num.abs();
+            num = num.abs();
         }
         BigDecimal rVal = ln(num, mc);
         return new ComplexNum(rVal, iVal);
