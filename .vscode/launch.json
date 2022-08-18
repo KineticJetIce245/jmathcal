@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Exp",
+            "request": "launch",
+            "mainClass": "Jmathcal.Number.Function.Exp",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
+            "name": "Launch Trigo",
+            "request": "launch",
+            "mainClass": "Jmathcal.Number.Function.Trigo",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch VariablePool",
             "request": "launch",
             "mainClass": "Jmathcal.Expression.VariablePool",

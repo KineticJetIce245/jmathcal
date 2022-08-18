@@ -180,9 +180,9 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
         if (realValue.compareTo(BigDecimal.ZERO) == 0) {
             if (imaValue.compareTo(BigDecimal.ZERO) == 0)
                 return BigDecimal.ZERO;
-            if (imaValue.compareTo(BigDecimal.ZERO) < 0)
-                return Trigo.PI(calPrecision).divide(Trigo.TWO).round(mc);
             if (imaValue.compareTo(BigDecimal.ZERO) > 0)
+                return Trigo.PI(calPrecision).divide(Trigo.TWO).round(mc);
+            if (imaValue.compareTo(BigDecimal.ZERO) < 0)
                 return Trigo.PI(calPrecision).multiply(new BigDecimal("1.5")).round(mc);
         }
 
