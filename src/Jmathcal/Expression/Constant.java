@@ -21,7 +21,9 @@ public class Constant implements ExprElements {
     }
     @Override
     public ExprNumber toNumber(MathContext mc) {
-        return this.value.val.getValue(mc);
+        int betterPrecision = mc.getPrecision() < 16 ? 16 : mc.getPrecision();
+        MathContext calMc = new MathContext(betterPrecision, mc.getRoundingMode());
+        return this.value.val.getValue(calMc);
     }
 
     public static enum Constants {

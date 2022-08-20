@@ -6,6 +6,6 @@ public interface IOBridge {
 
     public void outSendMessage(String msg);
     public String askForInput(String msg);
-    public File getPropertiesLoc();
+    public File[] getPropertiesLoc();
 
 }

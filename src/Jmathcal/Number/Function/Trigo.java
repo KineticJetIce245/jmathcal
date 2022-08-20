@@ -465,6 +465,8 @@ public class Trigo {
      * @return {@code tan(num)}
      */
     public static ComplexDbl tan(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.tan(num.getRealValue()));
         ComplexDbl x = num.multiplyByI().multiply(new ComplexDbl(2));
         ComplexDbl y = Exp.exp(x);
         return ComplexDbl.ONE.subtract(y)
@@ -480,6 +482,8 @@ public class Trigo {
      * @return {@code arcsin(num)}
      */
     public static ComplexDbl arcsin(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.asin(num.getRealValue()));
         ComplexDbl reVal = Exp.pow(ComplexDbl.ONE.subtract(num.multiply(num)), new ComplexDbl(0.5));
         reVal = reVal.add(num.multiplyByI());
         reVal = Exp.ln(reVal);
@@ -494,6 +498,8 @@ public class Trigo {
      * @return {@code arccos(num)}
      */
     public static ComplexDbl arccos(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.acos(num.getRealValue()));
         ComplexDbl reVal = Exp.pow(num.multiply(num).subtract(ComplexDbl.ONE), new ComplexDbl(0.5));
         reVal = reVal.add(num);
         reVal = Exp.ln(reVal);
@@ -508,6 +514,8 @@ public class Trigo {
      * @return {@code arctan(num)}
      */
     public static ComplexDbl arctan(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.atan(num.getRealValue()));
         ComplexDbl reVal = num.multiplyByI();
         reVal = reVal.add(ComplexDbl.ONE).divide(ComplexDbl.ONE.subtract(reVal));
         reVal = Exp.ln(reVal);

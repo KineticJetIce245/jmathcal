@@ -16,14 +16,17 @@ public class ExprNumber implements ExprElements {
         this.value = value;
     }
     public ComplexNum toComplexNum() {
-        return new ComplexNum(this.value);
+        return new ComplexNum(this);
     }
     public ComplexDbl toComplexDbl() {
-        return new ComplexDbl(Double.valueOf(this.value));
+        return new ComplexNum(this).toComplexDbl();
     }
     @Override
     public String toString() {
         return value;
+    }
+    public String toAnsString() {
+        return this.toComplexNum().toAnsString();
     }
     @Override
     public ExprNumber toNumber(MathContext mc) {

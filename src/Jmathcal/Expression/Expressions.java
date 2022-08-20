@@ -21,11 +21,13 @@ public class Expressions implements ExprElements {
 
     public static int PRECI = 10;
     public static File configPath = new File("config/calculator/flattenExpr.xml");
+    public static File letterPath = new File("config/calculator/greekAlphabet.xml");
 
     // Reverse Poland notation
     private LinkedList<ExprElements> tokens;
     private VariablePool varPool;
     private IOBridge bridge;
+    private ExprNumber valueOfExpression;
 
     public Expressions(LinkedList<ExprElements> tokens, VariablePool vp, IOBridge bridge) {
         this.tokens = tokens;
@@ -59,8 +61,9 @@ public class Expressions implements ExprElements {
             }
 
             @Override
-            public File getPropertiesLoc() {
-                return configPath;
+            public File[] getPropertiesLoc() {
+                File[] paths = {configPath, letterPath};
+                return paths;
             }
 
         };
@@ -69,6 +72,7 @@ public class Expressions implements ExprElements {
         Expressions expr = parseFromFlattenExpr(a, vp, panel);
         System.out.println(expr);
         System.out.println(expr.calculate(calMc).round(mc));
+        System.out.println(expr.toAnsString(mc));
     }
 
     private static class ParserInfo {
@@ -76,10 +80,12 @@ public class Expressions implements ExprElements {
         public LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
         public Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
         public Properties keyWords;
+        public Properties letWords;
 
-        public ParserInfo(StringBuffer expressions, Properties keyWords) {
+        public ParserInfo(StringBuffer expressions, Properties keyWords, Properties letWords) {
             this.keyWords = keyWords;
             this.exprBuffer = expressions;
+            this.letWords = letWords;
         }
 
         /**
@@ -96,7 +102,7 @@ public class Expressions implements ExprElements {
         /**
          * Check if the first char is '\'. If it is, handle the '\'.
          */
-        public boolean checkBackSlash() {
+        public boolean checkBackSlash(VariablePool varPool) {
             char firstChar = this.exprBuffer.charAt(0);
             if (firstChar == 92) {
                 Iterator<String> iterator = keyWords.stringPropertyNames().iterator();
@@ -108,11 +114,10 @@ public class Expressions implements ExprElements {
                     keyword = iterator.next();
                     if (keyword.length() == 1)
                         continue;
+                    Pattern constantKeyPat = Pattern.compile(keyword);
+                    Matcher constantKeyMat = constantKeyPat.matcher(this.exprBuffer);
 
-                    Pattern keywordPat = Pattern.compile(keyword);
-                    Matcher keywordMat = keywordPat.matcher(this.exprBuffer);
-
-                    if (keywordMat.lookingAt()) {
+                    if (constantKeyMat.lookingAt()) {
                         Constant c = new Constant(Constant.Constants.valueOf(keyWords.getProperty(keyword)));
                         tokensList.add(c);
                         // delete the right amount of char
@@ -147,6 +152,9 @@ public class Expressions implements ExprElements {
         public boolean checkSeparator() {
             if (exprBuffer.charAt(0) == ';' || exprBuffer.charAt(0) == ',') {
                 exprBuffer.delete(0, 1);
+                while ((!operationsStack.isEmpty()) && operationsStack.peek().getType().precedence > 0) {
+                    tokensList.add(operationsStack.pop());
+                }
                 this.checkNegativeSign();
                 return true;
             }
@@ -230,7 +238,6 @@ public class Expressions implements ExprElements {
                     keyword = iterator.next();
                     if (keyword.length() == 1)
                         continue;
-
                     Pattern keywordPat = Pattern.compile(keyword);
                     Matcher keywordMat = keywordPat.matcher(exprBuffer);
 
@@ -265,8 +272,23 @@ public class Expressions implements ExprElements {
             return false;
         }
 
+        public boolean checkGreekLet(VariablePool varPool) {
+            if (this.exprBuffer.charAt(0) != 91)
+                return false;
+            Pattern greekLetPat = Pattern.compile("\\[[A-Za-z]+\\]");
+            Matcher greekLetMat = greekLetPat.matcher(this.exprBuffer);
+            if (!greekLetMat.lookingAt())
+                throw new ExprSyntaxErrorException();
+            String greekLet = this.exprBuffer.substring(greekLetMat.start(), greekLetMat.end());
+            VariablePool.Variable var = varPool.new Variable(letWords.getProperty(greekLet));
+            tokensList.add(var);
+            this.exprBuffer.delete(greekLetMat.start(), greekLetMat.end());
+            this.insertMUL();
+            return true;
+        }
+
         public void insertMUL() {
-            Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\\\\\(]");
+            Pattern letPattern = Pattern.compile("^[a-zA-Z0-9\\[\\(\\\\]");
             Matcher letMatcher = letPattern.matcher(exprBuffer);
             if (letMatcher.find())
                 exprBuffer.insert(0, "*");
@@ -354,7 +376,7 @@ public class Expressions implements ExprElements {
      * {@code pro(variable, start integer, end integer, expression)}
      * <ul>
      * <li>{@code sum(x, 4, 13-3, x^3)} will be parsed to
-     * {@code [x,3,^],[13,3,-],4,x,sum}.</li>
+     * {@code x,4,[13,3,-],[x,3,^],sum}.</li>
      * <li>{@code pro(i, 1, 3, 5i+y)*9.3} will be parsed to
      * {@code i,1,3,[5,i,*,y,+],pro,9.3,*}.</li>
      * </ul>
@@ -374,10 +396,11 @@ public class Expressions implements ExprElements {
      */
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
-        Properties keyWords = getKeyWords(bridge.getPropertiesLoc());
+        Properties keyWords = getKeyWords(bridge.getPropertiesLoc()[0]);
+        Properties letWords = getKeyWords(bridge.getPropertiesLoc()[1]);
         expression = formattingFlattenExpr(expression);
 
-        ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords);
+        ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords, letWords);
 
         // Eliminate the negative sign
         parserInfo.checkNegativeSign();
@@ -387,7 +410,7 @@ public class Expressions implements ExprElements {
             System.out.println(parserInfo.operationsStack);
 
             // see if is constant, all constant starts with \
-            if (parserInfo.checkBackSlash())
+            if (parserInfo.checkBackSlash(varPool))
                 continue;
 
             // see if is number
@@ -403,6 +426,9 @@ public class Expressions implements ExprElements {
                 continue;
 
             if (parserInfo.checkLetter(varPool))
+                continue;
+            
+            if (parserInfo.checkGreekLet(varPool))
                 continue;
 
             throw new ExprSyntaxErrorException("Invalided character exception.");
@@ -434,7 +460,7 @@ public class Expressions implements ExprElements {
             powMatcher = powPattern.matcher(buffer);
         }
 
-        Pattern mulPattern = Pattern.compile("(\\d|%)[A-Za-z\\\\\\(]");
+        Pattern mulPattern = Pattern.compile("(\\d|%)[A-Za-z\\[\\\\\\(]");
         Matcher mulMatcher = mulPattern.matcher(buffer);
         while (mulMatcher.find()) {
             buffer.insert(mulMatcher.start() + 1, "*");
@@ -510,7 +536,8 @@ public class Expressions implements ExprElements {
             if (!(this.tokens.get(0) instanceof ExprFunction)) {
                 if (this.tokens.get(0) instanceof VariablePool.Variable)
                     ((VariablePool.Variable) this.tokens.get(0)).askForValue(this.bridge, mc);
-                return this.tokens.get(0).toNumber(mc);
+                this.valueOfExpression = this.tokens.get(0).toNumber(mc);
+                return valueOfExpression;
             }
             throw new ExprSyntaxErrorException();
         }
@@ -527,14 +554,43 @@ public class Expressions implements ExprElements {
         parameters.removeLast();
         if (((ExprFunction) this.tokens.getLast()).getType().parameterNum != parameters.size())
             throw new ExprSyntaxErrorException();
-        return ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
+        this.valueOfExpression = ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
+        return valueOfExpression;
     }
 
-    public void insert(int index, Expressions expr) {
-        Iterator<ExprElements> i = expr.tokens.iterator();
-        while (i.hasNext()) {
-            this.tokens.add(index, i.next());
+    public String toAnsString(MathContext mc) {
+        if (valueOfExpression == null) {
+            throw new AnswerNotCalculatedException();
         }
+        return valueOfExpression.round(mc).toAnsString();
+    }
+
+    public VariablePool getVP() {
+        return this.varPool;
+    }
+
+    public class AnswerNotCalculatedException extends RuntimeException {
+        
+        @java.io.Serial
+        private static final long serialVersionUID = -9049581804282439246L;
+
+        /**
+         * Constructs a {@code AnswerNotCalculatedException} with no
+         * detail message.
+         */
+        public AnswerNotCalculatedException() {
+            super();
+        }
+
+        /**
+         * Constructs a {@code AnswerNotCalculatedException} with the
+         * specified detail message.
+         *
+         * @param   s   the detail message.
+         */
+        public AnswerNotCalculatedException(String s) {
+            super(s);
+        }        
     }
 
 }

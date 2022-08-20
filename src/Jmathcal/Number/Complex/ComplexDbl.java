@@ -245,4 +245,15 @@ public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computa
             return false;
         return true;
     }
+    
+    /**
+     * Return if {@code this} is an integer.
+     * 
+     * @return if {@code this} is an integer
+     */
+    public boolean ifRealInt() {
+        if (this.imaValue != 0)
+            return false;
+        return this.realValue - (int)this.realValue == 0;
+    }
 }

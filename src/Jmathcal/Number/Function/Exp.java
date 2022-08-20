@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.ValueOutOfRangeException;
 import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
 
@@ -46,6 +47,18 @@ public class Exp {
     public static int PRECITEST = 3;
 
     // Real functions
+    private static BigDecimal pow(BigDecimal num, String power, MathContext mc) {
+        try {
+            int intPower = Integer.valueOf(power);
+            if (intPower >= 0) {
+                return num.pow(intPower, mc);
+            } else {
+                return BigDecimal.ONE.divide(num.pow(-intPower), mc);
+            }
+        } catch (NumberFormatException e) {
+            throw new ValueOutOfRangeException();
+        }
+    }
     /**
      * Returns a {@code BigDecimal} which is the value of <i>e</i> to the
      * {@code num}-th power whose precision and rounding
@@ -81,29 +94,15 @@ public class Exp {
             // e to the 1/2th power converges faster than e
             EulerNum = findSqrtEulerNum(calPrecision);
 
-            if (intNum.compareTo(BigDecimal.ZERO) < 0) {
-                BigDecimal intNumAbs = intNum.abs();
-                // e^(-x) = 1/(e^x)
-                reVal = BigDecimal.ONE.divide(EulerNum.pow(2 * Integer.valueOf(intNumAbs.toPlainString())),
-                        calPrecision);
-            } else {
-                reVal = EulerNum.pow(2 * Integer.valueOf(intNum.toPlainString()));
-            }
+            reVal = Exp.pow(EulerNum, intNum.multiply(new BigDecimal("2")).toPlainString(), calPrecision);
             // Don't use toString() here.
             // It will be written in scientific notation.
 
         } else {
-            if (intNum.compareTo(BigDecimal.ZERO) < 0) {
-                BigDecimal intNumAbs = intNum.abs();
-                // e^(-x) = 1/(e^x)
-                reVal = BigDecimal.ONE.divide(
-                        EulerNum.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP)
-                                .pow(Integer.valueOf(intNumAbs.toPlainString())),
-                        calPrecision);
-            } else {
-                reVal = EulerNum.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP)
-                        .pow(Integer.valueOf(intNum.toPlainString()));
-            }
+            reVal = Exp.pow(
+                EulerNum.setScale(calPrecision.getPrecision(), RoundingMode.HALF_UP),
+                intNum.toPlainString(),
+                calPrecision);
         }
         // calculate decimal part
         reVal = reVal.multiply(findExp(num.subtract(intNum), calPrecision));
@@ -189,19 +188,6 @@ public class Exp {
      * Returns a {@code BigDecimal} which is the value of the {@code argument} to
      * {@code power}th power.
      * 
-     * @param base      any {@code BigDecimal} > 0
-     * @param num
-     * @param precision number of significant figures
-     * @return {@code (power)^(argument)}
-     */
-    public static BigDecimal rPow(BigDecimal argument, BigDecimal power, int precision) {
-        return rPow(argument, power, new MathContext(precision));
-    }
-
-    /**
-     * Returns a {@code BigDecimal} which is the value of the {@code argument} to
-     * {@code power}th power.
-     * 
      * @param base
      * @param num
      * @param mc   number of significant figures and rounding mode
@@ -213,11 +199,11 @@ public class Exp {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         if (argument.compareTo(BigDecimal.ZERO) < 0)
-            throw new ArithmeticException("argument smaller than zero");
+            throw new ArithmeticException("argument smaller than zero.");
 
         // if power is a integer
         if ((power.subtract(power.setScale(0, RoundingMode.FLOOR))).compareTo(BigDecimal.ZERO) == 0)
-            return (argument.pow(power.intValue())).setScale(mc.getPrecision(), RoundingMode.HALF_UP);
+            return (Exp.pow(argument, power.toPlainString(), calPrecision)).setScale(mc.getPrecision(), RoundingMode.HALF_UP);
 
         if (power.compareTo(new BigDecimal("0.5")) == 0)
             return argument.sqrt(mc);
@@ -351,11 +337,11 @@ public class Exp {
         BigDecimal reVal = findExp(num, calPrecision);
 
         if (intNum.compareTo(new BigDecimal("-2147483648")) <= 0) {
-            throw new ArithmeticException("Unable to handle, the exponent is to " +
-                    "small, causing an underflow of int used to express the exponent.");
+            throw new ValueOutOfRangeException("Unable to handle, the exponent is to " +
+                    "small, resulting an underflow of the exponent.");
         } else if (intNum.compareTo(new BigDecimal("2147483647")) >= 0) {
-            throw new ArithmeticException("Unable to handle, the exponent is to " +
-                    "big, causing an overflow of int used to express the exponent.");
+            throw new ValueOutOfRangeException("Unable to handle, the exponent is to " +
+                    "big, resulting an overflow of the exponent.");
         } else {
             // 10^h * e^f
             return reVal.scaleByPowerOfTen(intNum.intValue()).round(mc);
@@ -494,6 +480,7 @@ public class Exp {
      * @return {@code (base)^(exponent)}
      */
     public static ComplexNum pow(ComplexNum base, ComplexNum exponent, MathContext mc) {
+
         if (base.compareTo(ComplexNum.ZERO) == 0)
             return exponent.compareTo(ComplexNum.ZERO) == 0 ? ComplexNum.ONE : ComplexNum.ZERO;
 
@@ -501,6 +488,16 @@ public class Exp {
             return ComplexNum.ONE;
 
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+
+        if (base.getImaValue().compareTo(BigDecimal.ZERO) == 0
+                && exponent.getImaValue().compareTo(BigDecimal.ZERO) == 0) {
+            
+            BigDecimal realOfExponent = exponent.getRealValue();
+            if (exponent.ifIntType()) {
+                return new ComplexNum(Exp.pow(base.getRealValue(), realOfExponent.toPlainString(), calPrecision));
+            }    
+        }
+
         // x = exponent * (ln(base))
         ComplexNum x = ln(base, calPrecision).multiply(exponent);
         return exp(x, mc);
@@ -550,6 +547,8 @@ public class Exp {
      * @return {@code e^(num)}
      */
     public static ComplexDbl exp(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.exp(num.getRealValue()));
         double coefficient = Math.exp(num.getRealValue());
         double rVal = Math.cos(num.getImaValue());
         double iVal = Math.sin(num.getImaValue());
@@ -566,6 +565,8 @@ public class Exp {
      * @return {@code ln(num)}
      */
     public static ComplexDbl ln(ComplexDbl num) {
+        if (num.getImaValue() == 0)
+            return new ComplexDbl(Math.log(num.getRealValue()));
         // ln(re^(i*x)) = ln(r) + x*i
         double rVal = Math.log(num.getRValue());
         double iVal = num.getPhiValue();

@@ -25,6 +25,14 @@ public class VariablePool {
         return this;
     }
 
+    public void combinePool(VariablePool vp) {
+        Set<String> vpKeySet = vp.variablePool.keySet();
+        for (String vpLabel : vpKeySet) {
+            if (!this.contains(vpLabel))
+                this.variablePool.put(vpLabel, vp.getVariable(vpLabel));
+        }
+    }
+
     @Override
     public String toString() {
         return this.variablePool.toString();
