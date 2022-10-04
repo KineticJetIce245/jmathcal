@@ -271,7 +271,7 @@ public class Exp {
         // checking if adding term is smaller then required precision
         BigDecimal precisionTest = BigDecimal.ONE.scaleByPowerOfTen(-(mc.getPrecision() + PRECITEST));
         BigDecimal currentTerm = BigDecimal.ONE;
-        int taylorTC = 0;
+        long taylorTC = 0;
         // x/(n+1)
         BigDecimal multiplicand;
         do {

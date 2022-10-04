@@ -15,6 +15,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import Jmathcal.Expression.ExprFunction.OpsType;
 import Jmathcal.IOControl.IOBridge;
 
 public class Expressions implements ExprElements {
@@ -73,6 +74,7 @@ public class Expressions implements ExprElements {
         System.out.println(expr);
         System.out.println(expr.calculate(calMc).round(mc));
         System.out.println(expr.toAnsString(mc));
+        System.out.println(expr.calculate(calMc).round(mc));
     }
 
     private static class ParserInfo {
@@ -186,6 +188,7 @@ public class Expressions implements ExprElements {
                         tokensList.add(operationsStack.pop());
                     }
                     exprBuffer.delete(0, 1);
+                    insertMUL();
 
                 } else {
                     // + - * / ^ %
@@ -363,8 +366,7 @@ public class Expressions implements ExprElements {
      * <li>{@code \pi} is π. {@value π = 3.141592...}.</li>
      * <li>{@code \g} is the standard acceleration due to gravity of earth.
      * {@value g = 9.80665(m/s²)}.</li>
-     * <li>{@code \G} is the gravitational constant. {@value G =
-     * 6.67430E-11(m³/(kg*s²))}.</li>
+     * <li>{@code \G} is the gravitational constant. {@value G = 6.67430E-11(m³/(kg*s²))}.</li>
      * </ul>
      * </li>
      * <li>Summation and product operator:
@@ -555,6 +557,7 @@ public class Expressions implements ExprElements {
         if (((ExprFunction) this.tokens.getLast()).getType().parameterNum != parameters.size())
             throw new ExprSyntaxErrorException();
         this.valueOfExpression = ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
+        this.varPool.clearValues();
         return valueOfExpression;
     }
 
@@ -565,11 +568,32 @@ public class Expressions implements ExprElements {
         return valueOfExpression.round(mc).toAnsString();
     }
 
+    public static Expressions subtractExpr(Expressions expr1, Expressions expr2) throws NonIdenticalIOBridgeException{      
+
+        if (expr1.bridge != expr2.bridge) {
+            throw new NonIdenticalIOBridgeException();
+        }
+
+        LinkedList<ExprElements> tokens = new LinkedList<ExprElements>();
+        for (ExprElements i : expr1.tokens) {
+            tokens.add(i);
+        }
+        for (ExprElements i : expr2.tokens) {
+            tokens.add(i);
+        }
+        tokens.add(new ExprFunction(OpsType.SUB));
+        VariablePool vp = new VariablePool();
+        vp.combinePool(expr1.varPool);
+        vp.combinePool(expr2.varPool);
+        Expressions reVal = new Expressions(tokens, vp, expr1.bridge);
+        return reVal;
+    }
+
     public VariablePool getVP() {
         return this.varPool;
     }
 
-    public class AnswerNotCalculatedException extends RuntimeException {
+    public static class AnswerNotCalculatedException extends RuntimeException {
         
         @java.io.Serial
         private static final long serialVersionUID = -9049581804282439246L;
@@ -591,6 +615,30 @@ public class Expressions implements ExprElements {
         public AnswerNotCalculatedException(String s) {
             super(s);
         }        
+    }
+
+    public static class NonIdenticalIOBridgeException extends RuntimeException{
+    
+        @java.io.Serial
+        private static final long serialVersionUID = -1927629612380072710L;
+   
+        /**
+         * Constructs an {@code NonIdenticalIOBridgeException} with no
+         * detail message.
+         */
+        public NonIdenticalIOBridgeException() {
+            super();
+        }
+    
+        /**
+         * Constructs an {@code NonIdenticalIOBridgeException} with the
+         * specified detail message.
+         *
+         * @param   s   the detail message.
+         */
+        public NonIdenticalIOBridgeException(String s) {
+            super(s);
+        }
     }
 
 }

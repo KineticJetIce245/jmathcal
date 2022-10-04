@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch PlotterPlane",
+            "request": "launch",
+            "mainClass": "Jmathcal.Plotter.PlotterPlane",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch Test",
             "request": "launch",
             "mainClass": "Jmathcal.Expression.Test",

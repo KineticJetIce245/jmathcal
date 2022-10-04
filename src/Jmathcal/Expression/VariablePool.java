@@ -17,6 +17,17 @@ public class VariablePool {
         return this.variablePool.containsKey(valLabel);
     }
 
+    public Variable[] containsXY() {
+        Variable[] variables = new Variable[2];
+        if (this.contains("x")) {
+            variables[0] = this.getVariable("x");
+        }
+        if (this.contains("y")) {
+            variables[1] = this.getVariable("y");
+        }
+        return variables;
+    }
+
     public Variable getVariable(String valLabel) {
         return this.variablePool.get(valLabel);
     }
@@ -42,6 +53,13 @@ public class VariablePool {
         Set<String> keySet = this.variablePool.keySet();
         for (String i : keySet) {
             this.variablePool.get(i).askForValue(bridge, mc);
+        }
+    }
+
+    public void clearValues() {
+        Set<String> keySet = this.variablePool.keySet();
+        for (String i : keySet) {
+            this.variablePool.get(i).setValue(null);
         }
     }
 

@@ -6,40 +6,33 @@ import Jmathcal.Expression.Expressions;
 import Jmathcal.Expression.VariablePool;
 
 public class PlotterPlane {
-
-    private int length;
-    private int height;
-    private int xAxeLength;
-    private int yAxeLength;
-    private double xStartVal;
-    private double xEndVal;
-    private double xIntervalSize;
-
-
-    public PlotterPlane(double xStartVal, double xEndVal, double xIntervalSize) {
-        this.xStartVal = xStartVal;
-        this.xEndVal = xEndVal;
-        this.xIntervalSize = xIntervalSize;
-        this.xAxeLength = (int)((xEndVal - xStartVal)/xIntervalSize);
+    
+    public static void main(String[] args) {
+        
     }
 
-    private PlotterPlane getThis() {
-        return this;
-    }
+    public class WrongPlaneSettingException extends IllegalArgumentException {
+        
 
-    public class PlanePointMap {
-        private double[] valueList;
-        public PlotterPlane getPlane(){
-            return getThis();
+        @java.io.Serial
+        private static final long serialVersionUID = -6286288328490453673L;
+
+        /**
+         * Constructs a {@code WrongPlaneSettingException} with no
+         * detail message.
+         */
+        public WrongPlaneSettingException() {
+            super();
         }
-        private PlanePointMap() {
-            this.valueList = new double[this.getPlane().xAxeLength];
+    
+        /**
+         * Constructs a {@code WrongPlaneSettingException} with the
+         * specified detail message.
+         *
+         * @param   s   the detail message.
+         */
+        public WrongPlaneSettingException(String s) {
+            super(s);
         }
-        public static PlanePointMap findPoints(Expressions leftExpr, Expressions rightExpr) {
-            VariablePool plotPool = new VariablePool();
-            plotPool.combinePool(leftExpr.getVP());
-            plotPool.combinePool(rightExpr.getVP());
-            
-        } 
     }
 }
