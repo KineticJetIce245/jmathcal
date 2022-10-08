@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
@@ -22,7 +23,7 @@ public class Expressions implements ExprElements {
 
     public static int PRECI = 10;
     public static File configPath = new File("config/calculator/flattenExpr.xml");
-    public static File letterPath = new File("config/calculator/greekAlphabet.xml");
+    public static File greekLetPath = new File("config/calculator/greekAlphabet.xml");
 
     // Reverse Poland notation
     private LinkedList<ExprElements> tokens;
@@ -62,9 +63,11 @@ public class Expressions implements ExprElements {
             }
 
             @Override
-            public File[] getPropertiesLoc() {
-                File[] paths = {configPath, letterPath};
-                return paths;
+            public HashMap<String, File> getPropertiesLoc() {
+                HashMap<String, File> reVal = new HashMap<String, File>();
+                reVal.put("configPath", configPath);
+                reVal.put("greekLetPath", greekLetPath);
+                return reVal;
             }
 
         };
@@ -74,9 +77,11 @@ public class Expressions implements ExprElements {
         System.out.println(expr);
         System.out.println(expr.calculate(calMc).round(mc));
         System.out.println(expr.toAnsString(mc));
-        System.out.println(expr.calculate(calMc).round(mc));
     }
 
+    /**
+     * Inner class to prase the String
+     */
     private static class ParserInfo {
         public StringBuffer exprBuffer;
         public LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
@@ -398,8 +403,8 @@ public class Expressions implements ExprElements {
      */
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
-        Properties keyWords = getKeyWords(bridge.getPropertiesLoc()[0]);
-        Properties letWords = getKeyWords(bridge.getPropertiesLoc()[1]);
+        Properties keyWords = getKeyWords(bridge.getPropertiesLoc().get("configPath"));
+        Properties letWords = getKeyWords(bridge.getPropertiesLoc().get("greekLetPath"));
         expression = formattingFlattenExpr(expression);
 
         ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords, letWords);
@@ -557,7 +562,6 @@ public class Expressions implements ExprElements {
         if (((ExprFunction) this.tokens.getLast()).getType().parameterNum != parameters.size())
             throw new ExprSyntaxErrorException();
         this.valueOfExpression = ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
-        this.varPool.clearValues();
         return valueOfExpression;
     }
 
