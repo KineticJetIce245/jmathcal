@@ -49,6 +49,10 @@ public class VariablePool {
         return this.variablePool.toString();
     }
 
+    public void setValueOf(String label, ExprNumber value) {
+        this.getVariable(label).setValue(value);
+    }
+
     public void askForValue(IOBridge bridge, MathContext mc) {
         Set<String> keySet = this.variablePool.keySet();
         for (String i : keySet) {

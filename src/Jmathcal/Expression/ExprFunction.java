@@ -1,14 +1,29 @@
 package Jmathcal.Expression;
 
+import java.io.File;
 import java.io.Serializable;
 import java.math.MathContext;
+import java.util.HashMap;
 import java.util.LinkedList;
+
+import Jmathcal.IOControl.IOBridge;
 
 public class ExprFunction implements Serializable, ExprElements {
 
     private static final long serialVersionUID = -4376930957526847386L;
-
     private final OpsType type;
+    private static final IOBridge TEMP_BRIDGE = new IOBridge(){
+        public String askForInput(String msg) {
+            return null;
+        };
+        public void outSendMessage(String msg) {};
+        public java.util.HashMap<String,java.io.File> getPropertiesLoc() {
+            HashMap<String, File> reVal = new HashMap<String, File>();
+            reVal.put("configPath", Expressions.configPath);
+            reVal.put("greekLetPath", Expressions.greekLetPath);
+            return reVal;
+        };
+    };
 
     public ExprFunction(OpsType type) {
         this.type = type;
@@ -254,6 +269,73 @@ public class ExprFunction implements Serializable, ExprElements {
                 }
                 return reVal;
             };
+        }),
+
+        CSC(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "1/sinx";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
+        }),
+
+        SEC(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "1/cosx";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
+        }),
+
+        COT(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "1/tanx";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
+        }),
+
+
+        SINH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "-\\isin(\\ix)";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
+        }),
+
+        COSH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "cos(\\ix)";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
+        }),
+
+        TANH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                String strFormula = "(sinhx)/(coshx)";
+                VariablePool varPool = new VariablePool();
+                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
+                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
+                return formula.calculate(mc);
+            }
         }),
 
         OPEN_P(0, 0, new CalBridge() {

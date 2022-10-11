@@ -75,7 +75,9 @@ public class Expressions implements ExprElements {
         VariablePool vp = new VariablePool();
         Expressions expr = parseFromFlattenExpr(a, vp, panel);
         System.out.println(expr);
+        System.out.println(System.currentTimeMillis());
         System.out.println(expr.calculate(calMc).round(mc));
+        System.out.println(System.currentTimeMillis());
         System.out.println(expr.toAnsString(mc));
     }
 
@@ -240,8 +242,9 @@ public class Expressions implements ExprElements {
 
                 // functions
                 Iterator<String> iterator = keyWords.stringPropertyNames().iterator();
-                String keyword;
+                String keyword = null;
                 boolean ifFound = false;
+                String longestKeyW = "";
                 while (iterator.hasNext()) {
                     keyword = iterator.next();
                     if (keyword.length() == 1)
@@ -250,19 +253,18 @@ public class Expressions implements ExprElements {
                     Matcher keywordMat = keywordPat.matcher(exprBuffer);
 
                     if (keywordMat.lookingAt()) {
-                        ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(keyWords.getProperty(keyword)));
-                        operationsStack.push(f);
-                        exprBuffer.delete(0, keyword.replace("\\", "").length());
-
-                        // negative test
-                        this.checkNegativeSign();
                         ifFound = true;
-                        break;
+                        longestKeyW = longestKeyW.length() >= keyword.length() ? longestKeyW : keyword;
                     }
                 }
+                if (ifFound) {
+                    ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(keyWords.getProperty(longestKeyW)));
+                    operationsStack.push(f);
+                    exprBuffer.delete(0, longestKeyW.replace("\\", "").length());
+                    // negative test
+                    this.checkNegativeSign();
 
-                // variable
-                if (!ifFound) {
+                } else { // variable
                     token.delete(0, token.length());
                     token.append(exprBuffer.charAt(0));
                     exprBuffer.delete(0, 1);

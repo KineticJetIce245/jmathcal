@@ -27,6 +27,14 @@
     <entry key="log\(">LOG</entry>
     <entry key="ln">LN</entry>
 
+    <entry key="sinh">SINH</entry>
+    <entry key="cosh">COSH</entry>
+    <entry key="tanh">TANH</entry>
+
+    <entry key="csc">CSC</entry>
+    <entry key="sec">SEC</entry>
+    <entry key="cot">COT</entry>
+
     <!-- Functions -->
     <entry key="sum\(">SUM</entry>
     <entry key="pro\(">PRO</entry>
