@@ -22,8 +22,6 @@ import Jmathcal.IOControl.IOBridge;
 public class Expressions implements ExprElements {
 
     public static int PRECI = 10;
-    public static File configPath = new File("config/calculator/flattenExpr.xml");
-    public static File greekLetPath = new File("config/calculator/greekAlphabet.xml");
 
     // Reverse Poland notation
     private LinkedList<ExprElements> tokens;
@@ -41,36 +39,7 @@ public class Expressions implements ExprElements {
         MathContext calMc = new MathContext(18, RoundingMode.HALF_UP);
         MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
 
-        IOBridge panel = new IOBridge() {
-
-            @Override
-            public void outSendMessage(String msg) {
-                System.out.println(msg);
-            }
-
-            @Override
-            public String askForInput(String msg) {
-                System.out.println(msg);
-                InputStreamReader inputStream = new InputStreamReader(System.in) {
-                    @Override
-                    public void close() throws IOException {
-                    }
-                };
-                Scanner sc = new Scanner(inputStream);
-                String input = sc.nextLine();
-                sc.close();
-                return input;
-            }
-
-            @Override
-            public HashMap<String, File> getPropertiesLoc() {
-                HashMap<String, File> reVal = new HashMap<String, File>();
-                reVal.put("configPath", configPath);
-                reVal.put("greekLetPath", greekLetPath);
-                return reVal;
-            }
-
-        };
+        IOBridge panel = IOBridge.DFLT_BRIDGE;
         String a = panel.askForInput("Input: ");
         VariablePool vp = new VariablePool();
         Expressions expr = parseFromFlattenExpr(a, vp, panel);
@@ -592,6 +561,7 @@ public class Expressions implements ExprElements {
         vp.combinePool(expr1.varPool);
         vp.combinePool(expr2.varPool);
         Expressions reVal = new Expressions(tokens, vp, expr1.bridge);
+        reVal.encapsulateParts();
         return reVal;
     }
 

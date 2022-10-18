@@ -1,5 +1,6 @@
 package Jmathcal.Expression;
 
+import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -190,5 +191,9 @@ public class ExprNumber implements ExprElements {
     }
     public ExprNumber round(MathContext mc) {
         return new ExprNumber(new ComplexNum(this).round(mc).toString());
+    }
+    public boolean isReal() {
+        int ifReal = this.toComplexNum().getImaValue().compareTo(BigDecimal.ZERO);
+        return ifReal == 0 ? true : false;
     }
 }

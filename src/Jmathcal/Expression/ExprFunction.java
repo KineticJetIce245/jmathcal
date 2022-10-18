@@ -19,8 +19,8 @@ public class ExprFunction implements Serializable, ExprElements {
         public void outSendMessage(String msg) {};
         public java.util.HashMap<String,java.io.File> getPropertiesLoc() {
             HashMap<String, File> reVal = new HashMap<String, File>();
-            reVal.put("configPath", Expressions.configPath);
-            reVal.put("greekLetPath", Expressions.greekLetPath);
+            reVal.put("configPath", IOBridge.configPath);
+            reVal.put("greekLetPath", IOBridge.greekLetPath);
             return reVal;
         };
     };
@@ -350,7 +350,6 @@ public class ExprFunction implements Serializable, ExprElements {
             };
         });
 
-        public static int DBL = 10;
         public final int parameterNum;
         public final int precedence;
         private final CalBridge calculator;

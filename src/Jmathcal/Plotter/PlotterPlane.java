@@ -1,20 +1,30 @@
 package Jmathcal.Plotter;
 
-import java.beans.Expression;
+import java.io.File;
+import java.util.HashMap;
 
 import Jmathcal.Expression.Expressions;
 import Jmathcal.Expression.VariablePool;
+import Jmathcal.IOControl.IOBridge;
 
 public class PlotterPlane {
     
     public static void main(String[] args) {
-        
+        VariablePool vp = new VariablePool();       
+        Expressions expr1 = Expressions.parseFromFlattenExpr("x^2", vp, IOBridge.DFLT_BRIDGE);
+        Expressions expr2 = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
+        int[] resolutionXY = {10,10};
+        int[] lengthXY = {10,10};
+        PlotterPlane myPlane = new PlotterPlane(resolutionXY, lengthXY, expr1, expr2);
     }
 
     private int[] resolutionXY;
     private int[] lengthXY;
     
-    public PlotterPlane(int[] resolutionXY, int[] lengthXY) {
+    public PlotterPlane(int[] resolutionXY, int[] lengthXY, Expressions expr1, Expressions expr2) {
+
+        Expressions function = Expressions.subtractExpr(expr1, expr2);
+
         this.resolutionXY = resolutionXY;
         this.lengthXY = lengthXY;
         
@@ -23,8 +33,7 @@ public class PlotterPlane {
         sizeOfSquare[1] = lengthXY[1] / resolutionXY[1];
 
         PlottingSqr[][] sqrMatrix = new PlottingSqr[resolutionXY[0]][resolutionXY[1]];
-        double[][] signMatrix = new double[resolutionXY[0]+1][resolutionXY[1]+1];
-        double[] currentLoc = new double[2];
+        PlotterSign[][] signMatrix = new PlotterSign[resolutionXY[0]+1][resolutionXY[1]+1];
 
         /**
          * Build a matrix of of plotting divisions
@@ -36,10 +45,20 @@ public class PlotterPlane {
          */
         for (int i = 0; i < resolutionXY[0]; i++) {
             for (int j = 0; j < resolutionXY[1]; j++) {
+                double[] currentLoc = new double[2];
+                int[] sqrLoc = {i, j};
                 currentLoc[0] = sizeOfSquare[0]*i;
                 currentLoc[1] = sizeOfSquare[1]*j;
-                sqrMatrix[i][j] = new PlottingSqr(currentLoc, sizeOfSquare);
+                sqrMatrix[i][j] = new PlottingSqr(sqrLoc, currentLoc, sizeOfSquare);
+                sqrMatrix[i][j].computeSign(signMatrix, function);
             }
+        }
+
+        for (int i = resolutionXY[1] - 1; i >= 0; i--) {
+            for (int j = 0; j < resolutionXY[0]; j++) {
+                System.out.print(signMatrix[j][i]);
+            }
+            System.out.println("\n");
         }
 
     }
