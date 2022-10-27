@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import Jmathcal.IOControl.IOBridge;
+import Jmathcal.Number.Function.AngleType;
 
 public class ExprFunction implements Serializable, ExprElements {
 
@@ -335,6 +336,34 @@ public class ExprFunction implements Serializable, ExprElements {
                 Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
                 varPool.setValueOf("x", parameters.get(0).toNumber(mc));
                 return formula.calculate(mc);
+            }
+        }),
+
+        DEG(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).angleConvert(AngleType.DEG, AngleType.RAD, mc);
+            }
+        }),
+
+        GRAD(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).angleConvert(AngleType.GRAD, AngleType.RAD, mc);
+            }
+        }),
+
+        TO_DEG(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).angleConvert(AngleType.RAD, AngleType.DEG, mc);
+            }
+        }),
+
+        TO_GRAD(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).angleConvert(AngleType.RAD, AngleType.GRAD, mc);
             }
         }),
 

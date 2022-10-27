@@ -3,6 +3,7 @@ package Jmathcal.Number.Function;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.function.Consumer;
 
 import Jmathcal.Number.InfiniteValueException;
 import Jmathcal.Number.Complex.ComplexDbl;
@@ -376,10 +377,11 @@ public class Trigo {
      * @return {@code arcsin(num)}
      */
     public static ComplexNum arcsin(ComplexNum num, MathContext mc) {
-        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0
+                && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
             return new ComplexNum(rArcsin(num.getRealValue(), mc));
         }
-        
+
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
 
         ComplexNum reVal = ComplexNum.ONE.subtract(num.multiply(num)).pow("0.5", calPrecision);
@@ -396,7 +398,8 @@ public class Trigo {
      * @return {@code arccos(num)}
      */
     public static ComplexNum arccos(ComplexNum num, MathContext mc) {
-        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0 && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
+        if (num.getImaValue().compareTo(BigDecimal.ZERO) == 0
+                && num.getRealValue().abs().compareTo(BigDecimal.ONE) < 0) {
             return new ComplexNum(rArccos(num.getRealValue(), mc));
         }
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
@@ -534,6 +537,29 @@ public class Trigo {
      */
     public static BigDecimal angleConvert(BigDecimal value, AngleType original, AngleType targetType, MathContext mc) {
         MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
-        return value.multiply(targetType.cal(calPrecision)).divide(original.cal(calPrecision), mc);
+        return value.multiply(targetType.giveCONST(calPrecision)).divide(original.giveCONST(calPrecision), mc);
+    }
+
+    public static ComplexNum angleConvert(ComplexNum value, AngleType original, AngleType targetType, MathContext mc) {
+        MathContext calPrecision = new MathContext(mc.getPrecision() + PRECI, RoundingMode.HALF_UP);
+        return value.multiply(new ComplexNum(targetType.giveCONST(calPrecision)))
+                .divide(new ComplexNum(original.giveCONST(calPrecision)), mc);
+    }
+
+    public static ComplexDbl angleConvert(ComplexDbl value, AngleType original, AngleType targetType) {
+        interface Lambda {
+            public double run(AngleType angleType);
+        }
+        Lambda giveCONST = (s) -> {
+            switch (s) {
+                case DEG:
+                    return 180.0;
+                case RAD:
+                    return Math.PI;
+                default:
+                    return 200.0;
+            }
+        };
+        return value.multiply(new ComplexDbl(giveCONST.run(targetType))).divide(new ComplexDbl(giveCONST.run(original)));
     }
 }

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
+import Jmathcal.Number.Function.AngleType;
 import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
 
@@ -189,6 +190,15 @@ public class ExprNumber implements ExprElements {
             return new ExprNumber(Exp.ln(a, mc).toString());
         }
     }
+    public ExprNumber angleConvert(AngleType ori, AngleType target, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            ComplexDbl a = new ComplexNum(this).toComplexDbl();
+            return new ExprNumber((Trigo.angleConvert(a, ori, target)).toString());
+        } else {
+            ComplexNum a = new ComplexNum(this);
+            return new ExprNumber((Trigo.angleConvert(a, ori, target, mc)).toString());
+        }
+    }
     public ExprNumber round(MathContext mc) {
         return new ExprNumber(new ComplexNum(this).round(mc).toString());
     }
@@ -196,4 +206,5 @@ public class ExprNumber implements ExprElements {
         int ifReal = this.toComplexNum().getImaValue().compareTo(BigDecimal.ZERO);
         return ifReal == 0 ? true : false;
     }
+
 }

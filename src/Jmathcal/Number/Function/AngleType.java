@@ -7,7 +7,7 @@ public enum AngleType {
     
     DEG, RAD, GRAD;
 
-    public BigDecimal cal(MathContext mc) {
+    public BigDecimal giveCONST(MathContext mc) {
         BigDecimal reVal = null;
         switch(this) {
             case DEG :

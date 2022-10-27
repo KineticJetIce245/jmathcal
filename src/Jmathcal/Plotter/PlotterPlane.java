@@ -11,7 +11,7 @@ public class PlotterPlane {
     
     public static void main(String[] args) {
         VariablePool vp = new VariablePool();       
-        Expressions expr1 = Expressions.parseFromFlattenExpr("x^2", vp, IOBridge.DFLT_BRIDGE);
+        Expressions expr1 = Expressions.parseFromFlattenExpr("5x", vp, IOBridge.DFLT_BRIDGE);
         Expressions expr2 = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
         int[] resolutionXY = {10,10};
         int[] lengthXY = {10,10};

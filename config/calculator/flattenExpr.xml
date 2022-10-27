@@ -35,6 +35,11 @@
     <entry key="sec">SEC</entry>
     <entry key="cot">COT</entry>
 
+    <entry key="deg">DEG</entry>
+    <entry key="grad">GRAD</entry>
+    <entry key="todeg">TO_DEG</entry>
+    <entry key="tograd">TO_GRAD</entry>
+
     <!-- Functions -->
     <entry key="sum\(">SUM</entry>
     <entry key="pro\(">PRO</entry>

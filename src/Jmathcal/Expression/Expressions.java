@@ -4,14 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +44,6 @@ public class Expressions implements ExprElements {
         System.out.println(System.currentTimeMillis());
         System.out.println(expr.calculate(calMc).round(mc));
         System.out.println(System.currentTimeMillis());
-        System.out.println(expr.toAnsString(mc));
     }
 
     /**
