@@ -485,14 +485,14 @@ public class Trigo {
      * @return {@code arcsin(num)}
      */
     public static ComplexDbl arcsin(ComplexDbl num) {
-        if (num.getImaValue() == 0)
+        if (num.getImaValue() == 0 && Math.abs(num.getRealValue()) <= 1)
             return new ComplexDbl(Math.asin(num.getRealValue()));
         ComplexDbl reVal = Exp.pow(ComplexDbl.ONE.subtract(num.multiply(num)), new ComplexDbl(0.5));
         reVal = reVal.add(num.multiplyByI());
         reVal = Exp.ln(reVal);
         return reVal.multiplyByI().negate();
     }
-
+    
     /**
      * Returns the arccos of {@code num}.
      * 

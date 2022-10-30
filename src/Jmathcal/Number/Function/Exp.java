@@ -565,7 +565,7 @@ public class Exp {
      * @return {@code ln(num)}
      */
     public static ComplexDbl ln(ComplexDbl num) {
-        if (num.getImaValue() == 0)
+        if (num.getImaValue() == 0 && num.getRealValue() > 0)
             return new ComplexDbl(Math.log(num.getRealValue()));
         // ln(re^(i*x)) = ln(r) + x*i
         double rVal = Math.log(num.getRValue());

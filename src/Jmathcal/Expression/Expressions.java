@@ -33,8 +33,8 @@ public class Expressions implements ExprElements {
     }
 
     public static void main(String args[]) {
-        MathContext calMc = new MathContext(18, RoundingMode.HALF_UP);
-        MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
+        MathContext calMc = new MathContext(6, RoundingMode.HALF_UP);
+        MathContext mc = new MathContext(6, RoundingMode.HALF_UP);
 
         IOBridge panel = IOBridge.DFLT_BRIDGE;
         String a = panel.askForInput("Input: ");

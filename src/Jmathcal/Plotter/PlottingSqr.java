@@ -11,29 +11,55 @@ public class PlottingSqr {
     private double[] location;
     private double[] size;
     private PlotterSign[] signs;
+    private boolean canSubdivide;
 
     public PlottingSqr(int[] sqrLoc, double[] location, double[] size) {
         this.sqrLoc = sqrLoc;
         this.location = location;
         this.size = size;
+        this.signs = new PlotterSign[4];
     }
 
     public void computeSign(PlotterSign[][] resultMatrix, Expressions Expr) {
+        PlotterSign currentSign = null;
         if (resultMatrix[sqrLoc[0]][sqrLoc[1]] == null) {
-            resultMatrix[sqrLoc[0]][sqrLoc[1]] = findSign(Expr, location);
+            currentSign = findSign(Expr, location);
+            resultMatrix[sqrLoc[0]][sqrLoc[1]] = currentSign;
+        } else {
+            currentSign = resultMatrix[sqrLoc[0]][sqrLoc[1]];
         }
-        if (resultMatrix[sqrLoc[0]+1][sqrLoc[1]] == null) {
-            double[] nextLoc = {location[0] + size[0], location[1]};
-            resultMatrix[sqrLoc[0]+1][sqrLoc[1]] = findSign(Expr, nextLoc);
+        signs[0] = currentSign;
+
+        if (resultMatrix[sqrLoc[0] + 1][sqrLoc[1]] == null) {
+            double[] nextLoc = { location[0] + size[0], location[1] };
+            currentSign = findSign(Expr, nextLoc);
+            resultMatrix[sqrLoc[0] + 1][sqrLoc[1]] = currentSign;
+        } else {
+            currentSign = resultMatrix[sqrLoc[0] + 1][sqrLoc[1]];
         }
-        if (resultMatrix[sqrLoc[0]][sqrLoc[1]+1] == null) {
-            double[] nextLoc = {location[0], location[1] + size[1]};
-            resultMatrix[sqrLoc[0]][sqrLoc[1]+1] = findSign(Expr, nextLoc);
+        signs[1] = currentSign;
+
+        if (resultMatrix[sqrLoc[0]][sqrLoc[1] + 1] == null) {
+            double[] nextLoc = { location[0], location[1] + size[1] };
+            currentSign = findSign(Expr, nextLoc);
+            resultMatrix[sqrLoc[0]][sqrLoc[1] + 1] = currentSign;
+        } else {
+            currentSign = resultMatrix[sqrLoc[0]][sqrLoc[1] + 1];
         }
-        if (resultMatrix[sqrLoc[0]+1][sqrLoc[1]+1] == null) {
-            double[] nextLoc = {location[0] + size[0], location[1] + size[1]};
-            resultMatrix[sqrLoc[0]+1][sqrLoc[1]+1] = findSign(Expr, nextLoc);
+        signs[2] = currentSign;
+
+        if (resultMatrix[sqrLoc[0] + 1][sqrLoc[1] + 1] == null) {
+            double[] nextLoc = { location[0] + size[0], location[1] + size[1] };
+            currentSign = findSign(Expr, nextLoc);
+            resultMatrix[sqrLoc[0] + 1][sqrLoc[1] + 1] = currentSign;
+        } else {
+            currentSign = resultMatrix[sqrLoc[0] + 1][sqrLoc[1] + 1];
         }
+        signs[3] = currentSign;
+
+        for (PlotterSign i : signs) if (i == PlotterSign.ZERO) canSubdivide = true;
+
+        
     }
 
     private PlotterSign findSign(Expressions Expr, double[] position) {
