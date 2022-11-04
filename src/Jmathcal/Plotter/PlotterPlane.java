@@ -34,11 +34,11 @@ public class PlotterPlane {
     
     public static void main(String[] args) {
         VariablePool vp = new VariablePool();       
-        Expressions expr1 = Expressions.parseFromFlattenExpr("arcsinx", vp, IOBridge.DFLT_BRIDGE);
-        Expressions expr2 = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
-        int[] resolutionXY = {30,30};
-        int[] lengthXY = {10,3};
-        double[] origin = {0,-1};
+        Expressions expr1 = Expressions.parseFromFlattenExpr("y^2-cosx-siny+cosh4", vp, IOBridge.DFLT_BRIDGE);
+        Expressions expr2 = Expressions.parseFromFlattenExpr("3^2", vp, IOBridge.DFLT_BRIDGE);
+        int[] resolutionXY = {40,40};
+        int[] lengthXY = {10,10};
+        double[] origin = {-5,-1};
         PlaneInfo planeInfo = new PlaneInfo(resolutionXY, lengthXY, origin);
         PlotterPlane myPlane = new PlotterPlane(planeInfo, expr1, expr2, 10);
     }
@@ -73,7 +73,8 @@ public class PlotterPlane {
                 currentLoc[0] = sizeOfSquare[0]*i + xOri;
                 currentLoc[1] = sizeOfSquare[1]*j + yOri;
                 sqrMatrix[i][j] = new PlottingSqr(sqrLoc, currentLoc, sizeOfSquare);
-                sqrMatrix[i][j].computeSign(signMatrix, function);
+                boolean canSubdivide = sqrMatrix[i][j].computeSign(signMatrix, function);
+
             }
         }
 
@@ -83,6 +84,7 @@ public class PlotterPlane {
             }
             System.out.println("\n");
         }
+
 
     }
 

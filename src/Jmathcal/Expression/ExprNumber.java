@@ -2,9 +2,13 @@ package Jmathcal.Expression;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import Jmathcal.Number.InfiniteValueException;
+import Jmathcal.Number.UndefinedValueException;
 import Jmathcal.Number.Complex.ComplexDbl;
 import Jmathcal.Number.Complex.ComplexNum;
 import Jmathcal.Number.Function.AngleType;
@@ -12,199 +16,453 @@ import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
 
 public class ExprNumber implements ExprElements {
-    public static int DBL = 10;
-    public final String value;
+    public static int DBL = 16;
+    private ComplexDbl valueDBL;
+    private ComplexNum valueSTR;
+
+    /**
+     * Constructs a new {@code ExprNumber} strictly represented by the following
+     * form : {@value a+bi}, where {@code a} and {@code b} are {@code String} that
+     * can be
+     * directly turned into {@code BigDecimal}.
+     * 
+     * @param value
+     */
     public ExprNumber(String value) {
-        this.value = value;
+        StringBuffer complexValue = new StringBuffer(value);
+        Pattern numPattern = Pattern.compile("^(\\+|\\-)?\\d+(\\.\\d+)?(E(\\+|\\-)?\\d+)?");
+        Matcher numMatcher = numPattern.matcher(complexValue);
+
+        Pattern infPattern = Pattern.compile("Infinity");
+        Matcher infMatcher = infPattern.matcher(complexValue);
+
+        Pattern nanPattern = Pattern.compile("NaN");
+        Matcher nanMatcher = nanPattern.matcher(complexValue);
+
+        BigDecimal realValue = null;
+        BigDecimal imaValue = null;
+
+        if (numMatcher.find()) {
+            realValue = new BigDecimal(complexValue.substring(numMatcher.start(), numMatcher.end()));
+            complexValue.delete(numMatcher.start(), numMatcher.end() + 1);
+            complexValue.deleteCharAt(complexValue.length() - 1);
+            imaValue = new BigDecimal(complexValue.toString());
+        } else if (infMatcher.find()) {
+            throw new InfiniteValueException(!(complexValue.charAt(0) == '-'));
+        } else if (nanMatcher.find()) {
+            throw new UndefinedValueException();
+        } else {
+            throw new NumberFormatException();
+        }
+        valueSTR = new ComplexNum(realValue, imaValue);
+        valueDBL = valueSTR.toComplexDbl();
     }
+
+    private ExprNumber(ComplexDbl valueDBL) {
+        this.valueDBL = valueDBL;
+        this.valueSTR = null;
+    }
+
+    private ExprNumber(ComplexNum valueSTR) {
+        this.valueDBL = null;
+        this.valueSTR = valueSTR;
+    }
+
     public ComplexNum toComplexNum() {
-        return new ComplexNum(this);
+        return valueSTR == null ? valueDBL.toComplexNum() : valueSTR;
     }
+
     public ComplexDbl toComplexDbl() {
-        return new ComplexNum(this).toComplexDbl();
+        return valueDBL == null ? valueSTR.toComplexDbl() : valueDBL;
     }
+
     @Override
     public String toString() {
-        return value;
+        return valueSTR == null ? valueDBL.toString() : valueSTR.toString();
     }
+
     public String toAnsString() {
         return this.toComplexNum().toAnsString();
     }
+
     @Override
     public ExprNumber toNumber(MathContext mc) {
         return this.round(mc);
     }
+
     public int intValue() {
+        String value = valueSTR == null ? valueDBL.toString() : valueSTR.toString();
         Pattern intPat = Pattern.compile("^\\d+");
-        Matcher intMat = intPat.matcher(this.value);
+        Matcher intMat = intPat.matcher(value);
         if (intMat.find()) {
-            return (Integer.valueOf(this.value.substring(intMat.start(), intMat.end())));
+            return (Integer.valueOf(value.substring(intMat.start(), intMat.end())));
         } else {
             throw new NumberFormatException();
         }
     }
+
     public ExprNumber add(ExprNumber augend, MathContext mc) {
         if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            ComplexDbl b = new ComplexNum(augend).toComplexDbl();
-            return new ExprNumber(a.add(b).toString());
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (augend.valueDBL == null)
+                augend.valueDBL = augend.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.add(augend.valueDBL));
         } else {
-            ComplexNum a = new ComplexNum(this);
-            ComplexNum b = new ComplexNum(augend);
-            return new ExprNumber(a.add(b).round(mc).toString());
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (augend.valueSTR == null)
+                augend.valueSTR = augend.valueDBL.toComplexNum();
+            return new ExprNumber(valueSTR.add(valueSTR).round(mc));
         }
-    }
-    public ExprNumber subtract(ExprNumber subtrahend, MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            ComplexDbl b = new ComplexNum(subtrahend).toComplexDbl();
-            return new ExprNumber(a.subtract(b).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            ComplexNum b = new ComplexNum(subtrahend);
-            return new ExprNumber(a.subtract(b).round(mc).toString());
-        }
-    }
-    public ExprNumber multiply(ExprNumber multiplicand, MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            ComplexDbl b = new ComplexNum(multiplicand).toComplexDbl();
-            return new ExprNumber(a.multiply(b).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            ComplexNum b = new ComplexNum(multiplicand);
-            return new ExprNumber(a.multiply(b).round(mc).toString());
-        }
-    }
-    public ExprNumber divide(ExprNumber dividend, MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            ComplexDbl b = new ComplexNum(dividend).toComplexDbl();
-            return new ExprNumber(a.divide(b).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            ComplexNum b = new ComplexNum(dividend);
-            return new ExprNumber(a.divide(b, mc).toString());
-        }
-    }
-    public ExprNumber pow(ExprNumber exponent, MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            ComplexDbl b = new ComplexNum(exponent).toComplexDbl();
-            return new ExprNumber(a.pow(b).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            ComplexNum b = new ComplexNum(exponent);
-            return new ExprNumber(a.pow(b, mc).toString());
-        }
-    }
-    public ExprNumber percent(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber(a.divide(new ComplexDbl(100)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(a.scaleByPowerOfTen(-2).round(mc).toString());
-        }
-    }
-    public ExprNumber sqrt(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber(a.pow(new ComplexDbl(0.5)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(a.pow(new ComplexNum("0.5"), mc).toString());
-        }
-    }
-    public ExprNumber sin(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.sin(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.sin(a, mc).toString());
-        }
-    }
-    public ExprNumber cos(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.cos(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.cos(a, mc).toString());
-        }
-    }
-    public ExprNumber tan(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.tan(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.tan(a, mc).toString());
-        }
-    }
-    public ExprNumber arcsin(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.arcsin(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.arcsin(a, mc).toString());
-        }
-    }
-    public ExprNumber arccos(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.arccos(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.arccos(a, mc).toString());
-        }
-    }
-    public ExprNumber arctan(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.arctan(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Trigo.arctan(a, mc).toString());
-        }
-    }
-    public ExprNumber log(ExprNumber baseExpr,MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl num = new ComplexNum(this).toComplexDbl();
-            ComplexDbl base = new ComplexNum(baseExpr).toComplexDbl();
-            return new ExprNumber((Exp.log(base, num)).toString());
-        } else {
-            ComplexNum num = new ComplexNum(this);
-            ComplexNum base = new ComplexNum(baseExpr);
-            return new ExprNumber((Exp.log(base, num, mc)).toString());
-        }
-    }
-    public ExprNumber ln(MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Exp.ln(a)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber(Exp.ln(a, mc).toString());
-        }
-    }
-    public ExprNumber angleConvert(AngleType ori, AngleType target, MathContext mc) {
-        if (mc.getPrecision() < DBL) {
-            ComplexDbl a = new ComplexNum(this).toComplexDbl();
-            return new ExprNumber((Trigo.angleConvert(a, ori, target)).toString());
-        } else {
-            ComplexNum a = new ComplexNum(this);
-            return new ExprNumber((Trigo.angleConvert(a, ori, target, mc)).toString());
-        }
-    }
-    public ExprNumber round(MathContext mc) {
-        return new ExprNumber(new ComplexNum(this).round(mc).toString());
-    }
-    public boolean isReal() {
-        int ifReal = this.toComplexNum().getImaValue().compareTo(BigDecimal.ZERO);
-        return ifReal == 0 ? true : false;
     }
 
+    public ExprNumber subtract(ExprNumber subtrahend, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (subtrahend.valueDBL == null)
+                subtrahend.valueDBL = subtrahend.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.subtract(subtrahend.valueDBL));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (subtrahend.valueSTR == null)
+                subtrahend.valueSTR = subtrahend.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.subtract(subtrahend.valueSTR).round(mc));
+        }
+    }
+
+    public ExprNumber multiply(ExprNumber multiplicand, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (multiplicand.valueDBL == null)
+                multiplicand.valueDBL = multiplicand.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.multiply(multiplicand.valueDBL));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (multiplicand.valueSTR == null)
+                multiplicand.valueSTR = multiplicand.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.multiply(multiplicand.valueSTR).round(mc));
+        }
+    }
+
+    public ExprNumber divide(ExprNumber dividend, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (dividend.valueDBL == null)
+                dividend.valueDBL = dividend.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.divide(dividend.valueDBL));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (dividend.valueSTR == null)
+                dividend.valueSTR = dividend.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.divide(dividend.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber pow(ExprNumber exponent, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (exponent.valueDBL == null)
+                exponent.valueDBL = exponent.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.pow(exponent.valueDBL));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (exponent.valueSTR == null)
+                exponent.valueSTR = exponent.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.pow(exponent.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber percent(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.divide(new ComplexDbl(100)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.scaleByPowerOfTen(-2).round(mc));
+        }
+    }
+
+    public ExprNumber sqrt(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(this.valueDBL.pow(new ComplexDbl(0.5)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(this.valueSTR.pow(new ComplexNum("0.5"), mc));
+        }
+    }
+
+    public ExprNumber sin(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.sin(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.sin(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber cos(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.cos(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.cos(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber tan(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.tan(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.tan(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber arcsin(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.arcsin(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.arcsin(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber arccos(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.arccos(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.arccos(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber arctan(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.arctan(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.arctan(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber log(ExprNumber baseExpr, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (baseExpr.valueDBL == null)
+                baseExpr.valueDBL = baseExpr.valueSTR.toComplexDbl();
+            return new ExprNumber((Exp.log(this.valueDBL, baseExpr.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (baseExpr.valueSTR == null)
+                baseExpr.valueSTR = baseExpr.valueDBL.toComplexNum();
+            return new ExprNumber((Exp.log(this.valueSTR, baseExpr.valueSTR, mc)));
+        }
+    }
+
+    public ExprNumber ln(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Exp.ln(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Exp.ln(this.valueSTR, mc));
+        }
+    }
+
+    public ExprNumber csc(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.ONE.divide(Trigo.sin(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(ComplexNum.ONE.divide(Trigo.sin(this.valueSTR, calPrecision), mc));
+        }
+    }
+
+    public ExprNumber sec(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.ONE.divide(Trigo.cos(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(ComplexNum.ONE.divide(Trigo.cos(this.valueSTR, calPrecision), mc));
+        }
+    }
+
+    public ExprNumber cot(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.ONE.divide(Trigo.tan(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(ComplexNum.ONE.divide(Trigo.tan(this.valueSTR, calPrecision), mc));
+        }
+    }
+
+    public ExprNumber sinh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.I.multiply(Trigo.sin(ComplexDbl.I.multiply(this.valueDBL))).negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(
+                    ComplexNum.I.multiply(Trigo.sin(ComplexNum.I.multiply(this.valueSTR), calPrecision)).negate());
+        }
+    }
+
+    public ExprNumber cosh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(Trigo.cos(ComplexDbl.I.multiply(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(Trigo.cos(ComplexNum.I.multiply(this.valueSTR), mc));
+        }
+    }
+
+    public ExprNumber tanh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.I.multiply(Trigo.tan(ComplexDbl.I.multiply(this.valueDBL))).negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(
+                    ComplexNum.I.multiply(Trigo.tan(ComplexNum.I.multiply(this.valueSTR), calPrecision)).negate());
+        }
+    }
+
+    public ExprNumber arsinh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.I.multiply(Trigo.arcsin(ComplexDbl.I.multiply(this.valueDBL))).negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(
+                    ComplexNum.I.multiply(Trigo.arcsin(ComplexNum.I.multiply(this.valueSTR), calPrecision)).negate());
+        }
+    }
+
+    public ExprNumber arcosh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.I.multiply(Trigo.cos(this.valueDBL)).negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber((ComplexNum.I.multiply(Trigo.cos(this.valueSTR, mc)).negate()));
+        }
+    }
+
+    public ExprNumber artanh(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(ComplexDbl.I.multiply(Trigo.arctan(ComplexDbl.I.multiply(this.valueDBL))).negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(
+                    ComplexNum.I.multiply(Trigo.arctan(ComplexNum.I.multiply(this.valueSTR), calPrecision)).negate());
+        }
+    }
+
+    public ExprNumber angleConvert(AngleType ori, AngleType target, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber((Trigo.angleConvert(this.valueDBL, ori, target)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber((Trigo.angleConvert(this.valueSTR, ori, target, mc)));
+        }
+    }
+
+    public ExprNumber round(MathContext mc) {
+        if (this.valueSTR == null)
+            this.valueSTR = this.valueDBL.toComplexNum();
+        return new ExprNumber(this.valueSTR.round(mc));
+    }
+
+    /**
+     * Method to verify if an {@code ExprNumber} is a real number or not.
+     * <p>
+     * Due to the imprecision of the calculator, it happens that for
+     * some scenario, the imaginary part of the result is not equal to
+     * zero while it should.<p>
+     * Thus, to verify if a number is a real number, the real part and
+     * the imaginary part of the function is compared<p>
+     * For two numbers a and b, if a = p*10^v and b = q*10^w
+     * 
+     *
+     * @return if an {@code ExprNumber} number is a real number or not
+     */
+    public boolean isRealDBL() {
+        if (this.toComplexDbl().getImaValue() == 0) return true;
+        int realMag = Math.getExponent(this.toComplexDbl().getRealValue());
+        int imaMag = Math.getExponent(this.toComplexDbl().getImaValue());
+
+        if (realMag-imaMag > 50) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -35,6 +35,10 @@
     <entry key="sec">SEC</entry>
     <entry key="cot">COT</entry>
 
+    <entry key="arsinh">ARSINH</entry>
+    <entry key="arcosh">ARCOSH</entry>
+    <entry key="artanh">ARTANH</entry>
+
     <entry key="deg">DEG</entry>
     <entry key="grad">GRAD</entry>
     <entry key="todeg">TO_DEG</entry>

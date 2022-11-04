@@ -16,6 +16,14 @@ import java.util.regex.Pattern;
 import Jmathcal.Expression.ExprFunction.OpsType;
 import Jmathcal.IOControl.IOBridge;
 
+/**
+ * The {@code Expression} class stores an expression
+ * and evaluates the expression with required
+ * precision.
+ * To create an {@code Expression} instance, input
+ * the flatten form in {@code String} of the expression.</p>
+ * <ul><li>See the method: {@code parseFromFlattenExpr()}</li></ul>
+ */
 public class Expressions implements ExprElements {
 
     public static int PRECI = 10;
@@ -33,8 +41,8 @@ public class Expressions implements ExprElements {
     }
 
     public static void main(String args[]) {
-        MathContext calMc = new MathContext(6, RoundingMode.HALF_UP);
-        MathContext mc = new MathContext(6, RoundingMode.HALF_UP);
+        MathContext calMc = new MathContext(16, RoundingMode.HALF_UP);
+        MathContext mc = new MathContext(12, RoundingMode.HALF_UP);
 
         IOBridge panel = IOBridge.DFLT_BRIDGE;
         String a = panel.askForInput("Input: ");
@@ -304,7 +312,8 @@ public class Expressions implements ExprElements {
      * </li>
      * <li>Trigonometry functions:
      * <p>
-     * Keywords： {@code sin, cos, tan, arcsin, arccos, arctan}
+     * Keywords： {@code sin, cos, tan, arcsin, arccos, arctan}<p>
+     * {@code sinh, cosh, tanh, arsinh, arcosh, artanh}
      * <ul>
      * <li>Theses functions have the same precedence to addition and
      * subtraction.</li>
@@ -380,9 +389,6 @@ public class Expressions implements ExprElements {
         parserInfo.checkNegativeSign();
 
         while (parserInfo.exprBuffer.length() > 0) {
-            System.out.print(parserInfo.tokensList);
-            System.out.println(parserInfo.operationsStack);
-
             // see if is constant, all constant starts with \
             if (parserInfo.checkBackSlash(varPool))
                 continue;
@@ -440,8 +446,6 @@ public class Expressions implements ExprElements {
             buffer.insert(mulMatcher.start() + 1, "*");
             mulMatcher = mulPattern.matcher(buffer);
         }
-
-        System.out.println(buffer);
         return buffer.toString();
     }
 
@@ -505,7 +509,16 @@ public class Expressions implements ExprElements {
         }
     }
 
+    /**
+     * Calculates the expression with {@code mc} as the
+     * precision used in the computation. Thus, it is 
+     * recommended to round the answer after to eliminate
+     * the uncertainty.
+     * @param mc
+     * @return the result of the expression in {@code ExprNumber}
+     */
     public ExprNumber calculate(MathContext mc) {
+        //System.out.println(this);
         if (this.tokens.size() == 1) {
             if (!(this.tokens.get(0) instanceof ExprFunction)) {
                 if (this.tokens.get(0) instanceof VariablePool.Variable)
@@ -528,7 +541,7 @@ public class Expressions implements ExprElements {
         parameters.removeLast();
         if (((ExprFunction) this.tokens.getLast()).getType().parameterNum != parameters.size())
             throw new ExprSyntaxErrorException();
-        this.valueOfExpression = ((ExprFunction) this.tokens.getLast()).calculate(parameters, mc).round(mc);
+        this.valueOfExpression = ((ExprFunction)this.tokens.getLast()).calculate(parameters, mc).round(mc);
         return valueOfExpression;
     }
 

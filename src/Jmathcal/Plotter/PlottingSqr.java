@@ -20,7 +20,8 @@ public class PlottingSqr {
         this.signs = new PlotterSign[4];
     }
 
-    public void computeSign(PlotterSign[][] resultMatrix, Expressions Expr) {
+    public boolean computeSign(PlotterSign[][] resultMatrix, Expressions Expr) {
+        canSubdivide = false;
         PlotterSign currentSign = null;
         if (resultMatrix[sqrLoc[0]][sqrLoc[1]] == null) {
             currentSign = findSign(Expr, location);
@@ -57,9 +58,25 @@ public class PlottingSqr {
         }
         signs[3] = currentSign;
 
-        for (PlotterSign i : signs) if (i == PlotterSign.ZERO) canSubdivide = true;
-
-        
+        for (PlotterSign i : signs){
+            if (i == PlotterSign.ZERO) {
+                canSubdivide = true;
+                return canSubdivide;
+            }
+        }
+        if (PlotterSign.ifPointPasses(signs[0], signs[1])){
+            canSubdivide = true;
+        }
+        if (PlotterSign.ifPointPasses(signs[0], signs[2])){
+            canSubdivide = true;
+        }
+        if (PlotterSign.ifPointPasses(signs[3], signs[1])){
+            canSubdivide = true;
+        }
+        if (PlotterSign.ifPointPasses(signs[3], signs[2])){
+            canSubdivide = true;
+        }
+        return canSubdivide;
     }
 
     private PlotterSign findSign(Expressions Expr, double[] position) {
@@ -71,7 +88,7 @@ public class PlottingSqr {
         }
         ExprNumber result = null;
         try {
-            result = Expr.calculate(new MathContext(10));
+            result = Expr.calculate(new MathContext(15));
         } catch (Jmathcal.Number.InfiniteValueException e) {
             return PlotterSign.NOT_REAL;
         } catch (Jmathcal.Number.UndefinedValueException e) {
@@ -80,9 +97,11 @@ public class PlottingSqr {
             return PlotterSign.NOT_REAL;
         } catch (java.lang.ArithmeticException e) {
             return PlotterSign.NOT_REAL;
+        } catch (java.lang.NumberFormatException e) {
+            return PlotterSign.NOT_REAL;
         }
 
-        if (result != null && result.isReal()) {
+        if (result != null && result.isRealDBL(15)) {
             ComplexDbl resultDBL = result.toComplexDbl();
             if (resultDBL.getRealValue() > 0) {
                 return PlotterSign.POS;

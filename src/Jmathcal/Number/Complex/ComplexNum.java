@@ -80,39 +80,6 @@ public class ComplexNum implements Serializable, Comparable<ComplexNum>, Computa
     }
 
     /**
-     * Constructs a new {@code ComplexNum} strictly represented by the following
-     * form : {@value a+bi}, where {@code a} and {@code b} are {@code String} that
-     * can be
-     * directly turned into {@code BigDecimal}.
-     * 
-     * @param complexValue
-     */
-    public ComplexNum(ExprNumber exprNumber) {
-        StringBuffer complexValue = new StringBuffer(exprNumber.toString());
-        Pattern numPattern = Pattern.compile("^(\\+|\\-)?\\d+(\\.\\d+)?(E(\\+|\\-)?\\d+)?");
-        Matcher numMatcher = numPattern.matcher(complexValue);
-
-        Pattern infPattern = Pattern.compile("Infinity");
-        Matcher infMatcher = infPattern.matcher(complexValue);
-
-        Pattern nanPattern = Pattern.compile("NaN");
-        Matcher nanMatcher = nanPattern.matcher(complexValue);
-
-        if (numMatcher.find()) {
-            this.realValue = new BigDecimal(complexValue.substring(numMatcher.start(), numMatcher.end()));
-            complexValue.delete(numMatcher.start(), numMatcher.end() + 1);
-            complexValue.deleteCharAt(complexValue.length() - 1);
-            this.imaValue = new BigDecimal(complexValue.toString());
-        } else if (infMatcher.find()) {
-            throw new InfiniteValueException(!(complexValue.charAt(0) == '-'));
-        } else if (nanMatcher.find()) {
-            throw new UndefinedValueException();
-        } else {
-            throw new NumberFormatException();
-        }
-    }
-
-    /**
      * Constructs a new {@code ComplexNum} whose real and imaginary part
      * are defined by <i>realValue</i> and <i>imaValue</i>.
      * 

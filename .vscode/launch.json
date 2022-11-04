@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ExprNumber",
+            "request": "launch",
+            "mainClass": "Jmathcal.Expression.ExprNumber",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch PlotterGraph",
             "request": "launch",
             "mainClass": "Jmathcal.Plotter.PlotterGraph",

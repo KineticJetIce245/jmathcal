@@ -275,33 +275,21 @@ public class ExprFunction implements Serializable, ExprElements {
         CSC(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "1/sinx";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).csc(mc);
             }
         }),
 
         SEC(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "1/cosx";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).sec(mc);
             }
         }),
 
         COT(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "1/tanx";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).cot(mc);
             }
         }),
 
@@ -309,33 +297,42 @@ public class ExprFunction implements Serializable, ExprElements {
         SINH(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "-\\isin(\\ix)";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).sinh(mc);
             }
         }),
 
         COSH(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "cos(\\ix)";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).cosh(mc);
             }
         }),
 
         TANH(1, 1, new CalBridge() {
             @Override
             public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
-                String strFormula = "(sinhx)/(coshx)";
-                VariablePool varPool = new VariablePool();
-                Expressions formula = Expressions.parseFromFlattenExpr(strFormula, varPool, TEMP_BRIDGE);
-                varPool.setValueOf("x", parameters.get(0).toNumber(mc));
-                return formula.calculate(mc);
+                return parameters.get(0).toNumber(mc).tanh(mc);
+            }
+        }),
+
+        ARSINH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).arsinh(mc);
+            }
+        }),
+
+        ARCOSH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).arcosh(mc);
+            }
+        }),
+
+        ARTANH(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).artanh(mc);
             }
         }),
 

@@ -1,6 +1,7 @@
 package Jmathcal.Number.Complex;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import Jmathcal.Number.Computable;
 import Jmathcal.Number.Function.Exp;
@@ -255,5 +256,11 @@ public class ComplexDbl implements Serializable, Comparable<ComplexDbl>, Computa
         if (this.imaValue != 0)
             return false;
         return this.realValue - (int)this.realValue == 0;
+    }
+
+    public ComplexNum toComplexNum() {
+        BigDecimal realValue = new BigDecimal(Double.toString(this.realValue));
+        BigDecimal imaValue = new BigDecimal(Double.toString(this.imaValue));
+        return new ComplexNum(realValue, imaValue);
     }
 }

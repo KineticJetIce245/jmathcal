@@ -24,4 +24,17 @@ public enum PlotterSign {
 
         return reVal;
     }
+
+    public static boolean ifPointPasses(PlotterSign a, PlotterSign b) {
+        if (a == ZERO || b == ZERO) {
+            return true;
+        }
+        if (a != NOT_REAL && b != NOT_REAL) {
+            if (a.compareTo(b) != 0) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }
