@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ErrorGui",
+            "request": "launch",
+            "mainClass": "Jmathcal.GUI.ErrorGui",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch Test",
             "request": "launch",
             "mainClass": "Jmathcal.GUI.Test",

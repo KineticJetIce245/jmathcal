@@ -32,8 +32,10 @@ public class CalculatorGui extends JFrame{
             launchInfo.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            ErrorGui.launch(e.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            ErrorGui.launch(e.toString());
         } finally {
             if (fis != null) {
                 try {
@@ -57,8 +59,10 @@ public class CalculatorGui extends JFrame{
             langDisplay.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            ErrorGui.launch(e.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            ErrorGui.launch(e.toString());
         } finally {
             if (fis != null) {
                 try {
@@ -75,14 +79,11 @@ public class CalculatorGui extends JFrame{
         appFrame.setLocationRelativeTo(null);
 
         JMenuBar mainMenuBar = new JMenuBar();
-
         appFrame.setJMenuBar(mainMenuBar);
 
 
         CardLayout mainCardLayout = new CardLayout();
-
         appFrame.setLayout(mainCardLayout);
-
         appFrame.setVisible(true);
     }
 }
