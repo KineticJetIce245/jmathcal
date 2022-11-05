@@ -1,60 +1,86 @@
 package Jmathcal.Plotter;
 
+import java.util.ArrayList;
+
 import Jmathcal.Expression.Expressions;
-import Jmathcal.Expression.VariablePool;
-import Jmathcal.IOControl.IOBridge;
 
 public class PlotterPlane {
+
+    public ArrayList<PlottingSqr> toDrawList;
+    public PlaneInfo planeInfo;
+    public Expressions expr;
 
     /**
      * PlaneInfo
      */
     public static class PlaneInfo {
-    
-        private int[] resolution;
-        private int[] length;
-        private double[] origin;
 
-        public PlaneInfo(int[] resolution, int[] length, double[] origin) {
+        /**
+         * Number of square per side
+         */
+        private int[] resolution;
+        /**
+         * The mathematic size of the plane
+         */
+        private int[] length;
+        /**
+         * The coordinate of the left bottom of the plane
+         */
+        private double[] origin;
+        /**
+         * The size of the plane (in pixel)
+         */
+        private int[] planeSize;
+        private double scale;
+
+        public PlaneInfo(int[] resolution, int[] length, double[] origin, int[] planeSize) {
             this.resolution = resolution;
             this.length = length;
             this.origin = origin;
+            this.planeSize = planeSize;
+            double xScale = (double) planeSize[0] / (double) length[0];
+            double yScale = (double) planeSize[1] / (double) length[1];
+            this.scale = xScale > yScale ? yScale : xScale;
+        }
+
+        public double getScale() {
+            return this.scale;
+        }
+
+        public int getScrSize(int index) {
+            return planeSize[index];
         }
 
         public int getRes(int index) {
             return resolution[index];
         }
+
         public int getLen(int index) {
             return length[index];
         }
+
         public double getOri(int index) {
             return origin[index];
         }
     }
-    
-    public static void main(String[] args) {
-        VariablePool vp = new VariablePool();       
-        Expressions expr1 = Expressions.parseFromFlattenExpr("y^2-cosx-siny+cosh4", vp, IOBridge.DFLT_BRIDGE);
-        Expressions expr2 = Expressions.parseFromFlattenExpr("3^2", vp, IOBridge.DFLT_BRIDGE);
-        int[] resolutionXY = {40,40};
-        int[] lengthXY = {10,10};
-        double[] origin = {-5,-1};
-        PlaneInfo planeInfo = new PlaneInfo(resolutionXY, lengthXY, origin);
-        PlotterPlane myPlane = new PlotterPlane(planeInfo, expr1, expr2, 10);
-    }
-  
-    public PlotterPlane(PlaneInfo planeInfo, Expressions expr1, Expressions expr2, int depth) {
+
+    public PlotterPlane(PlaneInfo planeInfo, Expressions expr1, Expressions expr2) {
+        this.planeInfo = planeInfo;
 
         Expressions function = Expressions.subtractExpr(expr1, expr2);
-        
+        this.expr = function;
+
         double[] sizeOfSquare = new double[2];
-        sizeOfSquare[0] = (double)planeInfo.getLen(0) / (double)planeInfo.getRes(0);
-        sizeOfSquare[1] = (double)planeInfo.getLen(1) / (double)planeInfo.getRes(1);
+        sizeOfSquare[0] = (double) planeInfo.getLen(0) / (double) planeInfo.getRes(0);
+        sizeOfSquare[1] = (double) planeInfo.getLen(1) / (double) planeInfo.getRes(1);
+        for (double i : sizeOfSquare)
+            if (i == 0)
+                throw new TooSmallDivisionsException();
 
-        System.out.println(sizeOfSquare[0]);
+        //PlottingSqr[][] sqrMatrix = new PlottingSqr[planeInfo.getRes(0)][planeInfo.getRes(1)];
+        PlotterSign[][] signMatrix = new PlotterSign[planeInfo.getRes(0) + 1][planeInfo.getRes(1) + 1];
 
-        PlottingSqr[][] sqrMatrix = new PlottingSqr[planeInfo.getRes(0)][planeInfo.getRes(1)];
-        PlotterSign[][] signMatrix = new PlotterSign[planeInfo.getRes(0)+1][planeInfo.getRes(1)+1];
+        this.toDrawList = new ArrayList<PlottingSqr>();
 
         /**
          * Build a matrix of of plotting divisions
@@ -69,27 +95,36 @@ public class PlotterPlane {
         for (int i = 0; i < planeInfo.getRes(0); i++) {
             for (int j = 0; j < planeInfo.getRes(1); j++) {
                 double[] currentLoc = new double[2];
-                int[] sqrLoc = {i, j};
-                currentLoc[0] = sizeOfSquare[0]*i + xOri;
-                currentLoc[1] = sizeOfSquare[1]*j + yOri;
+                int[] sqrLoc = { i, j };
+                currentLoc[0] = sizeOfSquare[0] * i + xOri;
+                currentLoc[1] = sizeOfSquare[1] * j + yOri;
+                /*
                 sqrMatrix[i][j] = new PlottingSqr(sqrLoc, currentLoc, sizeOfSquare);
                 boolean canSubdivide = sqrMatrix[i][j].computeSign(signMatrix, function);
-
+                if (canSubdivide)
+                    this.toDrawList.add(sqrMatrix[i][j]);
+                */
+                PlottingSqr sqr = new PlottingSqr(sqrLoc, currentLoc, sizeOfSquare);
+                boolean canSubdivide = sqr.computeSign(signMatrix, function);
+                if (canSubdivide)
+                    this.toDrawList.add(sqr);
+                
             }
         }
+    }
 
-        for (int i = planeInfo.getRes(1) - 1; i >= 0; i--) {
-            for (int j = 0; j < planeInfo.getRes(0); j++) {
-                System.out.print(signMatrix[j][i]);
+    public ArrayList<PlottingSqr> subdivide() {
+        ArrayList<PlottingSqr> subdivideList = new ArrayList<PlottingSqr>();
+        for (PlottingSqr i : toDrawList) {
+            for (PlottingSqr j : i.subdivide()) {
+                subdivideList.add(j);
             }
-            System.out.println("\n");
         }
-
-
+        toDrawList = subdivideList;
+        return subdivideList;
     }
 
     public class WrongPlaneSettingException extends IllegalArgumentException {
-        
 
         @java.io.Serial
         private static final long serialVersionUID = -6286288328490453673L;
@@ -101,14 +136,38 @@ public class PlotterPlane {
         public WrongPlaneSettingException() {
             super();
         }
-    
+
         /**
          * Constructs a {@code WrongPlaneSettingException} with the
          * specified detail message.
          *
-         * @param   s   the detail message.
+         * @param s the detail message.
          */
         public WrongPlaneSettingException(String s) {
+            super(s);
+        }
+    }
+
+    public class TooSmallDivisionsException extends ArithmeticException {
+
+        @java.io.Serial
+        private static final long serialVersionUID = -6120003610046574725L;
+
+        /**
+         * Constructs a {@code TooSmallDivisionsException} with no
+         * detail message.
+         */
+        public TooSmallDivisionsException() {
+            super();
+        }
+
+        /**
+         * Constructs a {@code TooSmallDivisionsException} with the
+         * specified detail message.
+         *
+         * @param s the detail message.
+         */
+        public TooSmallDivisionsException(String s) {
             super(s);
         }
     }

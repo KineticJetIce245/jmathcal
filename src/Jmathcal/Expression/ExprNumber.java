@@ -113,7 +113,7 @@ public class ExprNumber implements ExprElements {
                 this.valueSTR = this.valueDBL.toComplexNum();
             if (augend.valueSTR == null)
                 augend.valueSTR = augend.valueDBL.toComplexNum();
-            return new ExprNumber(valueSTR.add(valueSTR).round(mc));
+            return new ExprNumber(valueSTR.add(augend.valueSTR).round(mc));
         }
     }
 
@@ -283,13 +283,13 @@ public class ExprNumber implements ExprElements {
                 this.valueDBL = this.valueSTR.toComplexDbl();
             if (baseExpr.valueDBL == null)
                 baseExpr.valueDBL = baseExpr.valueSTR.toComplexDbl();
-            return new ExprNumber((Exp.log(this.valueDBL, baseExpr.valueDBL)));
+            return new ExprNumber((Exp.log(baseExpr.valueDBL, this.valueDBL)));
         } else {
             if (this.valueSTR == null)
                 this.valueSTR = this.valueDBL.toComplexNum();
             if (baseExpr.valueSTR == null)
                 baseExpr.valueSTR = baseExpr.valueDBL.toComplexNum();
-            return new ExprNumber((Exp.log(this.valueSTR, baseExpr.valueSTR, mc)));
+            return new ExprNumber((Exp.log(baseExpr.valueSTR, this.valueSTR, mc)));
         }
     }
 
@@ -447,20 +447,28 @@ public class ExprNumber implements ExprElements {
      * <p>
      * Due to the imprecision of the calculator, it happens that for
      * some scenario, the imaginary part of the result is not equal to
-     * zero while it should.<p>
+     * zero while it should.
+     * <p>
      * Thus, to verify if a number is a real number, the real part and
-     * the imaginary part of the function is compared<p>
-     * For two numbers a and b, if a = p*10^v and b = q*10^w
+     * the imaginary part of the function is compared.
+     * <p>
+     * For two numbers {@code a = p*10^v} and {@code b = q*10^w},
+     * if {@code v-w > difference}, we say that the imaginary part is
+     * equal to zero.
      * 
-     *
+     * @param difference the minimum difference between the exponent of 10 of the
+     *                   real part and the imaginary part to consider the imaginary
+     *                   part as zero
      * @return if an {@code ExprNumber} number is a real number or not
      */
-    public boolean isRealDBL() {
-        if (this.toComplexDbl().getImaValue() == 0) return true;
+    public boolean isRealDBL(int difference) {
+        if (this.toComplexDbl().getImaValue() == 0)
+            return true;
         int realMag = Math.getExponent(this.toComplexDbl().getRealValue());
         int imaMag = Math.getExponent(this.toComplexDbl().getImaValue());
-
-        if (realMag-imaMag > 50) {
+        final double LOG210 = 0.30102999566398;
+        double minDifference = (difference-1)*LOG210;
+        if (realMag - imaMag > minDifference) {
             return true;
         }
         return false;
