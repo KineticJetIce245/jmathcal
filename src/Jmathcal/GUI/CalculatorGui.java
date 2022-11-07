@@ -1,16 +1,12 @@
 package Jmathcal.GUI;
 
 import javax.swing.JFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 import java.awt.Dimension;
 import java.awt.CardLayout;
@@ -32,7 +28,7 @@ public class CalculatorGui extends JFrame{
             launchInfo.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            ErrorGui.launch(e.toString());
+            ErrorGui.launch("The calculator can not find the required files to launch!");
         } catch (IOException e) {
             e.printStackTrace();
             ErrorGui.launch(e.toString());
@@ -59,7 +55,7 @@ public class CalculatorGui extends JFrame{
             langDisplay.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            ErrorGui.launch(e.toString());
+            ErrorGui.launch("The calculator can not find the required file to launch!");
         } catch (IOException e) {
             e.printStackTrace();
             ErrorGui.launch(e.toString());
