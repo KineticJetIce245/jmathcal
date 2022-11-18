@@ -13,6 +13,7 @@ public class ExprFunction implements Serializable, ExprElements {
 
     private static final long serialVersionUID = -4376930957526847386L;
     private final OpsType type;
+/*
     private static final IOBridge TEMP_BRIDGE = new IOBridge(){
         public String askForInput(String msg) {
             return null;
@@ -25,7 +26,7 @@ public class ExprFunction implements Serializable, ExprElements {
             return reVal;
         };
     };
-
+*/
     public ExprFunction(OpsType type) {
         this.type = type;
     }

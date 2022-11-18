@@ -9,6 +9,7 @@
             "name": "Launch ErrorGui",
             "request": "launch",
             "mainClass": "Jmathcal.GUI.ErrorGui",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "projectName": "JFilmak_f917a422"
         },
         {
@@ -99,6 +100,7 @@
             "type": "java",
             "name": "Launch Current File",
             "request": "launch",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "mainClass": "${file}"
         },
         {
@@ -112,6 +114,7 @@
             "type": "java",
             "name": "Launch CalculatorGui",
             "request": "launch",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "mainClass": "Jmathcal.GUI.CalculatorGui",
             "projectName": "JFilmak_f917a422"
         },

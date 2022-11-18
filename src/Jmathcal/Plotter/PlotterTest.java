@@ -14,9 +14,16 @@ public class PlotterTest {
             @Override
             public void run() {
                 constructUI();
-
             }
         });
+/*
+        Thread myThread = new Thread(){
+            public void run() {
+                constructUI();
+            }
+        };
+*/
+        //myThread.run();
     }
     
 
@@ -25,7 +32,7 @@ public class PlotterTest {
         Expressions rightExpr = Expressions.parseFromFlattenExpr("x^2", vp, IOBridge.DFLT_BRIDGE);
         Expressions leftExpr = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
 
-        int[] resolution = {25,25};
+        int[] resolution = {50, 50};
         int[] length = {20, 20};
         double[] origin = {-10, -10};
         int[] planeSize = {1000, 1000};
@@ -33,23 +40,20 @@ public class PlotterTest {
         PlotterPlane.PlaneInfo planeInfo = new PlotterPlane.PlaneInfo(resolution, length, origin, planeSize);
 
         PlotterPlane myPlane = new PlotterPlane(planeInfo, rightExpr, leftExpr);
+        myPlane.subdivide();
+        myPlane.subdivide();
+        myPlane.subdivide();
+        myPlane.subdivide();
+
 
         JFrame jf = new JFrame();
-        //jf.setLocationRelativeTo(null);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.setLocationRelativeTo(null);
+        //jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         CardLayout card = new CardLayout();
-        //jf.setLayout(card);
-        jf.add(new PlotterGraph(myPlane.toDrawList, planeInfo));
+        jf.setLayout(card);
+        jf.add(new PlotterGraph(myPlane.subdivide(), planeInfo));
         jf.setVisible(true);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.pack();
-
-        for (int i = 0; i < 6; i++) {
-            //card.last(jf.getContentPane());
-            jf = new JFrame();
-            jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            jf.add(new PlotterGraph(myPlane.subdivide(), planeInfo));
-            jf.setVisible(true);
-            jf.pack();
-        }
     }
 }

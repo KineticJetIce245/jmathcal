@@ -2,4 +2,6 @@
     <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
     <entry key="langFilePath">resource/calculator/lang/lang_en.xml</entry>
+    <entry key="greekLetPath">config/calculator/greekAlphabet.xml</entry>
+    <entry key="keyWordsPath">config/calculator/flattenExpr.xml</entry>
 </properties>

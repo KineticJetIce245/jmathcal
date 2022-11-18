@@ -3,7 +3,6 @@ package Jmathcal.Number.Function;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.function.Consumer;
 
 import Jmathcal.Number.InfiniteValueException;
 import Jmathcal.Number.Complex.ComplexDbl;

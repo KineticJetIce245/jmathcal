@@ -379,7 +379,7 @@ public class Expressions implements ExprElements {
      */
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
-        Properties keyWords = getKeyWords(bridge.getPropertiesLoc().get("configPath"));
+        Properties keyWords = getKeyWords(bridge.getPropertiesLoc().get("keyWordsPath"));
         Properties letWords = getKeyWords(bridge.getPropertiesLoc().get("greekLetPath"));
         expression = formattingFlattenExpr(expression);
 
