@@ -4,4 +4,8 @@
     <entry key="Calculator_Window_Title">Jmathcal - Scientific Calculator</entry>
     <entry key="Calculator_Menu_Calculator">Calculator</entry>
     <entry key="Calculator_Menu_Graphics">Graphics</entry>
+    <entry key="Input_Formula">Input formula</entry>
+    <entry key="Send_Input">Enter</entry>
+    <entry key="Ask_For_Input">Value</entry>
+    <entry key="Ask_For_Input_Title">Value</entry>
 </properties>

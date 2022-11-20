@@ -3,10 +3,15 @@
     "java.project.outputPath": "bin",
     "java.settings.url": ".vscode/org.eclipse.jdt.core.prefs",
     "cSpell.words": [
+        "arccos",
         "ARCOSH",
+        "arcsin",
+        "arctan",
         "ARSINH",
         "ARTANH",
         "Jmathcal",
-        "Trigo"
+        "PRECI",
+        "Trigo",
+        "tsanger"
     ]
 }

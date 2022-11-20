@@ -4,13 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import Jmathcal.Expression.ExprNumber;
 import Jmathcal.Number.Computable;
-import Jmathcal.Number.InfiniteValueException;
-import Jmathcal.Number.UndefinedValueException;
 import Jmathcal.Number.Function.Exp;
 import Jmathcal.Number.Function.Trigo;
 

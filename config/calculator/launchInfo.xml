@@ -4,4 +4,5 @@
     <entry key="langFilePath">resource/calculator/lang/lang_en.xml</entry>
     <entry key="greekLetPath">config/calculator/greekAlphabet.xml</entry>
     <entry key="keyWordsPath">config/calculator/flattenExpr.xml</entry>
+    <entry key="TsangerYuMo_WO3Path">resource/font/TsangerYuMo_WO3.ttf</entry>
 </properties>

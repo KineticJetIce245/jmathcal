@@ -29,31 +29,30 @@ public class PlotterTest {
 
     private static void constructUI() {
         VariablePool vp = new VariablePool();
-        Expressions rightExpr = Expressions.parseFromFlattenExpr("x^2", vp, IOBridge.DFLT_BRIDGE);
-        Expressions leftExpr = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
+        Expressions rightExpr = Expressions.parseFromFlattenExpr("sin(x^3 * y^2)", vp, IOBridge.DFLT_BRIDGE);
+        Expressions leftExpr = Expressions.parseFromFlattenExpr("cos(x^2 * y^3)", vp, IOBridge.DFLT_BRIDGE);
 
-        int[] resolution = {50, 50};
-        int[] length = {20, 20};
-        double[] origin = {-10, -10};
+        int[] resolution = {200, 200};
+        int[] length = {5, 5};
+        double[] origin = {-2.5, -2.5};
         int[] planeSize = {1000, 1000};
         
         PlotterPlane.PlaneInfo planeInfo = new PlotterPlane.PlaneInfo(resolution, length, origin, planeSize);
 
         PlotterPlane myPlane = new PlotterPlane(planeInfo, rightExpr, leftExpr);
-        myPlane.subdivide();
-        myPlane.subdivide();
-        myPlane.subdivide();
-        myPlane.subdivide();
-
-
         JFrame jf = new JFrame();
         jf.setLocationRelativeTo(null);
-        //jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         CardLayout card = new CardLayout();
+        jf.setSize(1000,1000);
         jf.setLayout(card);
-        jf.add(new PlotterGraph(myPlane.subdivide(), planeInfo));
+        myPlane.subdivide();
+        myPlane.subdivide();
+        myPlane.subdivide();
+
+        jf.add(new PlotterGraph(myPlane.subdivide(), planeInfo));;
+
+        //jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.setVisible(true);
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jf.pack();
     }
 }

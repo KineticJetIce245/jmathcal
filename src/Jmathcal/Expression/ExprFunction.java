@@ -1,32 +1,16 @@
 package Jmathcal.Expression;
 
-import java.io.File;
 import java.io.Serializable;
 import java.math.MathContext;
-import java.util.HashMap;
 import java.util.LinkedList;
 
-import Jmathcal.IOControl.IOBridge;
 import Jmathcal.Number.Function.AngleType;
 
 public class ExprFunction implements Serializable, ExprElements {
 
     private static final long serialVersionUID = -4376930957526847386L;
     private final OpsType type;
-/*
-    private static final IOBridge TEMP_BRIDGE = new IOBridge(){
-        public String askForInput(String msg) {
-            return null;
-        };
-        public void outSendMessage(String msg) {};
-        public java.util.HashMap<String,java.io.File> getPropertiesLoc() {
-            HashMap<String, File> reVal = new HashMap<String, File>();
-            reVal.put("configPath", IOBridge.configPath);
-            reVal.put("greekLetPath", IOBridge.greekLetPath);
-            return reVal;
-        };
-    };
-*/
+
     public ExprFunction(OpsType type) {
         this.type = type;
     }

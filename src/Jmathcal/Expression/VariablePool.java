@@ -67,6 +67,10 @@ public class VariablePool {
         }
     }
 
+    public Set<String> getLabelSet() {
+        return this.variablePool.keySet();
+    }
+
     public class Variable implements ExprElements {
 
         private ExprNumber value;
@@ -107,10 +111,12 @@ public class VariablePool {
         }
 
         public ExprNumber askForValue(IOBridge bridge, MathContext mc) {
+            String inputFormula = bridge.askForInput("Value of variable " + label + ":");
+            if (inputFormula == null) {
+                throw new ExprSyntaxErrorException("Input is void");
+            }
             Expressions inputExpressions = Expressions.parseFromFlattenExpr(
-                    bridge.askForInput("Value of variable " + label + ":"),
-                    getOuter(),
-                    bridge);
+                    inputFormula, getOuter(), bridge);
 
             this.value = inputExpressions.calculate(mc);
             return this.value;
