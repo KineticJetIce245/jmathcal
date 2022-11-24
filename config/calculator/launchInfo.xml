@@ -2,7 +2,8 @@
     <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
     <entry key="langFilePath">resource/calculator/lang/lang_en.xml</entry>
-    <entry key="greekLetPath">config/calculator/greekAlphabet.xml</entry>
+    <entry key="multi-letterVarPath">config/calculator/multi-letterVar.xml</entry>
     <entry key="keyWordsPath">config/calculator/flattenExpr.xml</entry>
     <entry key="TsangerYuMo_WO3Path">resource/font/TsangerYuMo_WO3.ttf</entry>
+    <entry key="SmileySansPath">resource/font/SmileySans-Oblique.ttf</entry>
 </properties>

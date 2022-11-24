@@ -53,6 +53,10 @@ public class VariablePool {
         this.getVariable(label).setValue(value);
     }
 
+    public void setNameOf(String label, String name) {
+        this.getVariable(label).setName(name);
+    }
+
     public void askForValue(IOBridge bridge, MathContext mc) {
         Set<String> keySet = this.variablePool.keySet();
         for (String i : keySet) {
@@ -69,6 +73,10 @@ public class VariablePool {
 
     public Set<String> getLabelSet() {
         return this.variablePool.keySet();
+    }
+
+    public void remove(String label) {
+        this.variablePool.remove(label);
     }
 
     public class Variable implements ExprElements {

@@ -8,6 +8,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -195,12 +196,14 @@ public class Expressions implements ExprElements {
             char firstChar = this.exprBuffer.charAt(0);
             if ((65 <= firstChar && firstChar <= 90) || (97 <= firstChar && firstChar <= 122)) {
                 StringBuffer token = new StringBuffer();
-                Pattern valPattern = Pattern.compile("^[a-zA-Z]_(\\()?[A-Za-z0-9]+(\\))?");
+                Pattern valPattern = Pattern.compile("[a-zA-Z]_\\([A-Za-z0-9\\*]+\\)");
                 Matcher valMatcher = valPattern.matcher(exprBuffer);
-                if (valMatcher.find()) {
-                    token.append(exprBuffer.substring(0, valMatcher.end()));
+                if (valMatcher.lookingAt()) {
+                    String tempString = exprBuffer.substring(valMatcher.start(), valMatcher.end());
+                    tempString = tempString.replace("*", "");
+                    token.append(tempString);
 
-                    exprBuffer.delete(0, valMatcher.end());
+                    exprBuffer.delete(valMatcher.start(), valMatcher.end());
                     // if already contains variable with the same label
                     if (varPool.contains(token.toString())) {
                         tokensList.add(varPool.getVariable(token.toString()));
@@ -230,6 +233,7 @@ public class Expressions implements ExprElements {
                         longestKeyW = longestKeyW.length() >= keyword.length() ? longestKeyW : keyword;
                     }
                 }
+
                 if (ifFound) {
                     ExprFunction f = new ExprFunction(ExprFunction.OpsType.valueOf(keyWords.getProperty(longestKeyW)));
                     operationsStack.push(f);
@@ -237,7 +241,7 @@ public class Expressions implements ExprElements {
                     // negative test
                     this.checkNegativeSign();
 
-                } else { // variable
+                } else { // single letter variable
                     token.delete(0, token.length());
                     token.append(exprBuffer.charAt(0));
                     exprBuffer.delete(0, 1);
@@ -255,17 +259,22 @@ public class Expressions implements ExprElements {
             return false;
         }
 
-        public boolean checkGreekLet(VariablePool varPool) {
+        public boolean checkMultiLet(VariablePool varPool) {
             if (this.exprBuffer.charAt(0) != 91)
                 return false;
-            Pattern greekLetPat = Pattern.compile("\\[[A-Za-z]+\\]");
-            Matcher greekLetMat = greekLetPat.matcher(this.exprBuffer);
-            if (!greekLetMat.lookingAt())
-                throw new ExprSyntaxErrorException();
-            String greekLet = this.exprBuffer.substring(greekLetMat.start(), greekLetMat.end());
-            VariablePool.Variable var = varPool.new Variable(letWords.getProperty(greekLet));
+            Pattern multiLetPat = Pattern.compile("\\[[A-Za-z]+\\](_\\([A-Za-z0-9]+\\))?");
+            Matcher multiLetMat = multiLetPat.matcher(this.exprBuffer);
+            if (!multiLetMat.lookingAt())
+                throw new ExprSyntaxErrorException("Invalid multiple letters variable input, check your input around \"[]\"");
+                
+            String multiLetVar = this.exprBuffer.substring(multiLetMat.start(), multiLetMat.end());
+            multiLetVar = multiLetVar.replace("*", "");
+
+            VariablePool.Variable var = varPool.contains(multiLetVar) ?
+                    varPool.getVariable(multiLetVar) : varPool.new Variable(multiLetVar);
+
             tokensList.add(var);
-            this.exprBuffer.delete(greekLetMat.start(), greekLetMat.end());
+            this.exprBuffer.delete(multiLetMat.start(), multiLetMat.end());
             this.insertMUL();
             return true;
         }
@@ -380,7 +389,7 @@ public class Expressions implements ExprElements {
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
         Properties keyWords = getKeyWords(bridge.getPropertiesLoc().get("keyWordsPath"));
-        Properties letWords = getKeyWords(bridge.getPropertiesLoc().get("greekLetPath"));
+        Properties letWords = getKeyWords(bridge.getPropertiesLoc().get("multi-letterVarPath"));
         expression = formattingFlattenExpr(expression);
 
         ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords, letWords);
@@ -408,7 +417,7 @@ public class Expressions implements ExprElements {
             if (parserInfo.checkLetter(varPool))
                 continue;
             
-            if (parserInfo.checkGreekLet(varPool))
+            if (parserInfo.checkMultiLet(varPool))
                 continue;
 
             throw new ExprSyntaxErrorException("Invalided character exception.");
@@ -440,6 +449,8 @@ public class Expressions implements ExprElements {
             powMatcher = powPattern.matcher(buffer);
         }
 
+        // remove the possibility of recognizing x_2x as x_2*x
+        // TODO
         Pattern mulPattern = Pattern.compile("(\\d|%)[A-Za-z\\[\\\\\\(]");
         Matcher mulMatcher = mulPattern.matcher(buffer);
         while (mulMatcher.find()) {
@@ -481,31 +492,38 @@ public class Expressions implements ExprElements {
         return this.calculate(mc);
     }
 
-    private void encapsulateParts() {
-        Iterator<ExprElements> i = this.tokens.iterator();
-        while (true) {
-            ExprElements element = i.next();
-            if (this.tokens.indexOf(element) == this.tokens.size() - 1) {
+    private void encapsulateParts() throws ExprSyntaxErrorException {
+        if (this.tokens.isEmpty()) throw new ExprSyntaxErrorException("Input is void.");
+        try {
+            Iterator<ExprElements> i = this.tokens.iterator();
+            while (true) {
+                ExprElements element = i.next();
+                if (this.tokens.indexOf(element) == this.tokens.size() - 1) {
+                    if (element instanceof ExprFunction) {
+                        break;
+                    } else if (this.tokens.size() == 1 && !(element instanceof ExprFunction)) {
+                        break;
+                    } else {
+                        throw new ExprSyntaxErrorException("Unfinished expression");
+                    }
+                }
                 if (element instanceof ExprFunction) {
-                    break;
-                } else if (this.tokens.size() == 1 && !(element instanceof ExprFunction)) {
-                    break;
-                } else {
-                    throw new ExprSyntaxErrorException("Unfinished expression");
+                    ExprFunction f = (ExprFunction) element;
+                    // it's always the first element that it gets
+                    int index = this.tokens.indexOf(element);
+                    LinkedList<ExprElements> expr = new LinkedList<ExprElements>();
+                    for (int j = 0; j < f.getType().parameterNum; j++) {
+                        expr.add(this.tokens.remove(index - f.getType().parameterNum));
+                    }
+                    expr.add(element);
+                    this.tokens.set(index - f.getType().parameterNum, new Expressions(expr, this.varPool, this.bridge));
+                    i = this.tokens.iterator();
                 }
             }
-            if (element instanceof ExprFunction) {
-                ExprFunction f = (ExprFunction) element;
-                // it's always the first element that it gets
-                int index = this.tokens.indexOf(element);
-                LinkedList<ExprElements> expr = new LinkedList<ExprElements>();
-                for (int j = 0; j < f.getType().parameterNum; j++) {
-                    expr.add(this.tokens.remove(index - f.getType().parameterNum));
-                }
-                expr.add(element);
-                this.tokens.set(index - f.getType().parameterNum, new Expressions(expr, this.varPool, this.bridge));
-                i = this.tokens.iterator();
-            }
+        } catch (NoSuchElementException e) {
+            throw new ExprSyntaxErrorException();
+        } catch (IndexOutOfBoundsException e) {
+            throw new ExprSyntaxErrorException("the minus sings: \"-\" and the positive sings: \"+\" can not be stacked");
         }
     }
 
@@ -521,8 +539,11 @@ public class Expressions implements ExprElements {
         //System.out.println(this);
         if (this.tokens.size() == 1) {
             if (!(this.tokens.get(0) instanceof ExprFunction)) {
-                if (this.tokens.get(0) instanceof VariablePool.Variable)
-                    ((VariablePool.Variable) this.tokens.get(0)).askForValue(this.bridge, mc);
+                if (this.tokens.get(0) instanceof VariablePool.Variable){
+                    VariablePool.Variable variable = (VariablePool.Variable) this.tokens.get(0);
+                    if (variable.getValue() == null)
+                    variable.askForValue(this.bridge, mc);
+                }
                 this.valueOfExpression = this.tokens.get(0).toNumber(mc);
                 return valueOfExpression;
             }

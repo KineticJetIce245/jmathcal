@@ -14,7 +14,6 @@
     <!-- Seprater Symbols-->
     <entry key=",">SEP_C</entry>
     <entry key=";">SEP_SC</entry>
-    <entry key="_">SUBS</entry>
 
     <!-- Basic Functions -->
     <entry key="sqrt">SQRT</entry>
@@ -34,6 +33,10 @@
     <entry key="csc">CSC</entry>
     <entry key="sec">SEC</entry>
     <entry key="cot">COT</entry>
+
+    <entry key="arccsc">ACSC</entry>
+    <entry key="arcsec">ASEC</entry>
+    <entry key="arccot">ACOT</entry>
 
     <entry key="arsinh">ARSINH</entry>
     <entry key="arcosh">ARCOSH</entry>

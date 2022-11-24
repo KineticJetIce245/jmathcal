@@ -8,4 +8,8 @@
     <entry key="Send_Input">Enter</entry>
     <entry key="Ask_For_Input">Value</entry>
     <entry key="Ask_For_Input_Title">Value</entry>
+    <entry key="Variable_Name">Name</entry>
+    <entry key="Copy_ANS">Copy</entry>
+    <entry key="Calculator_InputTab_Tab1">Arithmetic and Basic Trigonometry</entry>
+    <entry key="Calculator_InputTab_Tab2">Advanced Trigonometry, Logarithmic and other Func.</entry>
 </properties>

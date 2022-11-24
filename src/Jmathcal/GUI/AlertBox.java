@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -47,9 +49,24 @@ public class AlertBox extends Application {
         closeButton.setOnAction(EBH);
 
         Scene scene = new Scene(layout);
+        class EnterKeyHandler implements EventHandler<KeyEvent> {
+            public String value;
+
+            @Override
+            public void handle(KeyEvent key) {
+                if (key.getCode() == KeyCode.ENTER) {
+                    value = textInput.getText();
+                    window.close();
+                }
+            }
+
+        }
+        EnterKeyHandler EKH = new EnterKeyHandler();
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, EKH);
+
         window.setScene(scene);
         window.showAndWait();
-        reVal = EBH.value;
+        reVal = EBH.value == null ? EKH.value : EBH.value;
 
         return reVal;
     }

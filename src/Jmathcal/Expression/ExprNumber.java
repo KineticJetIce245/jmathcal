@@ -343,6 +343,45 @@ public class ExprNumber implements ExprElements {
         }
     }
 
+    public ExprNumber arccsc(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(Trigo.arcsin(ComplexDbl.ONE.divide(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(Trigo.arcsin(ComplexNum.ONE.divide(this.valueSTR, calPrecision), mc));
+        }
+    }
+
+    public ExprNumber arcsec(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(Trigo.arccos(ComplexDbl.ONE.divide(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(Trigo.arccos(ComplexNum.ONE.divide(this.valueSTR, calPrecision), mc));
+        }
+    }
+
+    public ExprNumber arccot(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(Trigo.arctan(ComplexDbl.ONE.divide(this.valueDBL)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(Trigo.arctan(ComplexNum.ONE.divide(this.valueSTR, calPrecision), mc));
+        }
+    }
+
     public ExprNumber sinh(MathContext mc) {
         if (mc.getPrecision() < DBL) {
             if (this.valueDBL == null)

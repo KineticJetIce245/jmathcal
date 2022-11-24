@@ -278,6 +278,26 @@ public class ExprFunction implements Serializable, ExprElements {
             }
         }),
 
+        ACSC(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).arccsc(mc);
+            }  
+        }),
+
+        ASEC(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).csc(mc);
+            }  
+        }),
+
+        ACOT(1, 1, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).csc(mc);
+            }  
+        }),
 
         SINH(1, 1, new CalBridge() {
             @Override
