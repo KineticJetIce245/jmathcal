@@ -6,4 +6,5 @@
     <entry key="keyWordsPath">config/calculator/flattenExpr.xml</entry>
     <entry key="TsangerYuMo_WO3Path">resource/font/TsangerYuMo_WO3.ttf</entry>
     <entry key="SmileySansPath">resource/font/SmileySans-Oblique.ttf</entry>
+    <entry key="latinMathPath">resource/font/latinmodern-math.otf</entry>
 </properties>

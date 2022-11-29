@@ -61,16 +61,23 @@ public class CalculatorGui extends Application {
         Font tsanger = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 20);
         Font smiley = getFont(new File(launchInfo.getProperty("SmileySansPath")), 25);
         Font smiley18 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 18);
+        Font latinMath = getFont(new File(launchInfo.getProperty("latinMathPath")), 25);
 
         // Calculator scene
         Button buttonToGphMenu = new Button(langDisplay.getProperty("Calculator_Menu_Graphics"));
 
         // Formula input text field
-        TextField formulaInput = new TextField();
+        FormulaInputField formulaInput = new FormulaInputField();
         formulaInput.setPromptText(langDisplay.getProperty("Input_Formula"));
         formulaInput.setPrefSize(900, 40);
         formulaInput.setFont(smiley);
         formulaInput.setAlignment(Pos.CENTER);
+        formulaInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                formulaInput.setCaretPos(formulaInput.getCaretPosition());
+            }
+        });
+
         GridPane.setConstraints(formulaInput, 0, 0, 5, 1);
 
         TabPane inputPane = new TabPane();
@@ -96,20 +103,50 @@ public class CalculatorGui extends Application {
         Button backspaceButton = new Button("DEL");
         backspaceButton.setFont(tsanger);
         backspaceButton.setMinSize(50, 50);
-        GridPane.setConstraints(backspaceButton, 2, 3);
+        GridPane.setConstraints(backspaceButton, 2, 4);
         GridPane.setHalignment(backspaceButton, HPos.CENTER);
         backspaceButton.setOnAction(e -> {
-            StringBuffer currentText = new StringBuffer(formulaInput.getText());
-            currentText.deleteCharAt(currentText.length() - 1);
-            formulaInput.setText(currentText.toString());
+            int carpetPos = formulaInput.getCaretPos();
+            if (!(carpetPos == 0)) {
+                formulaInput.deleteCharAt(carpetPos - 1);
+            } else {
+                formulaInput.deleteCharAt(0);
+            }
         });
 
         Button plusButton = getButtonFromFac("+", tsanger, 3, 0, formulaInput);
         Button minButton = getButtonFromFac("-", tsanger, 3, 1, formulaInput);
         Button mulButton = getButtonFromFac("*", tsanger, 3, 2, formulaInput);
         Button divButton = getButtonFromFac("/", tsanger, 3, 3, formulaInput);
+        Button expButton = getButtonFromFac("e^x", (char)92 + "e^()", tsanger, 2, 3, formulaInput);
+        Button expoButton = getButtonFromFac("^", tsanger, 3, 4, formulaInput);
+        Button leftPaButton = getButtonFromFac("(", tsanger, 0, 4, formulaInput);
+        Button rightPaButton = getButtonFromFac(")", tsanger, 1, 4, formulaInput);
+        Button tenExpButton = getButtonFromFac("10^x", "10^()", tsanger, 4, 4, 94, 50, formulaInput);
         funcGridPane1.getChildren().addAll(
-                plusButton, minButton, mulButton, divButton);
+                plusButton, minButton, mulButton, divButton, expoButton, leftPaButton, rightPaButton, expButton,
+                tenExpButton);
+
+        Button toLeftButton = new Button("<--");
+        toLeftButton.setFont(tsanger);
+        toLeftButton.setMinSize(94, 50);
+        GridPane.setConstraints(toLeftButton, 5, 4);
+        GridPane.setHalignment(toLeftButton, HPos.CENTER);
+        toLeftButton.setOnAction(e -> {
+            int currentPlace = formulaInput.getCaretPos();
+            formulaInput.setCaretPos(currentPlace == 0 ? formulaInput.length() : currentPlace - 1);
+        });
+
+        Button toRightButton = new Button("-->");
+        toRightButton.setFont(tsanger);
+        toRightButton.setMinSize(94, 50);
+        GridPane.setConstraints(toRightButton, 6, 4);
+        GridPane.setHalignment(toRightButton, HPos.CENTER);
+        toRightButton.setOnAction(e -> {
+            int currentPlace = formulaInput.getCaretPos();
+            formulaInput.setCaretPos(currentPlace == formulaInput.length() ? 0 : currentPlace + 1);
+        });
+        funcGridPane1.getChildren().addAll(toLeftButton, toRightButton);
 
         funcGridPane1.getChildren().addAll(
                 num1, num2, num3, num4, num5, num6, num7, num8, num9, num0, pointButton, backspaceButton);
@@ -143,12 +180,25 @@ public class CalculatorGui extends Application {
         Button sinhButton = getButtonFromFac("sinh", tsanger, 0, 0, 94, 50, formulaInput);
         Button coshButton = getButtonFromFac("cosh", tsanger, 1, 0, 94, 50, formulaInput);
         Button tanhButton = getButtonFromFac("tanh", tsanger, 2, 0, 94, 50, formulaInput);
-        Button arsinhButton = getButtonFromFac("arsinh", tsanger, 0, 1, 94, 50, formulaInput);
-        Button arcoshButton = getButtonFromFac("arcosh", tsanger, 1, 1, 94, 50, formulaInput);
-        Button artanhButton = getButtonFromFac("artanh", tsanger, 2, 1, 94, 50, formulaInput);
+        Button arsinhButton = getButtonFromFac("arsinh", tsanger, 3, 0, 94, 50, formulaInput);
+        Button arcoshButton = getButtonFromFac("arcosh", tsanger, 4, 0, 94, 50, formulaInput);
+        Button artanhButton = getButtonFromFac("artanh", tsanger, 5, 0, 94, 50, formulaInput);
         funcGridPane2.getChildren().addAll(
                 sinhButton, coshButton, tanhButton, arsinhButton, arcoshButton, artanhButton);
+        Button lnButton = getButtonFromFac("ln", tsanger, 0, 1, 94, 50, formulaInput);
+        Button logButton = getButtonFromFac("log", "log(, )", tsanger, 1, 1, 94, 50, formulaInput);
+        Button sumButton = getButtonFromFac("sum", "sum(n, 0, 1, n+1)", tsanger, 2, 1, 94, 50, formulaInput);
+        Button proButton = getButtonFromFac("pro", "pro(n, 1, 2, n+1)", tsanger, 3, 1, 94, 50, formulaInput);
+        Button toDegButton = getButtonFromFac("todeg", tsanger, 0, 2, 94, 50, formulaInput);
+        Button toGradButton = getButtonFromFac("tograd", tsanger, 1, 2, 94, 50, formulaInput);
+        Button degButton = getButtonFromFac("deg", tsanger, 2, 2, 94, 50, formulaInput);
+        Button gradButton = getButtonFromFac("grad", tsanger, 3, 2, 94, 50, formulaInput);
+
+        funcGridPane2.getChildren().addAll(
+                lnButton, logButton, sumButton, proButton, toDegButton, toGradButton, degButton, gradButton);
         funcGridTab2.setContent(funcGridPane2);
+        funcGridPane2.setAlignment(Pos.CENTER);
+
         inputPane.getTabs().add(funcGridTab2);
 
         // Variable pool
@@ -217,8 +267,8 @@ public class CalculatorGui extends Application {
                 String formula = formulaInput.getText();
                 try {
                     Expressions expr = Expressions.parseFromFlattenExpr(formula, vp, ioBridge);
-                    MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
-                    MathContext roundMc = new MathContext(18, RoundingMode.HALF_UP);
+                    MathContext mc = new MathContext(100, RoundingMode.HALF_UP);
+                    MathContext roundMc = new MathContext(98, RoundingMode.HALF_UP);
 
                     Set<String> ocpVarSet = vpPane.labelVarMap.keySet();
                     Iterator<String> oVSIter = ocpVarSet.iterator();
@@ -396,21 +446,22 @@ public class CalculatorGui extends Application {
         return thisFont;
     }
 
-    private static Button getButtonFromFac(String sym, Font font, int x, int y, TextField relatedTF) {
+    private static Button getButtonFromFac(String sym, Font font, int x, int y, FormulaInputField relatedTF) {
         return getButtonFromFac(sym, sym, font, x, y, relatedTF);
     }
 
-    private static Button getButtonFromFac(String sym, String textInput, Font font, int x, int y, TextField relatedTF) {
+    private static Button getButtonFromFac(String sym, String textInput, Font font, int x, int y,
+            FormulaInputField relatedTF) {
         return getButtonFromFac(sym, textInput, font, x, y, 66, 50, relatedTF);
     }
 
     private static Button getButtonFromFac(String sym, Font font, int x, int y, double X, double Y,
-            TextField relatedTF) {
+            FormulaInputField relatedTF) {
         return getButtonFromFac(sym, sym, font, x, y, X, Y, relatedTF);
     }
 
     private static Button getButtonFromFac(
-            String sym, String textInput, Font font, int x, int y, double X, double Y, TextField relatedTF) {
+            String sym, String textInput, Font font, int x, int y, double X, double Y, FormulaInputField relatedTF) {
         Button reButton = new Button(sym);
         reButton.setFont(font);
         reButton.setMinSize(X, Y);
@@ -418,11 +469,62 @@ public class CalculatorGui extends Application {
         GridPane.setHalignment(reButton, HPos.CENTER);
 
         reButton.setOnAction(e -> {
-            String currentText = relatedTF.getText();
-            relatedTF.setText(currentText + textInput);
+            int addPosition = relatedTF.getCaretPos();
+            relatedTF.addStringAt(addPosition, textInput);
+            if (textInput.contains("(")) {
+                relatedTF.setCaretPos(addPosition + textInput.indexOf("(") + 1);
+            }
         });
 
         return reButton;
+    }
+
+    private class FormulaInputField extends TextField {
+        private int caretPos;
+
+        public int getCaretPos() {
+            return caretPos;
+        }
+
+        public void addStringAt(int pos, String val) {
+            StringBuffer text = new StringBuffer(this.getText());
+            text.insert(pos, val);
+            this.setText(text.toString());
+            this.setCaretPos(pos + val.length());
+        }
+
+        public void setCaretPos(int caretPos) {
+            this.caretPos = caretPos;
+            this.requestFocus();
+            this.selectPositionCaret(caretPos);
+            this.deselect();
+        }
+
+        public void deleteCharAt(int pos) {
+            String strText = this.getText();
+            if (strText == "") {
+                return;
+            }
+            StringBuffer text = new StringBuffer(strText);
+            if (pos == 0) {
+                text.deleteCharAt(pos);
+            } else {
+                text.deleteCharAt(pos);
+            }
+            this.setText(text.toString());
+            this.setCaretPos(pos);
+        }
+
+        public int length() {
+            return this.getText().length();
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            setCaretPos(0);
+        }
+
     }
 
     private class VpPane extends VBox {
@@ -431,9 +533,9 @@ public class CalculatorGui extends Application {
         private Font font;
         private Properties langProperties;
         private HashMap<String, VarBox> labelVarMap = new HashMap<String, VarBox>();
-        private TextField formulaField;
+        private FormulaInputField formulaField;
 
-        public VpPane(VariablePool vp, Font font, Properties langPro, TextField formulaField) {
+        public VpPane(VariablePool vp, Font font, Properties langPro, FormulaInputField formulaField) {
             this.vp = vp;
             this.font = font;
             this.langProperties = langPro;
@@ -489,7 +591,7 @@ public class CalculatorGui extends Application {
             addVariable.setMinSize(50, 20);
             addVariable.setOnAction(e -> {
                 String currentText = formulaField.getText();
-                formulaField.setText(currentText + label);
+                formulaField.addStringAt(formulaField.getCaretPos(), label);
             });
 
             Button removeButton = new Button("DEL");
