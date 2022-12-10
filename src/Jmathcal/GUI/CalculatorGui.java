@@ -59,9 +59,13 @@ public class CalculatorGui extends Application {
 
         Scene calScene, gphScene;
         Font tsanger = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 20);
+        Font tsanger18 = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 18);
         Font smiley = getFont(new File(launchInfo.getProperty("SmileySansPath")), 25);
         Font smiley18 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 18);
         Font latinMath = getFont(new File(launchInfo.getProperty("latinMathPath")), 25);
+
+        int calculatorPreci;
+        int roundingPreci;
 
         // Calculator scene
         Button buttonToGphMenu = new Button(langDisplay.getProperty("Calculator_Menu_Graphics"));
@@ -77,8 +81,30 @@ public class CalculatorGui extends Application {
                 formulaInput.setCaretPos(formulaInput.getCaretPosition());
             }
         });
-
         GridPane.setConstraints(formulaInput, 0, 0, 5, 1);
+
+        // Rounding and Calculating Precision
+        GridPane roundSettingPane = new GridPane();
+        TextField roundingField = new TextField();
+        roundingField.setFont(smiley18);
+        roundingField.setPromptText("12");
+        roundingField.setMinSize(20, 20);
+        TextField calField = new TextField();
+        calField.setFont(smiley18);
+        calField.setPromptText("16");
+        calField.setMinSize(20, 20);
+        Label calFieldHelp = new Label(langDisplay.getProperty("Rounding_Setting_Calculation"));
+        calFieldHelp.setFont(tsanger18);
+        Label roundFieldHelp = new Label(langDisplay.getProperty("Rounding_Setting_Display"));
+        roundFieldHelp.setFont(tsanger18);
+
+        GridPane.setConstraints(calFieldHelp, 0, 0);
+        GridPane.setConstraints(roundFieldHelp, 2, 0);
+        GridPane.setConstraints(calField, 1, 0);
+        GridPane.setConstraints(roundingField, 3, 0);
+        roundSettingPane.getChildren().addAll(calField, calFieldHelp, roundingField, roundFieldHelp);
+        GridPane.setConstraints(roundSettingPane, 0, 5, 5, 1);
+        roundSettingPane.setAlignment(Pos.CENTER);
 
         TabPane inputPane = new TabPane();
         inputPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
@@ -118,7 +144,7 @@ public class CalculatorGui extends Application {
         Button minButton = getButtonFromFac("-", tsanger, 3, 1, formulaInput);
         Button mulButton = getButtonFromFac("*", tsanger, 3, 2, formulaInput);
         Button divButton = getButtonFromFac("/", tsanger, 3, 3, formulaInput);
-        Button expButton = getButtonFromFac("e^x", (char)92 + "e^()", tsanger, 2, 3, formulaInput);
+        Button expButton = getButtonFromFac("e^x", (char) 92 + "e^()", tsanger, 2, 3, formulaInput);
         Button expoButton = getButtonFromFac("^", tsanger, 3, 4, formulaInput);
         Button leftPaButton = getButtonFromFac("(", tsanger, 0, 4, formulaInput);
         Button rightPaButton = getButtonFromFac(")", tsanger, 1, 4, formulaInput);
@@ -134,7 +160,7 @@ public class CalculatorGui extends Application {
         GridPane.setHalignment(toLeftButton, HPos.CENTER);
         toLeftButton.setOnAction(e -> {
             int currentPlace = formulaInput.getCaretPos();
-            formulaInput.setCaretPos(currentPlace == 0 ? formulaInput.length() : currentPlace - 1);
+            formulaInput.setCaretPosFocused(currentPlace == 0 ? formulaInput.length() : currentPlace - 1);
         });
 
         Button toRightButton = new Button("-->");
@@ -144,7 +170,7 @@ public class CalculatorGui extends Application {
         GridPane.setHalignment(toRightButton, HPos.CENTER);
         toRightButton.setOnAction(e -> {
             int currentPlace = formulaInput.getCaretPos();
-            formulaInput.setCaretPos(currentPlace == formulaInput.length() ? 0 : currentPlace + 1);
+            formulaInput.setCaretPosFocused(currentPlace == formulaInput.length() ? 0 : currentPlace + 1);
         });
         funcGridPane1.getChildren().addAll(toLeftButton, toRightButton);
 
@@ -201,6 +227,14 @@ public class CalculatorGui extends Application {
 
         inputPane.getTabs().add(funcGridTab2);
 
+        // History
+        ScrollPane hScrollPane = new ScrollPane();
+        HistoryPane historyPane = new HistoryPane(smiley18, langDisplay, formulaInput);
+        historyPane.setPrefSize(900, 100);
+        hScrollPane.setContent(historyPane);
+        hScrollPane.setPrefSize(900, 100);
+        GridPane.setConstraints(hScrollPane, 0, 3, 6, 1);
+
         // Variable pool
         ScrollPane vScrollPane = new ScrollPane();
         VariablePool vp = new VariablePool();
@@ -242,7 +276,8 @@ public class CalculatorGui extends Application {
 
                 @Override
                 public String askForInput(String msg) {
-                    return AlertBox.askForInput(langDisplay.getProperty("Ask_For_Input_Title"), msg);
+                    return AlertBox.askForInput(langDisplay.getProperty("Ask_For_Input_Title"), msg, tsanger18,
+                            smiley18);
                 }
 
                 @Override
@@ -265,10 +300,12 @@ public class CalculatorGui extends Application {
 
             public void initiate() {
                 String formula = formulaInput.getText();
+                String calPreci = calField.getText();
+                String ronPreci = roundingField.getText();
                 try {
                     Expressions expr = Expressions.parseFromFlattenExpr(formula, vp, ioBridge);
-                    MathContext mc = new MathContext(100, RoundingMode.HALF_UP);
-                    MathContext roundMc = new MathContext(98, RoundingMode.HALF_UP);
+                    MathContext mc = new MathContext(18, RoundingMode.HALF_UP);
+                    MathContext roundMc = new MathContext(16, RoundingMode.HALF_UP);
 
                     Set<String> ocpVarSet = vpPane.labelVarMap.keySet();
                     Iterator<String> oVSIter = ocpVarSet.iterator();
@@ -286,6 +323,7 @@ public class CalculatorGui extends Application {
                     String resultStr = result.toString();
                     vpPane.refreshVp();
                     answerLabel.setText(resultStr);
+                    historyPane.addBox(formula, result.toAnsString());
                 } catch (ArithmeticException error) {
                     answerLabel.setText("Math error");
                 } catch (ExprSyntaxErrorException error) {
@@ -334,8 +372,8 @@ public class CalculatorGui extends Application {
         calSceneLayout.setAlignment(Pos.CENTER);
 
         calSceneLayout.getChildren().addAll(
-                formulaInput, enterButton, inputPane, vScrollPane, answerSpace, copyANSButton,
-                allClearButton);
+                formulaInput, enterButton, inputPane, hScrollPane, vScrollPane, answerSpace, copyANSButton,
+                allClearButton, roundSettingPane);
 
         calScene = new Scene(calSceneLayout, 1080, 720);
         calScene.addEventFilter(KeyEvent.KEY_PRESSED, key -> {
@@ -472,7 +510,7 @@ public class CalculatorGui extends Application {
             int addPosition = relatedTF.getCaretPos();
             relatedTF.addStringAt(addPosition, textInput);
             if (textInput.contains("(")) {
-                relatedTF.setCaretPos(addPosition + textInput.indexOf("(") + 1);
+                relatedTF.setCaretPosFocused(addPosition + textInput.indexOf("(") + 1);
             }
         });
 
@@ -482,6 +520,10 @@ public class CalculatorGui extends Application {
     private class FormulaInputField extends TextField {
         private int caretPos;
 
+        public FormulaInputField() {
+            super();
+        }
+
         public int getCaretPos() {
             return caretPos;
         }
@@ -490,10 +532,14 @@ public class CalculatorGui extends Application {
             StringBuffer text = new StringBuffer(this.getText());
             text.insert(pos, val);
             this.setText(text.toString());
-            this.setCaretPos(pos + val.length());
+            this.setCaretPosFocused(pos + val.length());
         }
 
         public void setCaretPos(int caretPos) {
+            this.caretPos = caretPos;
+        }
+
+        private void setCaretPosFocused(int caretPos) {
             this.caretPos = caretPos;
             this.requestFocus();
             this.selectPositionCaret(caretPos);
@@ -512,7 +558,7 @@ public class CalculatorGui extends Application {
                 text.deleteCharAt(pos);
             }
             this.setText(text.toString());
-            this.setCaretPos(pos);
+            this.setCaretPosFocused(pos);
         }
 
         public int length() {
@@ -522,13 +568,12 @@ public class CalculatorGui extends Application {
         @Override
         public void clear() {
             super.clear();
-            setCaretPos(0);
+            setCaretPosFocused(0);
         }
 
     }
 
     private class VpPane extends VBox {
-        // TODO
         private VariablePool vp;
         private Font font;
         private Properties langProperties;
@@ -641,4 +686,49 @@ public class CalculatorGui extends Application {
             }
         }
     }
+
+    private class HistoryPane extends VBox {
+        private Font font;
+        private Properties langProperties;
+        private FormulaInputField formulaField;
+
+        public HistoryPane(Font font, Properties langPro, FormulaInputField formulaField) {
+            this.font = font;
+            this.langProperties = langPro;
+            this.formulaField = formulaField;
+        }
+
+        public Font getFont() {
+            return (this.font != null) ? this.font : Font.getDefault();
+        }
+
+        public void addBox(String formula, String result) {
+            HBox histBox = new HBox();
+            Label equationLabel = new Label(formula+" = "+result);
+            equationLabel.setFont(this.getFont());
+
+            Button addHistory = new Button(langProperties.getProperty("Add_History"));
+            addHistory.setMnemonicParsing(false);
+            addHistory.setFont(this.getFont());
+            addHistory.setMinSize(50, 35);
+            addHistory.setOnAction(e -> {
+                formulaField.clear();
+                formulaField.addStringAt(0, formula.toString());
+            });
+
+            Button removeButton = new Button("DEL");
+            removeButton.setFont(this.getFont());
+
+            histBox.getChildren().addAll(equationLabel, addHistory, removeButton);
+            histBox.setAlignment(Pos.CENTER);
+
+            removeButton.setOnAction(e -> {
+                this.getChildren().remove(histBox);
+            });
+
+            this.getChildren().add(histBox);
+        }
+
+    }
+
 }

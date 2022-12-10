@@ -63,12 +63,10 @@ public class Expressions implements ExprElements {
         public LinkedList<ExprElements> tokensList = new LinkedList<ExprElements>();
         public Stack<ExprFunction> operationsStack = new Stack<ExprFunction>();
         public Properties keyWords;
-        public Properties letWords;
 
-        public ParserInfo(StringBuffer expressions, Properties keyWords, Properties letWords) {
+        public ParserInfo(StringBuffer expressions, Properties keyWords) {
             this.keyWords = keyWords;
             this.exprBuffer = expressions;
-            this.letWords = letWords;
         }
 
         /**
@@ -389,10 +387,9 @@ public class Expressions implements ExprElements {
     public static Expressions parseFromFlattenExpr(String expression, VariablePool varPool, IOBridge bridge) {
 
         Properties keyWords = getKeyWords(bridge.getPropertiesLoc().get("keyWordsPath"));
-        Properties letWords = getKeyWords(bridge.getPropertiesLoc().get("multi-letterVarPath"));
         expression = formattingFlattenExpr(expression);
 
-        ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords, letWords);
+        ParserInfo parserInfo = new ParserInfo(new StringBuffer(expression), keyWords);
 
         // Eliminate the negative sign
         parserInfo.checkNegativeSign();

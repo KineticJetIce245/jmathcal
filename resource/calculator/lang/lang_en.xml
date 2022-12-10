@@ -12,4 +12,7 @@
     <entry key="Copy_ANS">Copy</entry>
     <entry key="Calculator_InputTab_Tab1">Arithmetic and Basic Trigonometry</entry>
     <entry key="Calculator_InputTab_Tab2">Advanced Trigonometry, Logarithmic and other Func.</entry>
+    <entry key="Add_History">Add</entry>
+    <entry key="Rounding_Setting_Calculation">Precision during calculation :</entry>
+    <entry key="Rounding_Setting_Display">Display :</entry>
 </properties>

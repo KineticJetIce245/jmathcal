@@ -1,6 +1,5 @@
 package Jmathcal.GUI;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -11,12 +10,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class AlertBox extends Application {
+public class AlertBox {
 
-    public static String askForInput(String title, String msg) {
+    public static String askForInput(String title, String msg, Font font1, Font font2) {
 
         Stage window = new Stage();
 
@@ -24,15 +24,17 @@ public class AlertBox extends Application {
         window.setTitle(title);
 
         Label msgLabel = new Label(msg);
+        msgLabel.setFont(font1);
         Button closeButton = new Button("Enter");
+        closeButton.setFont(font1);
 
         TextField textInput = new TextField();
-
+        textInput.setFont(font2);
 
         VBox layout = new VBox(10);
         layout.getChildren().addAll(msgLabel, textInput, closeButton);
         layout.setAlignment(Pos.CENTER);
-        layout.setMinSize(200, 100);
+        layout.setMinSize(400, 150);
 
         String reVal = null;
         class EnterButtonHandler implements EventHandler<ActionEvent> {
@@ -90,15 +92,5 @@ public class AlertBox extends Application {
         Scene scene = new Scene(layout);
         window.setScene(scene);
         window.showAndWait();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage arg0) throws Exception {
-        String input = askForInput("hi", "hi");
-        System.out.println(input);
     }
 }
