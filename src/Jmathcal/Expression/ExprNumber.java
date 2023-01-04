@@ -480,6 +480,35 @@ public class ExprNumber implements ExprElements {
         return new ExprNumber(this.valueSTR.round(mc));
     }
 
+    public ExprNumber abs(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(new ComplexDbl(valueDBL.abs(true)));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            return new ExprNumber(new ComplexNum(valueSTR.abs(true, mc)));
+        }
+    }
+
+    public ExprNumber sgn(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            if (valueDBL.compareTo(ComplexDbl.ZERO) == 0)
+                return new ExprNumber(ComplexDbl.ZERO);
+            return new ExprNumber(valueDBL.divide(new ComplexDbl(valueDBL.abs(true))));
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (valueSTR.compareTo(ComplexNum.ZERO) == 0)
+                return new ExprNumber(ComplexNum.ZERO);
+            MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
+            return new ExprNumber(valueSTR.divide(new ComplexNum(valueSTR.abs(true, calPrecision)), mc));
+        }
+    }
+
     /**
      * Method to verify if an {@code ExprNumber} is a real number or not.
      * <p>

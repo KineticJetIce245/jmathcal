@@ -270,8 +270,7 @@ public class CalculatorGui extends Application {
             IOBridge ioBridge = new IOBridge() {
                 @Override
                 public void outSendMessage(String msg) {
-                    // TODO Auto-generated method stub
-
+                    AlertBox.display(langDisplay.getProperty("Message_Display_Title"), msg);
                 }
 
                 @Override
@@ -298,14 +297,17 @@ public class CalculatorGui extends Application {
 
             };
 
+            @Override
             public void initiate() {
                 String formula = formulaInput.getText();
-                String calPreci = calField.getText();
-                String ronPreci = roundingField.getText();
+                String calPreci = calField.getText() == "" ? calField.getPromptText() : calField.getText();
+                String ronPreci = roundingField.getText() == "" ? roundingField.getPromptText() : roundingField.getText();
                 try {
+                    int calPreciInt = Integer.valueOf(calPreci);
+                    int ronPreciInt = Integer.valueOf(ronPreci);
                     Expressions expr = Expressions.parseFromFlattenExpr(formula, vp, ioBridge);
-                    MathContext mc = new MathContext(18, RoundingMode.HALF_UP);
-                    MathContext roundMc = new MathContext(16, RoundingMode.HALF_UP);
+                    MathContext mc = new MathContext(calPreciInt, RoundingMode.HALF_UP);
+                    MathContext roundMc = new MathContext(ronPreciInt, RoundingMode.HALF_UP);
 
                     Set<String> ocpVarSet = vpPane.labelVarMap.keySet();
                     Iterator<String> oVSIter = ocpVarSet.iterator();
@@ -335,7 +337,10 @@ public class CalculatorGui extends Application {
                 } catch (NoSuchElementException error) {
                     answerLabel.setText(
                             "Parser error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
-                } catch (Exception error) {
+                }catch (NumberFormatException error) {
+                    answerLabel.setText(
+                        "Number input error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                }catch (Exception error) {
                     answerLabel.setText("Unknown error: " + error.getMessage());
                 }
             }
@@ -728,7 +733,6 @@ public class CalculatorGui extends Application {
 
             this.getChildren().add(histBox);
         }
-
     }
 
 }

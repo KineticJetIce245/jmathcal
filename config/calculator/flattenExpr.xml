@@ -47,6 +47,9 @@
     <entry key="todeg">TO_DEG</entry>
     <entry key="tograd">TO_GRAD</entry>
 
+    <entry key="abs">ABS</entry>
+    <entry key="sgn">SGN</entry>
+
     <!-- Functions -->
     <entry key="sum\(">SUM</entry>
     <entry key="pro\(">PRO</entry>

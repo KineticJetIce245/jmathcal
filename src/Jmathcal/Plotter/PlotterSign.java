@@ -29,11 +29,16 @@ public enum PlotterSign {
         if (a == ZERO || b == ZERO) {
             return true;
         }
+        /*
         if (a != NOT_REAL && b != NOT_REAL) {
             if (a.compareTo(b) != 0) {
                 return true;
             }
             return false;
+        }
+        */
+        if (a.compareTo(b) != 0) {
+            return true;
         }
         return false;
     }

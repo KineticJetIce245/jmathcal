@@ -369,6 +369,20 @@ public class ExprFunction implements Serializable, ExprElements {
             }
         }),
 
+        ABS(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).abs(mc);
+            }
+        }),
+
+        SGN(1, 4, new CalBridge() {
+            @Override
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return parameters.get(0).toNumber(mc).sgn(mc);
+            }
+        }),
+
         OPEN_P(0, 0, new CalBridge() {
             public ExprNumber calculate(java.util.LinkedList<ExprElements> parameters, MathContext mc) {
                 throw new ExprSyntaxErrorException();

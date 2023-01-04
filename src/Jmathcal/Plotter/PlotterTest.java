@@ -29,12 +29,12 @@ public class PlotterTest {
 
     private static void constructUI() {
         VariablePool vp = new VariablePool();
-        Expressions rightExpr = Expressions.parseFromFlattenExpr("x^2+(5y/4-sqrt(sqrt(x^2)))^2", vp, IOBridge.DFLT_BRIDGE);
-        Expressions leftExpr = Expressions.parseFromFlattenExpr("1", vp, IOBridge.DFLT_BRIDGE);
+        Expressions rightExpr = Expressions.parseFromFlattenExpr("ln2x/5.6-sinx", vp, IOBridge.DFLT_BRIDGE);
+        Expressions leftExpr = Expressions.parseFromFlattenExpr("y", vp, IOBridge.DFLT_BRIDGE);
 
         int[] resolution = {50, 50};
-        int[] length = {5, 5};
-        double[] origin = {-2.5, -2.5};
+        int[] length = {10, 10};
+        double[] origin = {-5, -5};
         int[] planeSize = {1000, 1000};
         
         PlotterPlane.PlaneInfo planeInfo = new PlotterPlane.PlaneInfo(resolution, length, origin, planeSize);
@@ -45,6 +45,7 @@ public class PlotterTest {
         CardLayout card = new CardLayout();
         jf.setSize(1000,1000);
         jf.setLayout(card);
+        myPlane.subdivide();
         myPlane.subdivide();
         myPlane.subdivide();
         myPlane.subdivide();

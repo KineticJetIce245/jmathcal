@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch PlotterAgl",
+            "request": "launch",
+            "mainClass": "Jmathcal.Plotter.PlotterAgl",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch AlertBox",
             "request": "launch",
             "mainClass": "Jmathcal.GUI.AlertBox",
