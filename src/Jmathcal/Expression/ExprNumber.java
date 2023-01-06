@@ -57,12 +57,12 @@ public class ExprNumber implements ExprElements {
         valueDBL = valueSTR.toComplexDbl();
     }
 
-    private ExprNumber(ComplexDbl valueDBL) {
+    public ExprNumber(ComplexDbl valueDBL) {
         this.valueDBL = valueDBL;
         this.valueSTR = null;
     }
 
-    private ExprNumber(ComplexNum valueSTR) {
+    public ExprNumber(ComplexNum valueSTR) {
         this.valueDBL = null;
         this.valueSTR = valueSTR;
     }
@@ -506,6 +506,20 @@ public class ExprNumber implements ExprElements {
                 return new ExprNumber(ComplexNum.ZERO);
             MathContext calPrecision = new MathContext(mc.getPrecision(), RoundingMode.HALF_UP);
             return new ExprNumber(valueSTR.divide(new ComplexNum(valueSTR.abs(true, calPrecision)), mc));
+        }
+    }
+
+    public ExprNumber negate(MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (this.valueDBL == null)
+                this.valueDBL = this.valueSTR.toComplexDbl();
+            return new ExprNumber(valueDBL.negate());
+        } else {
+            if (this.valueSTR == null)
+                this.valueSTR = this.valueDBL.toComplexNum();
+            if (valueSTR.compareTo(ComplexNum.ZERO) == 0)
+                return new ExprNumber(ComplexNum.ZERO);
+            return new ExprNumber(valueSTR.negate());
         }
     }
 

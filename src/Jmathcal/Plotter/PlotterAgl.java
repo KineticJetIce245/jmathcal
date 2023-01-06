@@ -7,7 +7,7 @@ public class PlotterAgl {
         NumFunction<Double> f = new NumFunction<Double>() {
             @Override
             public Double evaluate(Double... input) {
-                return Math.pow(input[0],2)-input[1];
+                return Math.pow(input[0],2)-3-input[1];
             };
         };
 
@@ -50,7 +50,15 @@ public class PlotterAgl {
         double DFXY = dfxy.evaluate(input);
         System.out.println(Math.pow(DFX*DFX+DFY*DFY, 1.5)/(DFY*DFY*DFXX-2*DFX*DFY*DFXY+DFX*DFX*DFYY));
         System.out.println(System.currentTimeMillis());
-        
+        System.out.println((int)(-1535/6)*6);
+
+        System.out.println("===============");
+        double x = 1;
+        double y = 0;
+        while (Math.abs(f.evaluate(x,y)) > 0.0000001) {
+            x = x - f.evaluate(x,y)/dfx.evaluate(x,y);
+            System.out.println(x);
+        }
     
     }
 

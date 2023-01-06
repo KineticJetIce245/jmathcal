@@ -42,6 +42,7 @@ public class Expressions implements ExprElements {
     }
 
     public static void main(String args[]) {
+        
         MathContext calMc = new MathContext(26, RoundingMode.HALF_UP);
         MathContext mc = new MathContext(16, RoundingMode.HALF_UP);
 
@@ -53,6 +54,12 @@ public class Expressions implements ExprElements {
         System.out.println(System.currentTimeMillis());
         System.out.println(expr.calculate(calMc).round(mc));
         System.out.println(System.currentTimeMillis());
+        Expressions dExpr = expr.findDerivative("x", new ExprNumber("0.0000000000001+0i"), mc);
+        System.out.println(dExpr);
+        System.out.println(System.currentTimeMillis());
+        System.out.println(dExpr.calculate(calMc).round(mc));
+        System.out.println(System.currentTimeMillis());
+
     }
 
     /**
@@ -590,6 +597,52 @@ public class Expressions implements ExprElements {
         Expressions reVal = new Expressions(tokens, vp, expr1.bridge);
         reVal.encapsulateParts();
         return reVal;
+    }
+
+    public Expressions findDerivative(String varLabel, ExprNumber increment, MathContext mc) {
+        LinkedList<ExprElements> exprList = new LinkedList<ExprElements>();
+        this.unpackTo(exprList);
+        for (int i = 0; i < exprList.size() - 1; i++) {
+            ExprElements curtElement = exprList.get(i);
+            if (!(curtElement instanceof VariablePool.Variable))
+                continue;
+            if (((VariablePool.Variable)curtElement).label.equals(varLabel)) {
+                exprList.add(i, increment);
+                exprList.add(i+2, new ExprFunction(OpsType.ADD));
+                i = i+2;
+            }
+        }
+        exprList.addAll(this.tokens);
+        exprList.add(new ExprFunction(OpsType.SUB));
+        exprList.add(increment);
+        exprList.add(new ExprFunction(OpsType.DIV));
+        Expressions reVal = new Expressions(exprList, this.varPool, this.bridge);
+        reVal.encapsulateParts();
+        return reVal;
+    }
+
+    /**
+     * Unpack the expression and add the expression in {@code targetList}.
+     * @param targetList
+     */
+    private void unpackTo(LinkedList<ExprElements> targetList) {
+        Iterator<ExprElements> i = this.tokens.iterator();
+        while (i.hasNext()) {
+            ExprElements curtElement = i.next();
+            if (curtElement instanceof Expressions) {
+                ((Expressions)curtElement).unpackTo(targetList);
+                continue;
+            }
+            targetList.add(curtElement);
+        }
+    }
+
+    public ExprNumber evaluateXY(ExprNumber x, ExprNumber y, MathContext mc) {
+        if (this.getVP().contains("x"))
+            this.getVP().setValueOf("x", x);
+        if (this.getVP().contains("y"))
+            this.getVP().setValueOf("y", y);
+        return this.calculate(mc);
     }
 
     public VariablePool getVP() {

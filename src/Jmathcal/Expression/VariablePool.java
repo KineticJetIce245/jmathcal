@@ -28,8 +28,8 @@ public class VariablePool {
         return variables;
     }
 
-    public Variable getVariable(String valLabel) {
-        return this.variablePool.get(valLabel);
+    public Variable getVariable(String varLabel) {
+        return this.variablePool.get(varLabel);
     }
 
     private VariablePool getOuter() {
