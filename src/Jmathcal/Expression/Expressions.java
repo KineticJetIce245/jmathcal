@@ -625,7 +625,7 @@ public class Expressions implements ExprElements {
      * Unpack the expression and add the expression in {@code targetList}.
      * @param targetList
      */
-    private void unpackTo(LinkedList<ExprElements> targetList) {
+    public void unpackTo(LinkedList<ExprElements> targetList) {
         Iterator<ExprElements> i = this.tokens.iterator();
         while (i.hasNext()) {
             ExprElements curtElement = i.next();

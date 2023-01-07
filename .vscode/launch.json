@@ -6,59 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch PlotterPlane",
-            "request": "launch",
-            "mainClass": "Jmathcal.NewPlotter.PlotterPlane",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch PlotterAgl",
-            "request": "launch",
-            "mainClass": "Jmathcal.Plotter.PlotterAgl",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch AlertBox",
-            "request": "launch",
-            "mainClass": "Jmathcal.GUI.AlertBox",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch ErrorGui",
-            "request": "launch",
-            "mainClass": "Jmathcal.GUI.ErrorGui",
-            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch Test",
-            "request": "launch",
-            "mainClass": "Jmathcal.GUI.Test",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
             "name": "Launch PlotterTest",
             "request": "launch",
             "mainClass": "Jmathcal.Plotter.PlotterTest",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch ExprNumber",
-            "request": "launch",
-            "mainClass": "Jmathcal.Expression.ExprNumber",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch PlotterGraph",
-            "request": "launch",
-            "mainClass": "Jmathcal.Plotter.PlotterGraph",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "projectName": "JFilmak_f917a422"
         },
         {
@@ -66,55 +17,23 @@
             "name": "Launch PlotterPlane",
             "request": "launch",
             "mainClass": "Jmathcal.Plotter.PlotterPlane",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "projectName": "JFilmak_f917a422"
         },
         {
             "type": "java",
-            "name": "Launch Test",
+            "name": "Launch PlotterTest",
             "request": "launch",
-            "mainClass": "Jmathcal.Expression.Test",
+            "mainClass": "Jmathcal.NewContourPlotter.PlotterTest",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "projectName": "JFilmak_f917a422"
         },
         {
             "type": "java",
-            "name": "Launch Exp",
+            "name": "Launch PlotterTest",
             "request": "launch",
-            "mainClass": "Jmathcal.Number.Function.Exp",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch Trigo",
-            "request": "launch",
-            "mainClass": "Jmathcal.Number.Function.Trigo",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch VariablePool",
-            "request": "launch",
-            "mainClass": "Jmathcal.Expression.VariablePool",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch ComplexDbl",
-            "request": "launch",
-            "mainClass": "Jmathcal.Number.Complex.ComplexDbl",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch ComplexNum",
-            "request": "launch",
-            "mainClass": "Jmathcal.Number.Complex.ComplexNum",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch Constants",
-            "request": "launch",
-            "mainClass": "Jmathcal.Expression.Constants",
+            "mainClass": "Jmathcal.NewPlotter.PlotterTest",
+            "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "projectName": "JFilmak_f917a422"
         },
         {
@@ -126,31 +45,10 @@
         },
         {
             "type": "java",
-            "name": "Launch Expressions",
-            "request": "launch",
-            "mainClass": "Jmathcal.Expression.Expressions",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
             "name": "Launch CalculatorGui",
             "request": "launch",
             "vmArgs": "--module-path lib/javafx-sdk-19/lib/ --add-modules=javafx.controls,javafx.fxml",
             "mainClass": "Jmathcal.GUI.CalculatorGui",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch App",
-            "request": "launch",
-            "mainClass": "Jmathcal.MainLogic.App",
-            "projectName": "JFilmak_f917a422"
-        },
-        {
-            "type": "java",
-            "name": "Launch Test",
-            "request": "launch",
-            "mainClass": "Jmathcal.Number.Test",
             "projectName": "JFilmak_f917a422"
         }
     ]

@@ -4,7 +4,7 @@ public enum PlotterSign {
     POS, NEG, ZERO, NOT_REAL;
 
     public String toString() {
-        String reVal = "NR";
+        String reVal = "I";
         switch (this) {
             case POS:
                 reVal = "+";
@@ -25,19 +25,11 @@ public enum PlotterSign {
         return reVal;
     }
 
-    public static boolean ifPointPasses(PlotterSign a, PlotterSign b) {
-        if (a == ZERO || b == ZERO) {
+    public boolean ifPointPasses(PlotterSign b) {
+        if (this == ZERO || b == ZERO) {
             return true;
         }
-        /*
-        if (a != NOT_REAL && b != NOT_REAL) {
-            if (a.compareTo(b) != 0) {
-                return true;
-            }
-            return false;
-        }
-        */
-        if (a.compareTo(b) != 0) {
+        if (this.compareTo(b) != 0) {
             return true;
         }
         return false;

@@ -16,4 +16,5 @@
     <entry key="Rounding_Setting_Calculation">Precision during calculation: </entry>
     <entry key="Rounding_Setting_Display">Display: </entry>
     <entry key="Message_Display_Title">Message</entry>
+    <entry key="History_Display">Number of histories: </entry>
 </properties>

@@ -28,6 +28,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -35,6 +37,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -64,12 +67,6 @@ public class CalculatorGui extends Application {
         Font smiley18 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 18);
         Font latinMath = getFont(new File(launchInfo.getProperty("latinMathPath")), 25);
 
-        int calculatorPreci;
-        int roundingPreci;
-
-        // Calculator scene
-        Button buttonToGphMenu = new Button(langDisplay.getProperty("Calculator_Menu_Graphics"));
-
         // Formula input text field
         FormulaInputField formulaInput = new FormulaInputField();
         formulaInput.setPromptText(langDisplay.getProperty("Input_Formula"));
@@ -81,29 +78,43 @@ public class CalculatorGui extends Application {
                 formulaInput.setCaretPos(formulaInput.getCaretPosition());
             }
         });
-        GridPane.setConstraints(formulaInput, 0, 0, 5, 1);
+        GridPane.setConstraints(formulaInput, 0, 2, 5, 1);
 
         // Rounding and Calculating Precision
         GridPane roundSettingPane = new GridPane();
         TextField roundingField = new TextField();
         roundingField.setFont(smiley18);
         roundingField.setPromptText("12");
-        roundingField.setMinSize(20, 20);
+        roundingField.setMinSize(30, 40);
+        roundingField.setMaxWidth(45);
         TextField calField = new TextField();
         calField.setFont(smiley18);
         calField.setPromptText("16");
-        calField.setMinSize(20, 20);
+        calField.setMinSize(30, 40);
+        calField.setMaxWidth(45);
+        TextField historyField = new TextField();
+        historyField.setFont(smiley18);
+        historyField.setPromptText("16");
+        historyField.setMinSize(30, 40);
+        historyField.setMaxWidth(45);
         Label calFieldHelp = new Label(langDisplay.getProperty("Rounding_Setting_Calculation"));
         calFieldHelp.setFont(tsanger18);
         Label roundFieldHelp = new Label(langDisplay.getProperty("Rounding_Setting_Display"));
         roundFieldHelp.setFont(tsanger18);
+        Label historyFieldHelp = new Label(langDisplay.getProperty("History_Display"));
+        historyFieldHelp.setFont(tsanger18);
 
         GridPane.setConstraints(calFieldHelp, 0, 0);
         GridPane.setConstraints(roundFieldHelp, 2, 0);
         GridPane.setConstraints(calField, 1, 0);
         GridPane.setConstraints(roundingField, 3, 0);
-        roundSettingPane.getChildren().addAll(calField, calFieldHelp, roundingField, roundFieldHelp);
-        GridPane.setConstraints(roundSettingPane, 0, 5, 5, 1);
+        GridPane.setConstraints(historyField, 5, 0);
+        GridPane.setConstraints(historyFieldHelp, 4, 0);
+        roundSettingPane.getChildren().addAll(
+            calField, calFieldHelp,
+            roundingField, roundFieldHelp,
+            historyField, historyFieldHelp);
+        GridPane.setConstraints(roundSettingPane, 0, 7, 5, 1);
         roundSettingPane.setAlignment(Pos.CENTER);
 
         TabPane inputPane = new TabPane();
@@ -195,7 +206,7 @@ public class CalculatorGui extends Application {
         funcGridPane1.setAlignment(Pos.CENTER);
         funcGridTab1.setContent(funcGridPane1);
         inputPane.getTabs().add(funcGridTab1);
-        GridPane.setConstraints(inputPane, 0, 2, 1, 1);
+        GridPane.setConstraints(inputPane, 0, 4, 1, 1);
 
         // Input buttons pane 2
         Tab funcGridTab2 = new Tab(langDisplay.getProperty("Calculator_InputTab_Tab2"));
@@ -233,7 +244,7 @@ public class CalculatorGui extends Application {
         historyPane.setPrefSize(900, 100);
         hScrollPane.setContent(historyPane);
         hScrollPane.setPrefSize(900, 100);
-        GridPane.setConstraints(hScrollPane, 0, 3, 6, 1);
+        GridPane.setConstraints(hScrollPane, 0, 5, 6, 1);
 
         // Variable pool
         ScrollPane vScrollPane = new ScrollPane();
@@ -245,7 +256,7 @@ public class CalculatorGui extends Application {
         vpPane.setDisplay();
         vScrollPane.setContent(vpPane);
         vScrollPane.setMinSize(350, 300);
-        GridPane.setConstraints(vScrollPane, 1, 2, 4, 1);
+        GridPane.setConstraints(vScrollPane, 1, 4, 4, 1);
 
         // Answer Space
         ScrollPane answerSpace = new ScrollPane();
@@ -255,14 +266,14 @@ public class CalculatorGui extends Application {
         answerLabel.setAlignment(Pos.CENTER);
         answerSpace.setMinSize(762, 44);
         answerSpace.setContent(answerLabel);
-        GridPane.setConstraints(answerSpace, 0, 1, 2, 1);
+        GridPane.setConstraints(answerSpace, 0, 3, 2, 1);
 
         // Enter Button
         Button enterButton = new Button(langDisplay.getProperty("Send_Input"));
         enterButton.setFont(tsanger);
         enterButton.setMinSize(90, 40);
         GridPane.setHalignment(enterButton, HPos.CENTER);
-        GridPane.setConstraints(enterButton, 4, 1);
+        GridPane.setConstraints(enterButton, 4, 3);
         interface CalInitiator {
             public void initiate();
         }
@@ -301,7 +312,8 @@ public class CalculatorGui extends Application {
             public void initiate() {
                 String formula = formulaInput.getText();
                 String calPreci = calField.getText() == "" ? calField.getPromptText() : calField.getText();
-                String ronPreci = roundingField.getText() == "" ? roundingField.getPromptText() : roundingField.getText();
+                String ronPreci = roundingField.getText() == "" ? roundingField.getPromptText()
+                        : roundingField.getText();
                 try {
                     int calPreciInt = Integer.valueOf(calPreci);
                     int ronPreciInt = Integer.valueOf(ronPreci);
@@ -325,7 +337,7 @@ public class CalculatorGui extends Application {
                     String resultStr = result.toString();
                     vpPane.refreshVp();
                     answerLabel.setText(resultStr);
-                    historyPane.addBox(formula, result.toAnsString());
+                    historyPane.addBox(formula, result.toAnsString(), historyField);
                 } catch (ArithmeticException error) {
                     answerLabel.setText("Math error");
                 } catch (ExprSyntaxErrorException error) {
@@ -337,10 +349,11 @@ public class CalculatorGui extends Application {
                 } catch (NoSuchElementException error) {
                     answerLabel.setText(
                             "Parser error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
-                }catch (NumberFormatException error) {
+                } catch (NumberFormatException error) {
                     answerLabel.setText(
-                        "Number input error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
-                }catch (Exception error) {
+                            "Number input error: "
+                                    + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                } catch (Exception error) {
                     answerLabel.setText("Unknown error: " + error.getMessage());
                 }
             }
@@ -356,7 +369,7 @@ public class CalculatorGui extends Application {
             formulaInput.clear();
         });
         GridPane.setHalignment(allClearButton, HPos.CENTER);
-        GridPane.setConstraints(allClearButton, 3, 1);
+        GridPane.setConstraints(allClearButton, 3, 3);
 
         // Copy ANS button
         Button copyANSButton = new Button(langDisplay.getProperty("Copy_ANS"));
@@ -367,20 +380,41 @@ public class CalculatorGui extends Application {
             java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(selection, selection);
         });
-        GridPane.setConstraints(copyANSButton, 2, 1);
+        GridPane.setConstraints(copyANSButton, 2, 3);
 
         // Layout
         GridPane calSceneLayout = new GridPane();
-        calSceneLayout.setPadding(new Insets(20, 20, 20, 20));
+        GridPane.setMargin(calSceneLayout, new Insets(0));
+        calSceneLayout.setPadding(new Insets(0));
         calSceneLayout.setVgap(8);
         calSceneLayout.setHgap(10);
         calSceneLayout.setAlignment(Pos.CENTER);
-
         calSceneLayout.getChildren().addAll(
                 formulaInput, enterButton, inputPane, hScrollPane, vScrollPane, answerSpace, copyANSButton,
                 allClearButton, roundSettingPane);
+     
+        // Calculator scene
+        Button buttonToGphMenu = new Button(langDisplay.getProperty("Calculator_Menu_Graphics"));
+        Button buttonToCalMenu = new Button(langDisplay.getProperty("Calculator_Menu_Calculator"));
 
-        calScene = new Scene(calSceneLayout, 1080, 720);
+        calSceneLayout.setStyle("-fx-background-color: #FFFFFF;");
+
+        // Set up the menu
+        VBox mainMenu = new VBox();
+        buttonToGphMenu.setStyle("-fx-background-color: transparent;");
+        buttonToCalMenu.setStyle("-fx-background-color: transparent;");
+        mainMenu.getChildren().addAll(buttonToCalMenu, buttonToGphMenu);
+        VBox.setMargin(mainMenu, new Insets(0));
+        mainMenu.setPadding(new Insets(0));
+        mainMenu.setStyle("-fx-background-color: #dddddd;");
+
+        BorderPane calScenePane = new BorderPane();
+        BorderPane.setMargin(calScenePane, new Insets(0));
+        calScenePane.setLeft(mainMenu);
+        calScenePane.setPadding(new Insets(0));
+        calScenePane.setCenter(calSceneLayout);
+
+        calScene = new Scene(calScenePane, 1180, 720);
         calScene.addEventFilter(KeyEvent.KEY_PRESSED, key -> {
             if (key.getCode() == KeyCode.ENTER) {
                 calInitiator.initiate();
@@ -390,8 +424,6 @@ public class CalculatorGui extends Application {
 
         // Graphic scene
         Label label2 = new Label("Hello scene2");
-        Button buttonToCalMenu = new Button(langDisplay.getProperty("Calculator_Menu_Calculator"));
-
         StackPane layout2 = new StackPane();
         layout2.getChildren().addAll(label2, buttonToCalMenu);
         gphScene = new Scene(layout2, 1080, 720);
@@ -399,11 +431,9 @@ public class CalculatorGui extends Application {
         buttonToGphMenu.setOnAction(e -> {
             primaryStage.setScene(gphScene);
         });
-
         buttonToCalMenu.setOnAction(e -> {
             primaryStage.setScene(calScene);
         });
-
         primaryStage.setScene(calScene);
         primaryStage.setTitle(langDisplay.getProperty("Calculator_Window_Title"));
         primaryStage.show();
@@ -707,9 +737,9 @@ public class CalculatorGui extends Application {
             return (this.font != null) ? this.font : Font.getDefault();
         }
 
-        public void addBox(String formula, String result) {
+        public void addBox(String formula, String result, TextField historyField) {
             HBox histBox = new HBox();
-            Label equationLabel = new Label(formula+" = "+result);
+            Label equationLabel = new Label(formula + " = " + result);
             equationLabel.setFont(this.getFont());
 
             Button addHistory = new Button(langProperties.getProperty("Add_History"));
@@ -732,6 +762,17 @@ public class CalculatorGui extends Application {
             });
 
             this.getChildren().add(histBox);
+            int maxHistory = 16;
+            try {
+                maxHistory = Integer
+                        .valueOf(historyField.getText() == "" ? historyField.getPromptText() : historyField.getText());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            while (this.getChildren().size() > maxHistory) {
+                this.getChildren().remove(0);
+            }
+
         }
     }
 
