@@ -697,4 +697,49 @@ public class Expressions implements ExprElements {
         }
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 89;
+        int result = 1;
+        result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
+        result = prime * result + ((varPool == null) ? 0 : varPool.hashCode());
+        result = prime * result + ((bridge == null) ? 0 : bridge.hashCode());
+        result = prime * result + ((valueOfExpression == null) ? 0 : valueOfExpression.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Expressions other = (Expressions) obj;
+        if (tokens == null) {
+            if (other.tokens != null)
+                return false;
+        } else if (!tokens.equals(other.tokens))
+            return false;
+        if (varPool == null) {
+            if (other.varPool != null)
+                return false;
+        } else if (!varPool.equals(other.varPool))
+            return false;
+        if (bridge == null) {
+            if (other.bridge != null)
+                return false;
+        } else if (!bridge.equals(other.bridge))
+            return false;
+        if (valueOfExpression == null) {
+            if (other.valueOfExpression != null)
+                return false;
+        } else if (!valueOfExpression.equals(other.valueOfExpression))
+            return false;
+        return true;
+    }
+
+    
+
 }

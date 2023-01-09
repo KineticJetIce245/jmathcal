@@ -104,6 +104,8 @@ public class ExprRealDBLParser implements DBLElements {
     }
 
     private void unpack() {
+        if (!(this.resultExpr.getLast() instanceof DBLFunc))
+            return;
         DBLFunc f = (DBLFunc) this.resultExpr.getLast();
         switch (f.getType()) {
             case PRO:
