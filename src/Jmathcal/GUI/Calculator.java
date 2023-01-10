@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -38,11 +37,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -102,6 +99,7 @@ public class Calculator extends Application {
                 roundingField, roundFieldHelp,
                 historyField, historyFieldHelp);
         roundSettingPane.setAlignment(Pos.CENTER);
+        roundSettingPane.setHgap(2);
 
         // Formula Input and answer
         GridPane inputAndAnsPane = new GridPane();
@@ -427,9 +425,9 @@ public class Calculator extends Application {
                 key.consume();
             }
         });
+
         VBox graphPane = new VBox();
-        // TODO
-        GridPane planeSetting = new GridPane();
+        HBox planeSetting = new HBox();
         TextField lengthXField = new TextField();
         lengthXField.setFont(smiley18);
         lengthXField.setPromptText("10");
@@ -476,17 +474,22 @@ public class Calculator extends Application {
         depthField.setMinSize(30, 40);
         depthField.setMaxWidth(45);
         Label lengthHelpLabel = new Label(langDisplay.getProperty("Plane_Length_Setting"));
-        calFieldHelp.setFont(tsanger18);
+        lengthHelpLabel.setFont(tsanger18);
         Label oriHelpLabel = new Label(langDisplay.getProperty("Plane_Origin_Setting"));
-        roundFieldHelp.setFont(tsanger18);
+        oriHelpLabel.setFont(tsanger18);
         Label resolutionHelpLabel = new Label(langDisplay.getProperty("Plane_Resolution_Setting"));
-        historyFieldHelp.setFont(tsanger18);
+        resolutionHelpLabel.setFont(tsanger18);
         Label depthHelpLabel = new Label(langDisplay.getProperty("Plane_Depth_Setting"));
-        historyFieldHelp.setFont(tsanger18);
+        depthHelpLabel.setFont(tsanger18);
+        planeSetting.getChildren().addAll(lengthHelpLabel, lengthXField, lengthYField, oriHelpLabel, oriXField, oriYField, 
+        resolutionHelpLabel, resolutionXField, resolutionYField, depthHelpLabel, depthField);
+        planeSetting.setAlignment(Pos.BOTTOM_CENTER);
+
+        // graph Pane
         boolean[] gridSetting = {true, true, true};
-        FuncPane funcPane = new FuncPane(smiley);
-        graphPane.getChildren().addAll(funcPane);
-        funcPane.langProperties = langDisplay;
+        FuncPane funcPane = new FuncPane(smiley, langDisplay);
+        graphPane.getChildren().add(funcPane);
+        graphPane.getChildren().add(planeSetting);
         interface PlanePlotter {
             void draw();
         }
@@ -512,55 +515,46 @@ public class Calculator extends Application {
                 try {
                     lenSetting[0] = Double.valueOf(lenXStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     lenSetting[0] = Double.valueOf(lengthXField.getPromptText());
                 }
                 try {
                     lenSetting[1] = Double.valueOf(lenYStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     lenSetting[1] = Double.valueOf(lengthYField.getPromptText());
                 }
                 try {
                     oriSetting[0] = Double.valueOf(oriXStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     oriSetting[0] = Double.valueOf(oriXField.getPromptText());
                 }
                 try {
                     oriSetting[1] = Double.valueOf(oriYStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     oriSetting[1] = Double.valueOf(oriYField.getPromptText());
                 }
                 try {
                     planeSetting[0] = Integer.valueOf(planeSizeXStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     planeSetting[0] = Integer.valueOf(planeSizeXField.getPromptText());
                 }
                 try {
                     planeSetting[1] = Integer.valueOf(planeSizeYStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     planeSetting[1] = Integer.valueOf(planeSizeYField.getPromptText());
                 }
                 try {
                     resolutionSetting[0] = Integer.valueOf(resolutionXStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     resolutionSetting[0] = Integer.valueOf(resolutionXField.getPromptText());
                 }
                 try {
                     resolutionSetting[1] = Integer.valueOf(resolutionYStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     resolutionSetting[1] = Integer.valueOf(resolutionYField.getPromptText());
                 }
                 try {
                     depth = Integer.valueOf(depthStr);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
                     depth = Integer.valueOf(depthField.getPromptText());
                 }
 
@@ -573,8 +567,14 @@ public class Calculator extends Application {
                     if (i instanceof FuncPane.FuncBox) {
                         FuncPane.FuncBox func = (FuncPane.FuncBox) i;
                         String funcStr = func.getText();
-                        String leftStr = funcStr.substring(0, funcStr.indexOf("="));
-                        String rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length());
+                        String leftStr, rightStr;
+                        try {
+                            leftStr = funcStr.substring(0, funcStr.indexOf("="));
+                            rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length());
+                        } catch (Exception e) {
+                            func.addMes("Syntax Error, should input f(x,y) = g(x,y)");
+                            continue;    
+                        }
 
                         try {
                             Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool, calInitiator.getBridge());
@@ -582,13 +582,12 @@ public class Calculator extends Application {
                             Expressions expr = Expressions.subtractExpr(leftExpr, rightExpr);
                             funcPane.addFunc(expr);
                         } catch (Exception e) {
-                            e.printStackTrace();
                             func.addMes(e.toString());
                         }
                     } 
                 }
                 Stage window = new Stage();
-                window.setTitle("HI");
+                window.setTitle("Graphic");
                 VBox layout = new VBox();
                 Scene sc = new Scene(layout, 1080, 720);
                 layout.setPrefSize(1080, 720);
@@ -679,6 +678,7 @@ public class Calculator extends Application {
                         .valueOf(historyField.getText() == "" ? historyField.getPromptText() : historyField.getText());
             } catch (Exception e) {
                 e.printStackTrace();
+                maxHistory = Integer.valueOf(historyField.getPromptText());
             }
             while (this.getChildren().size() > maxHistory) {
                 this.getChildren().remove(0);
@@ -694,7 +694,7 @@ public class Calculator extends Application {
         public Font font;
         public Properties langProperties;
 
-        public FuncPane(Font font) {
+        public FuncPane(Font font, Properties langProperties) {
             this.font = font;
             Button addNewFuncBox = new Button("+");
             addNewFuncBox.setPrefSize(1080, 40);
@@ -702,7 +702,7 @@ public class Calculator extends Application {
                 this.addFuncBox();
             });
             this.getChildren().add(addNewFuncBox);
-
+            this.langProperties = langProperties;
         }
 
         public void setPlane(VariablePool vp, PlotterPlane plane, boolean[] gridSetting) {
