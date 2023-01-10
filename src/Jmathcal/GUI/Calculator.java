@@ -27,6 +27,7 @@ import javafx.application.Application;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -145,6 +146,7 @@ public class Calculator extends Application {
         enterButton.setFont(tsanger);
         enterButton.setPrefSize(90, 40);
         interface CalInitiator {
+            public IOBridge getBridge();
             public void initiate();
         }
         CalInitiator calInitiator = new CalInitiator() {
@@ -173,6 +175,10 @@ public class Calculator extends Application {
                     return reVal;
                 }
             };
+            @Override
+            public IOBridge getBridge() {
+                return this.ioBridge;
+            }
             @Override
             public void initiate() {
                 String formula = formulaInput.getText();
@@ -420,13 +426,160 @@ public class Calculator extends Application {
                 key.consume();
             }
         });
-
-        // TODO
         VBox graphPane = new VBox();
-        boolean[] gridSetting = new boolean[3];
-        PlotterPlane plane = new PlotterPlane(null, null, null, null, 0);
-        FuncPane funcPane = new FuncPane(new VariablePool(), plane, gridSetting, smiley);
+        // TODO
+        GridPane planeSetting = new GridPane();
+        TextField lengthXField = new TextField();
+        lengthXField.setFont(smiley18);
+        lengthXField.setPromptText("10");
+        lengthXField.setMinSize(30, 40);
+        lengthXField.setMaxWidth(45);
+        TextField lengthYField = new TextField();
+        lengthYField.setFont(smiley18);
+        lengthYField.setPromptText("10");
+        lengthYField.setMinSize(30, 40);
+        lengthYField.setMaxWidth(45);
+        TextField oriXField = new TextField();
+        oriXField.setFont(smiley18);
+        oriXField.setPromptText("-5");
+        oriXField.setMinSize(30, 40);
+        oriXField.setMaxWidth(45);
+        TextField oriYField = new TextField();
+        oriYField.setFont(smiley18);
+        oriYField.setPromptText("-5");
+        oriYField.setMinSize(30, 40);
+        oriYField.setMaxWidth(45);
+        TextField planeSizeXField = new TextField();
+        planeSizeXField.setFont(smiley18);
+        planeSizeXField.setPromptText("1080");
+        planeSizeXField.setMinSize(50, 40);
+        planeSizeXField.setMaxWidth(45);
+        TextField planeSizeYField = new TextField();
+        planeSizeYField.setFont(smiley18);
+        planeSizeYField.setPromptText("720");
+        planeSizeYField.setMinSize(30, 40);
+        planeSizeYField.setMaxWidth(45);
+        TextField resolutionXField = new TextField();
+        resolutionXField.setFont(smiley18);
+        resolutionXField.setPromptText("100");
+        resolutionXField.setMinSize(30, 40);
+        resolutionXField.setMaxWidth(45);
+        TextField resolutionYField = new TextField();
+        resolutionYField.setFont(smiley18);
+        resolutionYField.setPromptText("100");
+        resolutionYField.setMinSize(30, 40);
+        resolutionYField.setMaxWidth(45);
+        TextField depthField = new TextField();
+        depthField.setFont(smiley18);
+        depthField.setPromptText("4");
+        depthField.setMinSize(30, 40);
+        depthField.setMaxWidth(45);
+        Label lengthHelpLabel = new Label(langDisplay.getProperty("Plane_Length_Setting"));
+        calFieldHelp.setFont(tsanger18);
+        Label oriHelpLabel = new Label(langDisplay.getProperty("Plane_Origin_Setting"));
+        roundFieldHelp.setFont(tsanger18);
+        Label resolutionHelpLabel = new Label(langDisplay.getProperty("Plane_Resolution_Setting"));
+        historyFieldHelp.setFont(tsanger18);
+        Label depthHelpLabel = new Label(langDisplay.getProperty("Plane_Depth_Setting"));
+        historyFieldHelp.setFont(tsanger18);
+        boolean[] gridSetting = {true, true, true};
+        FuncPane funcPane = new FuncPane(smiley);
         graphPane.getChildren().addAll(funcPane);
+
+        interface PlanePlotter {
+            void draw();
+        }
+        PlanePlotter plotter = new PlanePlotter() {
+            @Override
+            public void draw() {
+                VariablePool varPool = new VariablePool();
+                String lenXStr = lengthXField.getText();
+                String lenYStr = lengthYField.getText();
+                String oriXStr = oriXField.getText();
+                String oriYStr = oriYField.getText();
+                String planeSizeXStr = planeSizeXField.getText();
+                String planeSizeYStr = planeSizeYField.getText();
+                String resolutionXStr = resolutionXField.getText();
+                String resolutionYStr = resolutionYField.getText();
+                String depthStr = depthField.getText();
+                double[] lenSetting = new double[2];
+                double[] oriSetting = new double[2];
+                double[] planeSetting = new double[2];
+                int[] resolutionSetting = new int[2];
+                int depth;
+
+                try {
+                    lenSetting[0] = Double.valueOf(lenXStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    lenSetting[0] = Double.valueOf(lengthXField.getPromptText());
+                }
+                try {
+                    lenSetting[1] = Double.valueOf(lenYStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    lenSetting[1] = Double.valueOf(lengthYField.getPromptText());
+                }
+                try {
+                    oriSetting[0] = Double.valueOf(oriXStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    oriSetting[0] = Double.valueOf(oriXField.getPromptText());
+                }
+                try {
+                    oriSetting[1] = Double.valueOf(oriYStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    oriSetting[1] = Double.valueOf(oriYField.getPromptText());
+                }
+                try {
+                    planeSetting[0] = Double.valueOf(planeSizeXStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    planeSetting[0] = Double.valueOf(planeSizeXField.getPromptText());
+                }
+                try {
+                    planeSetting[1] = Double.valueOf(planeSizeYStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    planeSetting[1] = Double.valueOf(planeSizeYField.getPromptText());
+                }
+                try {
+                    resolutionSetting[0] = Integer.valueOf(resolutionXStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    resolutionSetting[0] = Integer.valueOf(resolutionXField.getPromptText());
+                }
+                try {
+                    resolutionSetting[1] = Integer.valueOf(resolutionYStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    resolutionSetting[1] = Integer.valueOf(resolutionYField.getPromptText());
+                }
+                try {
+                    depth = Integer.valueOf(depthStr);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    depth = Integer.valueOf(depthField.getPromptText());
+                }
+
+                PlotterPlane plotterPlane = new PlotterPlane(oriSetting, planeSetting, resolutionSetting, resolutionSetting, depth);
+                funcPane.setPlane(vp, plotterPlane, gridSetting);
+
+                for (Node i : funcPane.getChildren()) {
+                    if (i instanceof FuncPane.FuncBox) {
+                        FuncPane.FuncBox func = (FuncPane.FuncBox) i;
+                        String funcStr = func.getText();
+                        String leftStr = funcStr.substring(0, funcStr.indexOf("="));
+                        String rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length() - 1);
+
+                        try {
+                            Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool, calInitiator.getBridge());
+                        }
+                    }
+                }
+            }
+        };
 
         VBox menuBox = new VBox();
         Button buttonToCalMenu = new Button("CA");
@@ -517,16 +670,20 @@ public class Calculator extends Application {
         public PointGroup pg;
         public Font font;
 
-        public FuncPane(VariablePool vp, PlotterPlane plane, boolean[] gridSetting, Font font) {
+        public FuncPane(Font font) {
             this.font = font;
-            this.plane = plane;
-            pg.setUpGrid(plane, gridSetting[0], gridSetting[1], gridSetting[2]);
             Button addNewFuncBox = new Button("+");
             addNewFuncBox.setPrefSize(1080, 40);
-            this.getChildren().add(addNewFuncBox);
             addNewFuncBox.setOnAction(e -> {
                 this.addFuncBox();
             });
+            this.getChildren().add(addNewFuncBox);
+
+        }
+
+        public void setPlane(VariablePool vp, PlotterPlane plane, boolean[] gridSetting) {
+            this.plane = plane;
+            pg.setUpGrid(plane, gridSetting[0], gridSetting[1], gridSetting[2]);
         }
 
         public void addFuncBox() {
@@ -541,7 +698,6 @@ public class Calculator extends Application {
         private class FuncBox extends VBox {
             private TextField input;
             private ScrollPane status;
-            private Expressions expr;
             private Properties langProperties;
             public FuncBox(Font font, Button delButton) {
                 this.input = new TextField();
@@ -566,15 +722,8 @@ public class Calculator extends Application {
 
             }
 
-            public Expressions parseEquation(VariablePool varPool, IOBridge bridge) {
-                String inputString = this.input.getText();
-                if (!inputString.contains("=")) throw new ExprSyntaxErrorException();
-                String leftStr = inputString.substring(0, inputString.indexOf("="));
-                String rightStr = inputString.substring(inputString.indexOf("=") + 1, inputString.length() -1);
-                Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool, bridge);
-                Expressions rightExpr = Expressions.parseFromFlattenExpr(rightStr, varPool, bridge);
-                this.expr = Expressions.subtractExpr(leftExpr, rightExpr);
-                return this.expr;
+            public String getText() {
+                return this.input.getText();
             }
         }
     }

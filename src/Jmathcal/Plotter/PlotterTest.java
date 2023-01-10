@@ -20,8 +20,8 @@ public class PlotterTest extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        double[] length = { 4, 4 };
-        double[] origin = { -2, -2 };
+        double[] length = { 20, 20 };
+        double[] origin = { -10, -10 };
         int[] planeSize = { 1080, 720 };
         int[] resolution = { 500, 500 };
         int maxDepth = 2;
@@ -31,13 +31,17 @@ public class PlotterTest extends Application {
         PointGroup pg = new PointGroup();
         pg.setUpGrid(myPlane, true, true, true);
         Expressions expr = Expressions.parseFromFlattenExpr("sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
-        pg.addFunc(expr, Color.web("#af3f5f"));
+        //pg.addFunc(expr, Color.web("#af3f5f"));
+        /*
         expr = Expressions.parseFromFlattenExpr("-2sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
         pg.addFunc(expr, Color.web("#6f209f"));
         expr = Expressions.parseFromFlattenExpr("1/2sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
         pg.addFunc(expr, Color.web("#df2f4f"));
         expr = Expressions.parseFromFlattenExpr("-2/3sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
         pg.addFunc(expr, Color.web("#ff000f"));
+        */
+        expr = Expressions.parseFromFlattenExpr("((6/5)^4)/x-y", vp, IOBridge.DFLT_BRIDGE);
+        pg.addFunc(expr, Color.web("#6f209f"));
 
         // Calculator scene
         Button buttonToGphMenu = new Button("AL");

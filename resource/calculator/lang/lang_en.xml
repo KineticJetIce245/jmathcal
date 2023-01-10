@@ -17,4 +17,8 @@
     <entry key="Rounding_Setting_Display">Display: </entry>
     <entry key="Message_Display_Title">Message</entry>
     <entry key="History_Display">Number of histories: </entry>
+    <entry key="Plane_Length_Setting">Size of plane:</entry>
+    <entry key="Plane_Origin_Setting">Origin of the plane:</entry>
+    <entry key="Plane_Resolution_Setting">Resolution of plane:</entry>
+    <entry key="Plane_Depth_Setting">Depth: </entry>
 </properties>
