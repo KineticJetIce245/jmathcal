@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch PlotterTest",
+            "request": "launch",
+            "mainClass": "Jmathcal.OldPlotter.PlotterTest",
+            "projectName": "JFilmak_f917a422"
+        },
+        {
+            "type": "java",
             "name": "Launch Calculator",
             "request": "launch",
             "mainClass": "Jmathcal.GUI.Calculator",

@@ -44,6 +44,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -485,7 +486,7 @@ public class Calculator extends Application {
         boolean[] gridSetting = {true, true, true};
         FuncPane funcPane = new FuncPane(smiley);
         graphPane.getChildren().addAll(funcPane);
-
+        funcPane.langProperties = langDisplay;
         interface PlanePlotter {
             void draw();
         }
@@ -504,7 +505,7 @@ public class Calculator extends Application {
                 String depthStr = depthField.getText();
                 double[] lenSetting = new double[2];
                 double[] oriSetting = new double[2];
-                double[] planeSetting = new double[2];
+                int[] planeSetting = new int[2];
                 int[] resolutionSetting = new int[2];
                 int depth;
 
@@ -533,16 +534,16 @@ public class Calculator extends Application {
                     oriSetting[1] = Double.valueOf(oriYField.getPromptText());
                 }
                 try {
-                    planeSetting[0] = Double.valueOf(planeSizeXStr);
+                    planeSetting[0] = Integer.valueOf(planeSizeXStr);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    planeSetting[0] = Double.valueOf(planeSizeXField.getPromptText());
+                    planeSetting[0] = Integer.valueOf(planeSizeXField.getPromptText());
                 }
                 try {
-                    planeSetting[1] = Double.valueOf(planeSizeYStr);
+                    planeSetting[1] = Integer.valueOf(planeSizeYStr);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    planeSetting[1] = Double.valueOf(planeSizeYField.getPromptText());
+                    planeSetting[1] = Integer.valueOf(planeSizeYField.getPromptText());
                 }
                 try {
                     resolutionSetting[0] = Integer.valueOf(resolutionXStr);
@@ -563,7 +564,9 @@ public class Calculator extends Application {
                     depth = Integer.valueOf(depthField.getPromptText());
                 }
 
-                PlotterPlane plotterPlane = new PlotterPlane(oriSetting, planeSetting, resolutionSetting, resolutionSetting, depth);
+                PlotterPlane plotterPlane = new PlotterPlane(lenSetting, oriSetting, planeSetting, resolutionSetting, depth);
+                PointGroup pg = new PointGroup();
+                funcPane.pg = pg;
                 funcPane.setPlane(vp, plotterPlane, gridSetting);
 
                 for (Node i : funcPane.getChildren()) {
@@ -571,15 +574,35 @@ public class Calculator extends Application {
                         FuncPane.FuncBox func = (FuncPane.FuncBox) i;
                         String funcStr = func.getText();
                         String leftStr = funcStr.substring(0, funcStr.indexOf("="));
-                        String rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length() - 1);
+                        String rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length());
 
                         try {
                             Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool, calInitiator.getBridge());
+                            Expressions rightExpr = Expressions.parseFromFlattenExpr(rightStr, varPool, calInitiator.getBridge());
+                            Expressions expr = Expressions.subtractExpr(leftExpr, rightExpr);
+                            funcPane.addFunc(expr);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            func.addMes(e.toString());
                         }
-                    }
+                    } 
                 }
+                Stage window = new Stage();
+                window.setTitle("HI");
+                VBox layout = new VBox();
+                Scene sc = new Scene(layout, 1080, 720);
+                layout.setPrefSize(1080, 720);
+                layout.getChildren().add(pg.getPlane());
+                window.setScene(sc);
+                window.show();
             }
         };
+        graphPane.addEventFilter(KeyEvent.KEY_PRESSED, key -> {
+            if (key.getCode() == KeyCode.ENTER) {
+                plotter.draw();
+                key.consume();
+            }
+        });
 
         VBox menuBox = new VBox();
         Button buttonToCalMenu = new Button("CA");
@@ -669,6 +692,7 @@ public class Calculator extends Application {
         public PlotterPlane plane;
         public PointGroup pg;
         public Font font;
+        public Properties langProperties;
 
         public FuncPane(Font font) {
             this.font = font;
@@ -688,18 +712,23 @@ public class Calculator extends Application {
 
         public void addFuncBox() {
             Button delButton = new Button("DEL");
-            FuncBox fb = new FuncBox(font, delButton);
+            FuncBox fb = new FuncBox(font, delButton, langProperties);
             this.getChildren().add(fb);
             delButton.setOnAction(e -> {
                 this.getChildren().remove(fb);
             });
         }
 
+        public void addFunc(Expressions expr) {
+            pg.addFunc(expr, Color.web("#000000"));
+        }
+
         private class FuncBox extends VBox {
             private TextField input;
-            private ScrollPane status;
+            private Label status;
             private Properties langProperties;
-            public FuncBox(Font font, Button delButton) {
+            public FuncBox(Font font, Button delButton, Properties langProperties) {
+                this.langProperties = langProperties;
                 this.input = new TextField();
                 input.setPromptText(langProperties.getProperty("Input_Formula"));
                 input.setPrefSize(1080, 40);
@@ -707,13 +736,14 @@ public class Calculator extends Application {
                 input.setAlignment(Pos.CENTER);
                 this.getChildren().add(input);
 
-                this.status = new ScrollPane();
+                ScrollPane pane = new ScrollPane();
                 Label answerLabel = new Label();
                 answerLabel.setText("");
                 answerLabel.setFont(font);
                 answerLabel.setAlignment(Pos.CENTER);
                 answerLabel.setPrefSize(1000, 40);
-                status.setContent(answerLabel);
+                pane.setContent(answerLabel);
+                this.status = answerLabel;
 
                 HBox box = new HBox();
                 box.getChildren().add(delButton);
@@ -724,6 +754,10 @@ public class Calculator extends Application {
 
             public String getText() {
                 return this.input.getText();
+            }
+
+            public void addMes(String msg) {
+                this.status.setText(msg);
             }
         }
     }
