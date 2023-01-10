@@ -46,9 +46,11 @@
     <entry key="grad">GRAD</entry>
     <entry key="todeg">TO_DEG</entry>
     <entry key="tograd">TO_GRAD</entry>
-
     <entry key="abs">ABS</entry>
     <entry key="sgn">SGN</entry>
+    <entry key="ran\(">RAN</entry>
+    <entry key="polr\(">POLR</entry>
+    <entry key="polt\(">POLT</entry>
 
     <!-- Functions -->
     <entry key="sum\(">SUM</entry>
@@ -64,5 +66,8 @@
     <entry key="\\e">e</entry>
     <entry key="\\g">g</entry>
     <entry key="\\G">G</entry>
+    <entry key="\\ran">RAN</entry>
+    <entry key="\\Na">NA</entry>
+    <entry key="\\phi">PHI</entry>
 
 </properties>

@@ -17,9 +17,9 @@ public class PointGroup {
     private PlotterPlane plane;
 
     public PointGroup() {}
-    public void setUpGrid(PlotterPlane plane) {
+    public void setUpGrid(PlotterPlane plane, boolean ifNum, boolean ifPrimaryGrid, boolean ifSecondaryGrid) {
         this.plane = plane;
-        ArrayList<Node> nodesList = plane.generateGrid(true, true, true);
+        ArrayList<Node> nodesList = plane.generateGrid(ifNum, ifPrimaryGrid, ifSecondaryGrid);
         for (Node n : nodesList) {
             gridGroup.getChildren().add(n);
         }

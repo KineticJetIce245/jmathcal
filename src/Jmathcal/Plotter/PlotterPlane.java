@@ -1,6 +1,8 @@
 package Jmathcal.Plotter;
 
+import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 import Jmathcal.Expression.Expressions;
@@ -343,7 +345,9 @@ public class PlotterPlane {
             if ((gridDiv == 1) && ifNum) {
                 Label num;
                 if (ifX) {
-                    num = new Label(String.valueOf(curtLoc));
+                    num = new Label(new BigDecimal(String.valueOf(curtLoc))
+                            .round(new MathContext(4, RoundingMode.HALF_UP)).toString());
+                    
                     num.setLayoutX(curtLocPixel);
                     if (origin[1] < 0 && origin[1] >= -length[1]) {
                         num.setLayoutY((-origin[1] * scale < 50) ? -20 : 10);
@@ -354,7 +358,10 @@ public class PlotterPlane {
                 } else {
                     if (curtLoc == 0)
                         continue;
-                    num = new Label(String.valueOf(-curtLoc));
+
+                    num = new Label(new BigDecimal(String.valueOf(-curtLoc))
+                            .round(new MathContext(4, RoundingMode.HALF_UP)).toString());
+
                     if (origin[0] < 0 && origin[0] >= -length[0]) {
                         num.setLayoutX((-origin[0] * scale < 100) ? -30 : 5);
                     } else {

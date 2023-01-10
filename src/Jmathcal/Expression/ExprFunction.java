@@ -383,6 +383,24 @@ public class ExprFunction implements Serializable, ExprElements {
             }
         }),
 
+        RAN(2, 0, new CalBridge() {
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return ExprNumber.random(parameters.get(0).toNumber(mc), parameters.get(1).toNumber(mc), mc);
+            }
+        }),
+
+        POLR(2, 0 , new CalBridge() {
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return ExprNumber.polarR(parameters.get(0).toNumber(mc), parameters.get(1).toNumber(mc), mc);
+            }
+        }),
+
+        POLT(2, 0 , new CalBridge() {
+            public ExprNumber calculate(LinkedList<ExprElements> parameters, MathContext mc) {
+                return ExprNumber.polarTheta(parameters.get(0).toNumber(mc), parameters.get(1).toNumber(mc), mc);
+            }
+        }),
+
         OPEN_P(0, 0, new CalBridge() {
             public ExprNumber calculate(java.util.LinkedList<ExprElements> parameters, MathContext mc) {
                 throw new ExprSyntaxErrorException();

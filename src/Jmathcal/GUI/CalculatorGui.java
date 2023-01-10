@@ -28,8 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -119,6 +117,7 @@ public class CalculatorGui extends Application {
 
         TabPane inputPane = new TabPane();
         inputPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        
         // input buttons pane 1
         Tab funcGridTab1 = new Tab(langDisplay.getProperty("Calculator_InputTab_Tab1"));
         GridPane funcGridPane1 = new GridPane();

@@ -523,6 +523,67 @@ public class ExprNumber implements ExprElements {
         }
     }
 
+    public static ExprNumber random(ExprNumber a, ExprNumber b, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (a.valueDBL == null)
+                a.valueDBL = a.valueSTR.toComplexDbl();
+            if (b.valueDBL == null)
+                b.valueDBL = b.valueSTR.toComplexDbl();
+
+            double addValue = (a.valueDBL.subtract(b.valueDBL)).multiply(new ComplexDbl(Math.random())).abs(true);
+            return new ExprNumber(a.valueDBL.add(new ComplexDbl(addValue)));
+        } else {
+            if (a.valueSTR == null)
+                a.valueSTR = a.valueDBL.toComplexNum();
+            if (b.valueSTR == null)
+                b.valueSTR = b.valueDBL.toComplexNum();
+
+            BigDecimal addValue = (a.valueSTR.subtract(b.valueSTR))
+                    .multiply(new ComplexNum(Double.toString(Math.random()))).abs(true, mc);
+            return new ExprNumber(a.valueSTR.add(new ComplexNum(addValue)));
+        }
+    }
+
+    public static ExprNumber polarR(ExprNumber a, ExprNumber b, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (a.valueDBL == null)
+                a.valueDBL = a.valueSTR.toComplexDbl();
+            if (b.valueDBL == null)
+                b.valueDBL = b.valueSTR.toComplexDbl();
+
+            ComplexDbl usageDBL = new ComplexDbl(a.valueDBL.getRealValue(), b.valueDBL.getRealValue());
+            return new ExprNumber(new ComplexDbl(usageDBL.getRValue()));
+        } else {
+            if (a.valueSTR == null)
+                a.valueSTR = a.valueDBL.toComplexNum();
+            if (b.valueSTR == null)
+                b.valueSTR = b.valueDBL.toComplexNum();
+
+            ComplexNum usageNum = new ComplexNum(a.valueSTR.getRealValue(), b.valueSTR.getRealValue());
+            return new ExprNumber(new ComplexNum(usageNum.calRValue(mc)));
+        }
+    }
+
+    public static ExprNumber polarTheta(ExprNumber a, ExprNumber b, MathContext mc) {
+        if (mc.getPrecision() < DBL) {
+            if (a.valueDBL == null)
+                a.valueDBL = a.valueSTR.toComplexDbl();
+            if (b.valueDBL == null)
+                b.valueDBL = b.valueSTR.toComplexDbl();
+
+            ComplexDbl usageDBL = new ComplexDbl(a.valueDBL.getRealValue(), b.valueDBL.getRealValue());
+            return new ExprNumber(new ComplexDbl(usageDBL.getPhiValue()));
+        } else {
+            if (a.valueSTR == null)
+                a.valueSTR = a.valueDBL.toComplexNum();
+            if (b.valueSTR == null)
+                b.valueSTR = b.valueDBL.toComplexNum();
+
+            ComplexNum usageNum = new ComplexNum(a.valueSTR.getRealValue(), b.valueSTR.getRealValue());
+            return new ExprNumber(new ComplexNum(usageNum.calPhiValue(mc)));
+        }
+    }
+
     /**
      * Method to verify if an {@code ExprNumber} is a real number or not.
      * <p>
@@ -548,7 +609,7 @@ public class ExprNumber implements ExprElements {
         int realMag = Math.getExponent(this.toComplexDbl().getRealValue());
         int imaMag = Math.getExponent(this.toComplexDbl().getImaValue());
         final double LOG210 = 0.30102999566398;
-        double minDifference = (difference-1)*LOG210;
+        double minDifference = (difference - 1) * LOG210;
         if (realMag - imaMag > minDifference) {
             return true;
         }

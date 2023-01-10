@@ -20,32 +20,24 @@ public class PlotterTest extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        double[] length = { 20, 20 };
-        double[] origin = { -5, -5 };
+        double[] length = { 4, 4 };
+        double[] origin = { -2, -2 };
         int[] planeSize = { 1080, 720 };
-        int[] resolution = { 200, 200 };
-        int maxDepth = 4;
+        int[] resolution = { 500, 500 };
+        int maxDepth = 2;
         PlotterPlane myPlane = new PlotterPlane(length, origin, planeSize, resolution, maxDepth);
         VariablePool vp = new VariablePool();
 
         PointGroup pg = new PointGroup();
-        pg.setUpGrid(myPlane);
-        Expressions expr = Expressions.parseFromFlattenExpr("ysinx+xcosy-1", vp, IOBridge.DFLT_BRIDGE);
-        pg.addFunc(expr, Color.web("#ff0000"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy-1", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#df003f"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+1", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#bf005f"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+3", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#9f007f"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+5", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#7f009f"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+7", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#5f00bf"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+9", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#3f00df"));
-        expr = Expressions.parseFromFlattenExpr("xcosx-ycosy+11", vp, IOBridge.DFLT_BRIDGE);
-        //pg.addFunc(expr, Color.web("#0000ff"));
+        pg.setUpGrid(myPlane, true, true, true);
+        Expressions expr = Expressions.parseFromFlattenExpr("sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
+        pg.addFunc(expr, Color.web("#af3f5f"));
+        expr = Expressions.parseFromFlattenExpr("-2sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
+        pg.addFunc(expr, Color.web("#6f209f"));
+        expr = Expressions.parseFromFlattenExpr("1/2sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
+        pg.addFunc(expr, Color.web("#df2f4f"));
+        expr = Expressions.parseFromFlattenExpr("-2/3sqrt(x^2+y^2)-sin(8arctan(y/x))", vp, IOBridge.DFLT_BRIDGE);
+        pg.addFunc(expr, Color.web("#ff000f"));
 
         // Calculator scene
         Button buttonToGphMenu = new Button("AL");
