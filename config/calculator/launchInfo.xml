@@ -2,8 +2,16 @@
     <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
     <entry key="langFilePath">resource/calculator/lang/lang_en.xml</entry>
+
+    <!--Images-->
+    <entry key="app_logo">filr:resource/icon/appIcon.png</entry>
+    <entry key="calculator_menu">file:resource/icon/CalIconSqr.png</entry>
+    <entry key="graphic_menu">file:resource/icon/GraphIcon.png</entry>
+
     <entry key="multi-letterVarPath">config/calculator/multi-letterVar.xml</entry>
     <entry key="keyWordsPath">config/calculator/flattenExpr.xml</entry>
+    
+    <!--Fonts-->
     <entry key="TsangerYuMo_WO3Path">resource/font/TsangerYuMo_WO3.ttf</entry>
     <entry key="SmileySansPath">resource/font/SmileySans-Oblique.ttf</entry>
     <entry key="latinMathPath">resource/font/latinmodern-math.otf</entry>

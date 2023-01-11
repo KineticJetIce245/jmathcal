@@ -5,7 +5,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 
+import Jmathcal.Expression.ExprNumber;
 import Jmathcal.Expression.Expressions;
+import Jmathcal.Number.Complex.ComplexDbl;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
@@ -82,7 +84,6 @@ public class PlotterPlane {
             this.length[1] = planeSize[1] / scale;
             this.origin[1] = this.origin[1] - (this.length[1] - oriLength) / 2;
         }
-        System.out.println(this.origin[0] + " " + this.origin[1]);
 
         gridsNum[0] = resolution[0] << currentDepth;
         gridsNum[1] = resolution[1] << currentDepth;
@@ -101,7 +102,15 @@ public class PlotterPlane {
         grids = new boolean[gridsNum[0]][gridsNum[1]];
         signMatrix = new PlotterSign[gridsNum[0] + 1][gridsNum[1] + 1];
         this.expr = expr;
-        this.expr.calculate(mc);
+        if (this.expr.getVP().contains("x"))
+            this.expr.getVP().setValueOf("x", new ExprNumber(new ComplexDbl(0)));
+        if (this.expr.getVP().contains("y"))
+            this.expr.getVP().setValueOf("y", new ExprNumber(new ComplexDbl(0)));
+        try {
+            this.expr.calculate(mc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             this.DBLExpr = new ExprRealDBLParser(expr);
         } catch (ExprRealDBLParser.NotRealDBLException e) {

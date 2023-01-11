@@ -540,7 +540,6 @@ public class Expressions implements ExprElements {
      * @return the result of the expression in {@code ExprNumber}
      */
     public ExprNumber calculate(MathContext mc) {
-        //System.out.println(this);
         if (this.tokens.size() == 1) {
             if (!(this.tokens.get(0) instanceof ExprFunction)) {
                 if (this.tokens.get(0) instanceof VariablePool.Variable){

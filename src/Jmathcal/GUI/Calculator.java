@@ -34,7 +34,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -60,6 +63,7 @@ public class Calculator extends Application {
         Font tsanger18 = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 18);
         Font smiley = getFont(new File(launchInfo.getProperty("SmileySansPath")), 25);
         Font smiley18 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 18);
+        Font smiley16 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 16);
         Font latinMath = getFont(new File(launchInfo.getProperty("latinMathPath")), 25);
 
         Scene mainScene;
@@ -69,17 +73,17 @@ public class Calculator extends Application {
         TextField roundingField = new TextField();
         roundingField.setFont(smiley18);
         roundingField.setPromptText("12");
-        roundingField.setMinSize(30, 40);
+        roundingField.setMinSize(30, 20);
         roundingField.setMaxWidth(45);
         TextField calField = new TextField();
         calField.setFont(smiley18);
         calField.setPromptText("16");
-        calField.setMinSize(30, 40);
+        calField.setMinSize(30, 20);
         calField.setMaxWidth(45);
         TextField historyField = new TextField();
         historyField.setFont(smiley18);
         historyField.setPromptText("16");
-        historyField.setMinSize(30, 40);
+        historyField.setMinSize(30, 20);
         historyField.setMaxWidth(45);
         Label calFieldHelp = new Label(langDisplay.getProperty("Rounding_Setting_Calculation"));
         calFieldHelp.setFont(tsanger18);
@@ -118,7 +122,7 @@ public class Calculator extends Application {
         ScrollPane vScrollPane = new ScrollPane();
         VariablePool vp = new VariablePool();
         VariablePool.Variable ANSvariable = vp.new Variable("[ANS]");
-        ANSvariable.setName("Answer");
+        ANSvariable.setName(langDisplay.getProperty("Variable_Answer"));
         ANSvariable.setValue(new ExprNumber("0+0i"));
         VpPane vpPane = new VpPane(vp, smiley18, langDisplay, formulaInput);
         vpPane.setDisplay();
@@ -146,6 +150,7 @@ public class Calculator extends Application {
         enterButton.setPrefSize(90, 40);
         interface CalInitiator {
             public IOBridge getBridge();
+
             public void initiate();
         }
         CalInitiator calInitiator = new CalInitiator() {
@@ -154,15 +159,18 @@ public class Calculator extends Application {
                 public void outSendMessage(String msg) {
                     AlertBox.display(langDisplay.getProperty("Message_Display_Title"), msg);
                 }
+
                 @Override
                 public String askForInput(String msg) {
                     return AlertBox.askForInput(langDisplay.getProperty("Ask_For_Input_Title"), msg, tsanger18,
                             smiley18);
                 }
+
                 @Override
                 public HashMap<String, File> getPropertiesLoc() {
                     return propertiesToHashMap(launchInfo);
                 }
+
                 private static HashMap<String, File> propertiesToHashMap(Properties properties) {
                     HashMap<String, File> reVal = new HashMap<String, File>();
                     Set<String> keySet = properties.stringPropertyNames();
@@ -174,10 +182,12 @@ public class Calculator extends Application {
                     return reVal;
                 }
             };
+
             @Override
             public IOBridge getBridge() {
                 return this.ioBridge;
             }
+
             @Override
             public void initiate() {
                 String formula = formulaInput.getText();
@@ -206,22 +216,29 @@ public class Calculator extends Application {
                     answerLabel.setText(resultStr);
                     historyPane.addBox(formula, result.toAnsString(), historyField);
                 } catch (ArithmeticException error) {
-                    answerLabel.setText("Math error");
+                    answerLabel.setText(langDisplay.getProperty("Math_Error"));
                 } catch (ExprSyntaxErrorException error) {
                     answerLabel.setText(
-                            "Syntax error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                            langDisplay.getProperty("Syntax_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
                 } catch (VariableLabelOccupiedException error) {
                     answerLabel.setText(
-                            "Variable error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                            langDisplay.getProperty("Variable_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
                 } catch (NoSuchElementException error) {
                     answerLabel.setText(
-                            "Parser error: " + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                            langDisplay.getProperty("Parser_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
                 } catch (NumberFormatException error) {
                     answerLabel.setText(
-                            "Number input error: "
-                                    + (error.getMessage() == null ? "unknown error" : error.getMessage()));
+                            langDisplay.getProperty("Number_Input_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
                 } catch (Exception error) {
-                    answerLabel.setText("Unknown error: " + error.getMessage());
+                    answerLabel.setText(langDisplay.getProperty("Unknown_Error") + error.getMessage());
                 }
             }
         };
@@ -230,7 +247,7 @@ public class Calculator extends Application {
             calInitiator.initiate();
         });
         // AC
-        Button allClearButton = new Button("AC");
+        Button allClearButton = new Button(langDisplay.getProperty("AC"));
         allClearButton.setFont(tsanger);
         allClearButton.setOnAction(e -> {
             formulaInput.clear();
@@ -429,49 +446,49 @@ public class Calculator extends Application {
         VBox graphPane = new VBox();
         HBox planeSetting = new HBox();
         TextField lengthXField = new TextField();
-        lengthXField.setFont(smiley18);
+        lengthXField.setFont(smiley16);
         lengthXField.setPromptText("10");
-        lengthXField.setMinSize(30, 40);
+        lengthXField.setMinSize(30, 20);
         lengthXField.setMaxWidth(45);
         TextField lengthYField = new TextField();
-        lengthYField.setFont(smiley18);
+        lengthYField.setFont(smiley16);
         lengthYField.setPromptText("10");
-        lengthYField.setMinSize(30, 40);
+        lengthYField.setMinSize(30, 20);
         lengthYField.setMaxWidth(45);
         TextField oriXField = new TextField();
-        oriXField.setFont(smiley18);
+        oriXField.setFont(smiley16);
         oriXField.setPromptText("-5");
-        oriXField.setMinSize(30, 40);
+        oriXField.setMinSize(30, 20);
         oriXField.setMaxWidth(45);
         TextField oriYField = new TextField();
-        oriYField.setFont(smiley18);
+        oriYField.setFont(smiley16);
         oriYField.setPromptText("-5");
-        oriYField.setMinSize(30, 40);
+        oriYField.setMinSize(30, 20);
         oriYField.setMaxWidth(45);
         TextField planeSizeXField = new TextField();
-        planeSizeXField.setFont(smiley18);
+        planeSizeXField.setFont(smiley16);
         planeSizeXField.setPromptText("1080");
-        planeSizeXField.setMinSize(50, 40);
+        planeSizeXField.setMinSize(50, 20);
         planeSizeXField.setMaxWidth(45);
         TextField planeSizeYField = new TextField();
-        planeSizeYField.setFont(smiley18);
+        planeSizeYField.setFont(smiley16);
         planeSizeYField.setPromptText("720");
-        planeSizeYField.setMinSize(30, 40);
+        planeSizeYField.setMinSize(50, 20);
         planeSizeYField.setMaxWidth(45);
         TextField resolutionXField = new TextField();
-        resolutionXField.setFont(smiley18);
+        resolutionXField.setFont(smiley16);
         resolutionXField.setPromptText("100");
-        resolutionXField.setMinSize(30, 40);
+        resolutionXField.setMinSize(30, 20);
         resolutionXField.setMaxWidth(45);
         TextField resolutionYField = new TextField();
-        resolutionYField.setFont(smiley18);
+        resolutionYField.setFont(smiley16);
         resolutionYField.setPromptText("100");
-        resolutionYField.setMinSize(30, 40);
+        resolutionYField.setMinSize(30, 20);
         resolutionYField.setMaxWidth(45);
         TextField depthField = new TextField();
-        depthField.setFont(smiley18);
+        depthField.setFont(smiley16);
         depthField.setPromptText("4");
-        depthField.setMinSize(30, 40);
+        depthField.setMinSize(30, 20);
         depthField.setMaxWidth(45);
         Label lengthHelpLabel = new Label(langDisplay.getProperty("Plane_Length_Setting"));
         lengthHelpLabel.setFont(tsanger18);
@@ -481,15 +498,26 @@ public class Calculator extends Application {
         resolutionHelpLabel.setFont(tsanger18);
         Label depthHelpLabel = new Label(langDisplay.getProperty("Plane_Depth_Setting"));
         depthHelpLabel.setFont(tsanger18);
-        planeSetting.getChildren().addAll(lengthHelpLabel, lengthXField, lengthYField, oriHelpLabel, oriXField, oriYField, 
-        resolutionHelpLabel, resolutionXField, resolutionYField, depthHelpLabel, depthField);
-        planeSetting.setAlignment(Pos.BOTTOM_CENTER);
+        Label planeSizeHelpLabel = new Label(langDisplay.getProperty("Plane_Size_Setting"));
+        planeSizeHelpLabel.setFont(tsanger18);
+        planeSetting.getChildren().addAll(
+                lengthHelpLabel, lengthXField, lengthYField,
+                oriHelpLabel, oriXField, oriYField,
+                resolutionHelpLabel, resolutionXField, resolutionYField,
+                planeSizeHelpLabel, planeSizeXField, planeSizeYField,
+                depthHelpLabel, depthField);
+        planeSetting.setAlignment(Pos.CENTER);
+        planeSetting.setSpacing(2);
 
         // graph Pane
-        boolean[] gridSetting = {true, true, true};
-        FuncPane funcPane = new FuncPane(smiley, langDisplay);
+        boolean[] gridSetting = { true, true, true };
+        ScrollPane graphSCPane = new ScrollPane();
+        FuncPane funcPane = new FuncPane(smiley18, smiley, langDisplay);
         graphPane.getChildren().add(funcPane);
         graphPane.getChildren().add(planeSetting);
+        graphPane.setAlignment(Pos.CENTER);
+        graphSCPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+        graphSCPane.setContent(graphPane);
         interface PlanePlotter {
             void draw();
         }
@@ -558,10 +586,11 @@ public class Calculator extends Application {
                     depth = Integer.valueOf(depthField.getPromptText());
                 }
 
-                PlotterPlane plotterPlane = new PlotterPlane(lenSetting, oriSetting, planeSetting, resolutionSetting, depth);
+                PlotterPlane plotterPlane = new PlotterPlane(lenSetting, oriSetting, planeSetting, resolutionSetting,
+                        depth);
                 PointGroup pg = new PointGroup();
                 funcPane.pg = pg;
-                funcPane.setPlane(vp, plotterPlane, gridSetting);
+                funcPane.setPlane(plotterPlane, gridSetting);
 
                 for (Node i : funcPane.getChildren()) {
                     if (i instanceof FuncPane.FuncBox) {
@@ -572,30 +601,58 @@ public class Calculator extends Application {
                             leftStr = funcStr.substring(0, funcStr.indexOf("="));
                             rightStr = funcStr.substring(funcStr.indexOf("=") + 1, funcStr.length());
                         } catch (Exception e) {
-                            func.addMes("Syntax Error, should input f(x,y) = g(x,y)");
-                            continue;    
+                            func.addMes(langDisplay.getProperty("Syntax_Error_Graph"));
+                            continue;
                         }
 
                         try {
-                            Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool, calInitiator.getBridge());
-                            Expressions rightExpr = Expressions.parseFromFlattenExpr(rightStr, varPool, calInitiator.getBridge());
+                            Expressions leftExpr = Expressions.parseFromFlattenExpr(leftStr, varPool,
+                                    calInitiator.getBridge());
+                            Expressions rightExpr = Expressions.parseFromFlattenExpr(rightStr, varPool,
+                                    calInitiator.getBridge());
                             Expressions expr = Expressions.subtractExpr(leftExpr, rightExpr);
-                            funcPane.addFunc(expr);
-                        } catch (Exception e) {
-                            func.addMes(e.toString());
+                            Color lineColor = Color.web("#000000");
+                            try {
+                                lineColor = Color.web(func.getColorInput());
+                            } catch (Exception e) {
+                                func.addMes(langDisplay.getProperty("Color_Error"));
+                            }
+                            funcPane.addFunc(expr, lineColor);
+                        } catch (ArithmeticException error) {
+                            func.addMes(langDisplay.getProperty("Math_Error"));
+                        } catch (ExprSyntaxErrorException error) {
+                            func.addMes(langDisplay.getProperty("Syntax_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
+                        } catch (VariableLabelOccupiedException error) {
+                            func.addMes(langDisplay.getProperty("Variable_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
+                        } catch (NoSuchElementException error) {
+                            func.addMes(langDisplay.getProperty("Parser_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
+                        } catch (NumberFormatException error) {
+                            func.addMes(langDisplay.getProperty("Number_Input_Error")
+                                    + (error.getMessage() == null ? langDisplay.getProperty("Unknown_Error")
+                                            : error.getMessage()));
+                        } catch (Exception error) {
+                            func.addMes(langDisplay.getProperty("Unknown_Error") + error.getMessage());
                         }
-                    } 
+                    }
                 }
                 Stage window = new Stage();
-                window.setTitle("Graphic");
+                window.setTitle(langDisplay.getProperty("Calculator_Graphics"));
                 VBox layout = new VBox();
-                Scene sc = new Scene(layout, 1080, 720);
-                layout.setPrefSize(1080, 720);
+                Scene sc = new Scene(layout, planeSetting[0], planeSetting[1]);
                 layout.getChildren().add(pg.getPlane());
                 window.setScene(sc);
                 window.show();
             }
         };
+        funcPane.getEnterButton().setOnAction(e -> {
+            plotter.draw();
+        });
         graphPane.addEventFilter(KeyEvent.KEY_PRESSED, key -> {
             if (key.getCode() == KeyCode.ENTER) {
                 plotter.draw();
@@ -604,34 +661,46 @@ public class Calculator extends Application {
         });
 
         VBox menuBox = new VBox();
-        Button buttonToCalMenu = new Button("CA");
+        Button buttonToCalMenu = new Button();
         buttonToCalMenu.setPrefSize(90, 90);
-        Button buttonToGphMenu = new Button("GP");
+        Image calculatorIma = new Image(launchInfo.getProperty("calculator_menu"));
+        ImageView calculatorImaView = new ImageView(calculatorIma);
+        calculatorImaView.setFitWidth(65);
+        calculatorImaView.setPreserveRatio(true);
+        buttonToCalMenu.setGraphic(calculatorImaView);
+
+        Button buttonToGphMenu = new Button();
         buttonToGphMenu.setPrefSize(90, 90);
-        Button buttonToBaseN = new Button("BN");
+        Image graphIma = new Image(launchInfo.getProperty("graphic_menu"));
+        ImageView graphImaView = new ImageView(graphIma);
+        graphImaView.setFitHeight(60);
+        graphImaView.setPreserveRatio(true);
+        buttonToGphMenu.setGraphic(graphImaView);
+
+        Button buttonToBaseN = new Button();
         buttonToBaseN.setPrefSize(90, 90);
-        menuBox.getChildren().addAll(buttonToCalMenu, buttonToGphMenu, buttonToBaseN);
+        menuBox.getChildren().addAll(buttonToCalMenu, buttonToGphMenu);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(calSceneLayout);
         borderPane.setLeft(menuBox);
 
         buttonToBaseN.setOnAction(e -> {
-            borderPane.setCenter(graphPane);
+            borderPane.setCenter(graphSCPane);
         });
         buttonToGphMenu.setOnAction(e -> {
-            borderPane.setCenter(graphPane);
+            borderPane.setCenter(graphSCPane);
         });
         buttonToCalMenu.setOnAction(e -> {
             borderPane.setCenter(calSceneLayout);
         });
         mainScene = new Scene(borderPane, 1180, 720);
-        // primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         primaryStage.setScene(mainScene);
         primaryStage.setTitle(langDisplay.getProperty("Calculator_Window_Title"));
         primaryStage.show();
     }
-    
+
     private class HistoryPane extends VBox {
         private Font font;
         private Properties langProperties;
@@ -675,7 +744,7 @@ public class Calculator extends Application {
             int maxHistory = 16;
             try {
                 maxHistory = Integer
-                        .valueOf(historyField.getText() == "" ? historyField.getPromptText() : historyField.getText());
+                        .valueOf(historyField.getText().equals("") ? historyField.getPromptText() : historyField.getText());
             } catch (Exception e) {
                 e.printStackTrace();
                 maxHistory = Integer.valueOf(historyField.getPromptText());
@@ -688,30 +757,44 @@ public class Calculator extends Application {
     }
 
     private class FuncPane extends VBox {
-        public VariablePool vp;
-        public PlotterPlane plane;
-        public PointGroup pg;
-        public Font font;
-        public Properties langProperties;
+        private PointGroup pg;
+        private Font font;
+        private Font buttonFont;
+        private Properties langProperties;
+        private Button enterButton;
 
-        public FuncPane(Font font, Properties langProperties) {
+        public FuncPane(Font buttonFont, Font font, Properties langProperties) {
             this.font = font;
+            this.buttonFont = buttonFont;
+            this.setAlignment(Pos.TOP_CENTER);
+            this.setPadding(new Insets(5, 0, 0, 5));
+            HBox box = new HBox();
+            this.enterButton = new Button(langProperties.getProperty("Draw"));
+            enterButton.setFont(buttonFont);
+            enterButton.setPrefSize(400, 40);
             Button addNewFuncBox = new Button("+");
-            addNewFuncBox.setPrefSize(1080, 40);
+            addNewFuncBox.setFont(buttonFont);
+            addNewFuncBox.setPrefSize(665, 40);
             addNewFuncBox.setOnAction(e -> {
                 this.addFuncBox();
             });
-            this.getChildren().add(addNewFuncBox);
+            box.getChildren().addAll(addNewFuncBox, enterButton);
+            this.getChildren().add(box);
             this.langProperties = langProperties;
         }
 
-        public void setPlane(VariablePool vp, PlotterPlane plane, boolean[] gridSetting) {
-            this.plane = plane;
+        public Button getEnterButton() {
+            return this.enterButton;
+        }
+
+        public void setPlane(PlotterPlane plane, boolean[] gridSetting) {
             pg.setUpGrid(plane, gridSetting[0], gridSetting[1], gridSetting[2]);
         }
 
         public void addFuncBox() {
             Button delButton = new Button("DEL");
+            delButton.setPrefSize(50, 40);
+            delButton.setFont(buttonFont);
             FuncBox fb = new FuncBox(font, delButton, langProperties);
             this.getChildren().add(fb);
             delButton.setOnAction(e -> {
@@ -719,37 +802,52 @@ public class Calculator extends Application {
             });
         }
 
-        public void addFunc(Expressions expr) {
-            pg.addFunc(expr, Color.web("#000000"));
+        public void addFunc(Expressions expr, Color color) {
+            pg.addFunc(expr, color);
+        }
+
+        public FuncPane getOuter() {
+            return this;
         }
 
         private class FuncBox extends VBox {
             private TextField input;
+            private TextField colorInput;
             private Label status;
-            private Properties langProperties;
+
             public FuncBox(Font font, Button delButton, Properties langProperties) {
-                this.langProperties = langProperties;
+
+                this.setAlignment(Pos.CENTER);
+                HBox box = new HBox();
+                this.colorInput = new TextField();
+                colorInput.setPromptText(langProperties.getProperty("Input_Color"));
+                colorInput.setPrefSize(90, 48);
+                colorInput.setFont(getOuter().buttonFont);
+                colorInput.setAlignment(Pos.CENTER);
                 this.input = new TextField();
                 input.setPromptText(langProperties.getProperty("Input_Formula"));
-                input.setPrefSize(1080, 40);
+                input.setMinSize(975, 40);
                 input.setFont(font);
                 input.setAlignment(Pos.CENTER);
-                this.getChildren().add(input);
+                box.getChildren().add(input);
+                box.getChildren().add(colorInput);
 
                 ScrollPane pane = new ScrollPane();
                 Label answerLabel = new Label();
                 answerLabel.setText("");
                 answerLabel.setFont(font);
                 answerLabel.setAlignment(Pos.CENTER);
-                answerLabel.setPrefSize(1000, 40);
+                answerLabel.setMaxSize(1020, 40);
                 pane.setContent(answerLabel);
                 this.status = answerLabel;
 
-                HBox box = new HBox();
-                box.getChildren().add(delButton);
-                box.getChildren().add(answerLabel);
-                this.getChildren().add(box);
+                HBox box1 = new HBox();
+                box1.setAlignment(Pos.CENTER);
+                box1.getChildren().add(delButton);
+                box1.getChildren().add(answerLabel);
 
+                this.getChildren().add(box);
+                this.getChildren().add(box1);
             }
 
             public String getText() {
@@ -758,6 +856,10 @@ public class Calculator extends Application {
 
             public void addMes(String msg) {
                 this.status.setText(msg);
+            }
+
+            public String getColorInput() {
+                return this.colorInput.getText().equals("") ? "#000000" : this.colorInput.getText();
             }
         }
     }
@@ -826,7 +928,6 @@ public class Calculator extends Application {
             addVariable.setFont(this.getFont());
             addVariable.setPrefSize(75, 20);
             addVariable.setOnAction(e -> {
-                String currentText = formulaField.getText();
                 formulaField.addStringAt(formulaField.getCaretPos(), label);
             });
 
@@ -848,21 +949,13 @@ public class Calculator extends Application {
         }
 
         public class VarBox extends HBox {
-            private Button varButton;
             private TextField valueField;
             private TextField nameField;
-            private Button removeButton;
 
             public VarBox(Button varButton, Button removeButton, TextField valueField, TextField nameField) {
-                this.varButton = varButton;
                 this.nameField = nameField;
                 this.valueField = valueField;
-                this.removeButton = removeButton;
                 this.getChildren().addAll(varButton, nameField, valueField, removeButton);
-            }
-
-            public Button getVarButton() {
-                return varButton;
             }
 
             public TextField getNameField() {
@@ -871,10 +964,6 @@ public class Calculator extends Application {
 
             public TextField getValueField() {
                 return this.valueField;
-            }
-
-            public Button getRemoveButton() {
-                return this.removeButton;
             }
         }
     }
@@ -965,7 +1054,7 @@ public class Calculator extends Application {
                 if (textInput.contains("x")) {
                     int xPos = addPosition + textInput.indexOf("x");
                     relatedTF.setCaretPosFocused(xPos + 1);
-                    relatedTF.selectRange(xPos, xPos+1);
+                    relatedTF.selectRange(xPos, xPos + 1);
                 }
                 if (textInput == "log(10,)") {
                     relatedTF.setCaretPosFocused(addPosition + textInput.indexOf(",") + 1);
@@ -999,7 +1088,6 @@ public class Calculator extends Application {
         return thisFont;
     }
 
-    
     /**
      * Get the path of essential files
      * 
