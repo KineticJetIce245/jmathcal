@@ -31,6 +31,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -43,6 +44,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -132,7 +135,7 @@ public class Calculator extends Application {
         // History
         ScrollPane hScrollPane = new ScrollPane();
         HistoryPane historyPane = new HistoryPane(smiley18, langDisplay, formulaInput);
-        historyPane.setPrefSize(900, 100);
+        historyPane.setPrefSize(1065, 275);
         hScrollPane.setContent(historyPane);
         GridPane.setConstraints(hScrollPane, 0, 5, 6, 1);
 
@@ -717,9 +720,14 @@ public class Calculator extends Application {
         }
 
         public void addBox(String formula, String result, TextField historyField) {
+            VBox histBoxAndSep = new VBox();
             HBox histBox = new HBox();
             Label equationLabel = new Label(formula + " = " + result);
             equationLabel.setFont(this.getFont());
+
+            Region spaceBtw = new Region();
+            spaceBtw.setPrefWidth(10);
+            HBox.setHgrow(spaceBtw, Priority.ALWAYS);
 
             Button addHistory = new Button(langProperties.getProperty("Add_History"));
             addHistory.setMnemonicParsing(false);
@@ -732,15 +740,17 @@ public class Calculator extends Application {
 
             Button removeButton = new Button("DEL");
             removeButton.setFont(this.getFont());
-
-            histBox.getChildren().addAll(equationLabel, addHistory, removeButton);
-            histBox.setAlignment(Pos.CENTER);
-
+            histBox.getChildren().addAll(equationLabel, spaceBtw, addHistory, removeButton);
             removeButton.setOnAction(e -> {
-                this.getChildren().remove(histBox);
+                this.getChildren().remove(histBoxAndSep);
             });
 
-            this.getChildren().add(histBox);
+            Separator separator = new Separator();
+            separator.setMaxWidth(950);
+            histBoxAndSep.getChildren().addAll(histBox, separator);
+
+            this.getChildren().add(histBoxAndSep);
+
             int maxHistory = 16;
             try {
                 maxHistory = Integer
@@ -772,7 +782,7 @@ public class Calculator extends Application {
             this.enterButton = new Button(langProperties.getProperty("Draw"));
             enterButton.setFont(buttonFont);
             enterButton.setPrefSize(400, 40);
-            Button addNewFuncBox = new Button("+");
+            Button addNewFuncBox = new Button(langProperties.getProperty("Add_New_Function"));
             addNewFuncBox.setFont(buttonFont);
             addNewFuncBox.setPrefSize(665, 40);
             addNewFuncBox.setOnAction(e -> {
