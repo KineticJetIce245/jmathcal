@@ -55,7 +55,7 @@ grad gives the radian value of an inputted grad value.
 todeg gives the degree value of an inputted radian value.  
 tograd gives the grad value of an inputted radian value.  
 
-PolR(h,k) gives the norm of the vector <h, k>
+PolR(h,k) gives the norm of the vector <h, k>  
 PolT(h,k) gives the angle in radian of the vector <h, k>
 
 ### Constants:
