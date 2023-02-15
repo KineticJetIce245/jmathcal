@@ -15,13 +15,13 @@ For more information check: https://creativecommons.org/licenses/by-nc/4.0/legal
 1/3 +0.1 will be parsed to 1, 3, /, 0.1 , +.  
 4\*3^0.9/6 will be parsed to 4, 3, 0.9, ^, \*, 6, /.  
 
-**Important:** when using "-" as negative sign, it adds parentheses which enclose all operations following and having higher precedence then negative sign. The negative sign can not be stacked, meaning that inputting expressions as "1---3" will lead to syntax problem.
-4+-1 will be transformed to 4+(0-1) then parsed to 4,0,1,-,+.
-5\*-6/2^7 will be transformed to 5\*(0-6/2^7) then parsed to 5,0,6,2,7,^,/,-,\*.
-4\*1.36^-3\*2.4-7 will be transformed to 4\*1.36^(0-3\*2.4)-7 then parsed to 4,1.36,0,3,2.4,\*,-,^,\*,7,-.
-Important: Adding parenthesis but not closing them will not lead to any syntax problem. However, the inverse is not permitted.
-3-(6/9\*(3+2 will be transformed to 3-(6/9\*(3+2)) then parsed to 3,6,9,/,3,2,+,\*,-.
-8-2/5) will not be successfully parsed.
+**Important:** when using "-" as negative sign, it adds parentheses which enclose all operations following and having higher precedence then negative sign. The negative sign can not be stacked, meaning that inputting expressions as "1---3" will lead to syntax problem.  
+4+-1 will be transformed to 4+(0-1) then parsed to 4,0,1,-,+.  
+5\*-6/2^7 will be transformed to 5\*(0-6/2^7) then parsed to 5,0,6,2,7,^,/,-,\*.  
+4\*1.36^-3\*2.4-7 will be transformed to 4\*1.36^(0-3\*2.4)-7 then parsed to 4,1.36,0,3,2.4,\*,-,^,\*,7,-.  
+Important: Adding parenthesis but not closing them will not lead to any syntax problem. However, the inverse is not permitted.  
+3-(6/9\*(3+2 will be transformed to 3-(6/9\*(3+2)) then parsed to 3,6,9,/,3,2,+,\*,-.  
+8-2/5) will not be successfully parsed.  
 
 ### Trigonometry functions:
 **Keywords： sin, cos, tan, arcsin, arccos, arctan**  
