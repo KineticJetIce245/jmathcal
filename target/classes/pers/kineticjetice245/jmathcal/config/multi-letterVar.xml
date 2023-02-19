@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <!-- Greek alphabet-->
+    <entry key="[alpha]">alpha</entry>
+    <entry key="[beta]">beta</entry>
+    <entry key="[gamma]">gamma</entry>
+    <entry key="[delta]">delta</entry>
+    <entry key="[epsilon]">epsilon</entry>
+    <entry key="[eta]">eta</entry>
+    <entry key="[theta]">theta</entry>
+    <entry key="[iota]">iota</entry>
+    <entry key="[kappa]">kappa</entry>
+    <entry key="[lambda]">lambda</entry>
+    <entry key="[mu]">mu</entry>
+    <entry key="[nu]">nu</entry>
+    <entry key="[xi]">xi</entry>
+    <entry key="[omicron]">omicron</entry>
+    <entry key="[pi]">pi</entry>
+    <entry key="[pho]">pho</entry>
+    <entry key="[sigma]">sigma</entry>
+    <entry key="[tau]">tau</entry>
+    <entry key="[upsilon]">upsilon</entry>
+    <entry key="[phi]">phi</entry>
+    <entry key="[chi]">chi</entry>
+    <entry key="[psi]">psi</entry>
+    <entry key="[omega]">omega</entry>
+
+    <entry key="[Alpha]">Alpha</entry>
+    <entry key="[Beta]">Beta</entry>
+    <entry key="[Gamma]">Gamma</entry>
+    <entry key="[Delta]">Delta</entry>
+    <entry key="[Epsilon]">Epsilon</entry>
+    <entry key="[Eta]">Eta</entry>
+    <entry key="[Theta]">Theta</entry>
+    <entry key="[Iota]">Iota</entry>
+    <entry key="[Kappa]">Kappa</entry>
+    <entry key="[Lambda]">Lambda</entry>
+    <entry key="[Mu]">Mu</entry>
+    <entry key="[Nu]">Nu</entry>
+    <entry key="[Xi]">Xi</entry>
+    <entry key="[Omicron]">Omicron</entry>
+    <entry key="[Pi]">Pi</entry>
+    <entry key="[Pho]">Pho</entry>
+    <entry key="[Sigma]">Sigma</entry>
+    <entry key="[Tau]">Tau</entry>
+    <entry key="[Upsilon]">Upsilon</entry>
+    <entry key="[Phi]">Phi</entry>
+    <entry key="[Chi]">Chi</entry>
+    <entry key="[Psi]">Psi</entry>
+    <entry key="[Omega]">Omega</entry>
+</properties>

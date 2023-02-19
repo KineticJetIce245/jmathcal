@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <!--Rounding Setting-->
+    <entry key="Rounding_Setting_Calculation">Precision during calculations: </entry>
+    <entry key="Rounding_Setting_Display">Display: </entry>
+    <entry key="History_Display">Number of histories: </entry>
+    
+    <!--Calculator Window Title-->
+    <entry key="Calculator_Window_Title">Jmathcal - Scientific Calculator</entry>
+    <entry key="Calculator_Graphics">Graphic</entry>
+
+    <entry key="Input_Formula">Input formula</entry>
+    <entry key="Send_Input">Enter</entry>
+    <entry key="Ask_For_Input">Value</entry>
+    <entry key="Ask_For_Input_Title">Value</entry>
+    <entry key="Copy_ANS">Copy</entry>
+    <entry key="AC">AC</entry>
+    <entry key="Calculator_InputTab_Tab1">Arithmetic and Basic Trigonometry</entry>
+    <entry key="Calculator_InputTab_Tab2">Advanced Trigonometry, Logarithmic and other Func.</entry>
+    <entry key="Add_History">Add</entry>
+    <entry key="Message_Display_Title">Message</entry>
+    <entry key="Input_Color">Color(Hex)</entry>
+
+    <!--Graphic Setting-->
+    <entry key="Plane_Length_Setting">Math Size:</entry>
+    <entry key="Plane_Origin_Setting"> Origin:</entry><!--Put space here for spacing-->
+    <entry key="Plane_Resolution_Setting"> Resolution (1st iteration):</entry>
+    <entry key="Plane_Depth_Setting"> Depth:</entry>
+    <entry key="Plane_Size_Setting"> Resolution (pixel):</entry>
+    <entry key="Draw">Draw!! θ</entry>
+    <entry key="Add_New_Function">Add new function</entry>
+
+
+    <!--Error Messages-->
+    <entry key="Math_Error">Math Error: </entry>
+    <entry key="Syntax_Error">Syntax Error: </entry>
+    <entry key="Syntax_Error">Syntax Error: </entry>
+    <entry key="Syntax_Error_Graph">Syntax Error: Should be f(x,y)=g(x,y)</entry>
+    <entry key="Variable_Error">Variable Error: </entry>
+    <entry key="Parser_Error">Parser Error: </entry>
+    <entry key="Number_Input_Error">Number Input Error: </entry>
+    <entry key="Unknown_Error">Unknown error: </entry>
+    <entry key="Color_Error">Wrong Color Setting : should look like: #34cf59</entry>
+
+    <!--Vriable-->
+    <entry key="Variable_Name">Name</entry>
+    <entry key="Variable_Answer">Answer</entry>
+
+
+</properties>

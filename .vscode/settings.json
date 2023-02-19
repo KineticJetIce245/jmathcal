@@ -1,0 +1,26 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cSpell.words": [
+        "abcos",
+        "arccos",
+        "arcosh",
+        "arcsin",
+        "arctan",
+        "arsinh",
+        "artanh",
+        "datatransfer",
+        "jmathcal",
+        "pers",
+        "polr",
+        "polt",
+        "PRECI",
+        "PRECITEST",
+        "tograd",
+        "Trigo",
+        "tsanger"
+    ],
+    "cSpell.enableFiletypes": [
+        "xml"
+    ],
+    "java.settings.url": ".vscode/org.eclipse.jdt.core.prefs"
+}
