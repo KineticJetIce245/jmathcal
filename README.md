@@ -1,2 +1,0 @@
-# JFilmak
-Personnel project
