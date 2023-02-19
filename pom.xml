@@ -45,7 +45,7 @@
                         <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>pers.kineticjetice245.jmathcal.gui.Calculator</mainClass>
+                            <mainClass>pers.kineticjetice245.jmathcal.App</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -63,7 +63,7 @@
                             <transformers>
                                 <transformer implementation=
                       "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>pers.kineticjetice245.jmathcal.gui.Calculator</mainClass>
+                                    <mainClass>pers.kineticjetice245.jmathcal.App</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

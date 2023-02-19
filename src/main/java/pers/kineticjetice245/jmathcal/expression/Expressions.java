@@ -1,9 +1,8 @@
 package pers.kineticjetice245.jmathcal.expression;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Iterator;
@@ -464,11 +463,11 @@ public class Expressions implements ExprElements {
         return buffer.toString();
     }
 
-    private static Properties getKeyWords(File path) {
+    private static Properties getKeyWords(String path) {
         Properties keyWords = new Properties();
-        FileInputStream fis = null;
+        InputStream fis = null;
         try {
-            fis = new FileInputStream(path);
+            fis = IOBridge.assignStream(path);
             keyWords.loadFromXML(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

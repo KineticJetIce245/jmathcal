@@ -21,7 +21,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>pers.kineticjetice245.jmathcal.gui.Calculator</mainClass>
+              <mainClass>pers.kineticjetice245.jmathcal.App</mainClass>
             </configuration>
           </execution>
         </executions>
@@ -37,7 +37,7 @@
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <transformer>
-                  <mainClass>pers.kineticjetice245.jmathcal.gui.Calculator</mainClass>
+                  <mainClass>pers.kineticjetice245.jmathcal.App</mainClass>
                 </transformer>
               </transformers>
             </configuration>

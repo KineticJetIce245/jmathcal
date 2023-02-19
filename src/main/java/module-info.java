@@ -1,4 +1,4 @@
-module pers.kineticjetice245 {
+module pers.kineticjetice245.jmathcal {
     requires java.base;
     requires java.desktop;
     requires javafx.fxml;

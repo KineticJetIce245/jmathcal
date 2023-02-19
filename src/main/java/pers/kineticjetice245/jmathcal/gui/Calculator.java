@@ -2,10 +2,9 @@ package pers.kineticjetice245.jmathcal.gui;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -60,14 +59,14 @@ public class Calculator extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Properties launchInfo = getLaunchInfo();
-        Properties langDisplay = getLangFile(new File(launchInfo.get("langFilePath").toString()));
+        Properties langDisplay = getLangFile(launchInfo.get("langFilePath").toString());
 
-        Font tsanger = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 19);
-        Font tsanger18 = getFont(new File(launchInfo.getProperty("TsangerYuMo_WO3Path")), 18);
-        Font smiley = getFont(new File(launchInfo.getProperty("SmileySansPath")), 25);
-        Font smiley18 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 18);
-        Font smiley16 = getFont(new File(launchInfo.getProperty("SmileySansPath")), 16);
-        Font latinMath = getFont(new File(launchInfo.getProperty("latinMathPath")), 25);
+        Font tsanger = getFont(launchInfo.getProperty("TsangerYuMo_WO3Path"), 19);
+        Font tsanger18 = getFont(launchInfo.getProperty("TsangerYuMo_WO3Path"), 18);
+        Font smiley = getFont(launchInfo.getProperty("SmileySansPath"), 25);
+        Font smiley18 = getFont(launchInfo.getProperty("SmileySansPath"), 18);
+        Font smiley16 = getFont(launchInfo.getProperty("SmileySansPath"), 16);
+        Font latinMath = getFont(launchInfo.getProperty("latinMathPath"), 25);
 
         Scene mainScene;
         GridPane calSceneLayout = new GridPane();
@@ -165,17 +164,17 @@ public class Calculator extends Application {
                 }
 
                 @Override
-                public HashMap<String, File> getPropertiesLoc() {
+                public HashMap<String, String> getPropertiesLoc() {
                     return propertiesToHashMap(launchInfo);
                 }
 
-                private HashMap<String, File> propertiesToHashMap(Properties properties) {
-                    HashMap<String, File> reVal = new HashMap<String, File>();
+                private HashMap<String, String> propertiesToHashMap(Properties properties) {
+                    HashMap<String, String> reVal = new HashMap<String, String>();
                     Set<String> keySet = properties.stringPropertyNames();
                     Iterator<String> keySetIterator = keySet.iterator();
                     while (keySetIterator.hasNext()) {
                         String currentKey = keySetIterator.next();
-                        reVal.put(currentKey, new File(properties.get(currentKey).toString()));
+                        reVal.put(currentKey, properties.get(currentKey).toString());
                     }
                     return reVal;
                 }
@@ -658,7 +657,7 @@ public class Calculator extends Application {
         VBox menuBox = new VBox();
         Button buttonToCalMenu = new Button();
         buttonToCalMenu.setPrefSize(90, 90);
-        Image calculatorIma = new Image(launchInfo.getProperty("calculator_menu"));
+        Image calculatorIma = new Image(IOBridge.assignStream(launchInfo.getProperty("calculator_menu")));
         ImageView calculatorImaView = new ImageView(calculatorIma);
         calculatorImaView.setFitWidth(65);
         calculatorImaView.setPreserveRatio(true);
@@ -666,7 +665,7 @@ public class Calculator extends Application {
 
         Button buttonToGphMenu = new Button();
         buttonToGphMenu.setPrefSize(90, 90);
-        Image graphIma = new Image(launchInfo.getProperty("graphic_menu"));
+        Image graphIma = new Image(IOBridge.assignStream(launchInfo.getProperty("graphic_menu")));
         ImageView graphImaView = new ImageView(graphIma);
         graphImaView.setFitHeight(60);
         graphImaView.setPreserveRatio(true);
@@ -1067,16 +1066,12 @@ public class Calculator extends Application {
         return reButton;
     }
 
-    private static Font getFont(File fontPath, int fontSize) throws FileNotFoundException {
-        FileInputStream stream = null;
+    private static Font getFont(String fontPath, int fontSize) throws FileNotFoundException {
+        InputStream stream = null;
         Font thisFont = null;
         try {
-            stream = new FileInputStream(fontPath);
+            stream = IOBridge.assignStream(fontPath);
             thisFont = Font.loadFont(stream, fontSize);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            AlertBox.display("Error", "The calculator can not find the required files to launch!");
-            throw new FileNotFoundException();
         } finally {
             if (stream != null) {
                 try {
@@ -1097,9 +1092,9 @@ public class Calculator extends Application {
      */
     private Properties getLaunchInfo() throws FileNotFoundException {
         Properties launchInfo = new Properties();
-        FileInputStream infoFis = null;
+        InputStream infoFis = null;
         try {
-            infoFis = new FileInputStream(IOBridge.LAUNCH_INFO_PATH);
+            infoFis = IOBridge.assignStream(IOBridge.LAUNCH_INFO_PATH);
             launchInfo.loadFromXML(infoFis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -1121,11 +1116,11 @@ public class Calculator extends Application {
         return launchInfo;
     }
 
-    private Properties getLangFile(File langFilePath) throws FileNotFoundException {
+    private Properties getLangFile(String langFilePath) throws FileNotFoundException {
         Properties langFileProperties = new Properties();
-        FileInputStream langFis = null;
+        InputStream langFis = null;
         try {
-            langFis = new FileInputStream(langFilePath);
+            langFis = IOBridge.assignStream(langFilePath);
             langFileProperties.loadFromXML(langFis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
