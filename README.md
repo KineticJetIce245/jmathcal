@@ -1,6 +1,6 @@
 # JMathcal
 Download jmathcal-1.0-RELEASE-shaded.jar in target folder and click the jar file to run the program.  
-The program requires Java environment, to download Java environment check: https://www.oracle.com/ca-en/java/technologies/downloads/. 
+The program requires Java environment, to download Java environment: https://www.oracle.com/ca-en/java/technologies/downloads/. 
 
 Personnel project  
 Under CC-BY-NC 4.0  
