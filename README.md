@@ -1,89 +1,143 @@
 # JMathcal
-Download jmathcal-1.0-RELEASE-shaded.jar in target folder and click the jar file to run the program.  
-The program requires Java environment, to download Java environment: https://www.oracle.com/ca-en/java/technologies/downloads/. 
 
-Personnel project  
-Under CC-BY-NC 4.0  
-For more information check: https://creativecommons.org/licenses/by-nc/4.0/legalcode  
-### Used Fonts:  
-&ensp;&ensp;&ensp;&ensp;Smiley Sans : https://atelier-anchor.com/typefaces/smiley-sans/ (SIL Open Font License 1.1)  
-&ensp;&ensp;&ensp;&ensp;TsangerYuMo : http://tsanger.cn/ (Public Domain)
+JMathcal is a calculator program that supports arithmetic operations, trigonometric functions, logarithms, constants, summation and product operators, and variables. It is distributed under the CC‑BY‑NC 4.0 license.
 
-### Calculator Syntax
+## Download and Installation
 
-#### Arithmetic operations:
-**Keywords: +, -, \*, /, ^, (, )**
+1. Download `jmathcal-1.0-RELEASE-shaded.jar` from the `target` folder.
+2. Double‑click the JAR file to run the program.
+3. The program requires a Java runtime environment. Download Java from [Oracle](https://www.oracle.com/ca-en/java/technologies/downloads/).
 
-1 -2 \* 3 will be parsed to 1, 2, 3, \*, -.  
-1/3 +0.1 will be parsed to 1, 3, /, 0.1 , +.  
-4\*3^0.9/6 will be parsed to 4, 3, 0.9, ^, \*, 6, /.  
+## Fonts Used
 
-**Important:** when using "-" as negative sign, it adds parentheses which enclose all operations following and having higher precedence then negative sign. The negative sign can not be stacked, meaning that inputting expressions as "1---3" will lead to syntax problem.
-4+-1 will be transformed to 4+(0-1) then parsed to 4,0,1,-,+.  
-5\*-6/2^7 will be transformed to 5\*(0-6/2^7) then parsed to 5,0,6,2,7,^,/,-,\*.  
-4\*1.36^-3\*2.4-7 will be transformed to 4\*1.36^(0-3\*2.4)-7 then parsed to 4,1.36,0,3,2.4,\*,-,^,\*,7,-.  
-Important: Adding parenthesis but not closing them will not lead to any syntax problem. However, the inverse is not permitted.  
-3-(6/9\*(3+2 will be transformed to 3-(6/9\*(3+2)) then parsed to 3,6,9,/,3,2,+,\*,-.  
-8-2/5) will not be successfully parsed.  
+- **Smiley Sans** – [atelier-anchor.com](https://atelier-anchor.com/typefaces/smiley-sans/) (SIL Open Font License 1.1)
+- **TsangerYuMo** – [tsanger.cn](http://tsanger.cn/) (Public Domain)
 
-### Trigonometry functions:
-**Keywords： sin, cos, tan, arcsin, arccos, arctan**  
-**sinh, cosh, tanh, arsinh, arcosh, artanh**
+## License
 
-Theses functions have the same precedence as addition and subtraction.  
-si nx y^3 + 9 will be parsed to x,y,3,^,\*,sin,9,+.  
-t an(x -6)^ 3-9 /4 will be parsed to x,6,-,3,^,tan,9,4,/,-.  
-ar cs in ta n9 /4 will be parsed to 9,4,/,tan,arcsin.  
+This project is licensed under **CC‑BY‑NC 4.0**.  
+For more details, see the [legal code](https://creativecommons.org/licenses/by-nc/4.0/legalcode).
 
-**Important:** expressions like sin(23)\*6 will be treated as sin((23)\*6) not 6sin(23), so it is recommended to write the expressions in the following way : (sin(23))\*6
+---
 
-### Logarithm:
-**Keywords: ln, log(base, power)**
+## Calculator Syntax
 
-ln1.9^0.39\*3 will be parsed to 1.9,0.39,^,3,\*,ln.  
-log(3,13\*0.39)^3.1 will be parsed to 3,13,0.39,\*,log,3.1,^.  
-log(3) will not be successfully parsed.  
+### Arithmetic Operations
 
-### Other functions:
-**Keywords: sqrt, abs, sgn, todeg, deg, tograd, grad, PolR, PolT**
+**Keywords:** `+`, `-`, `*`, `/`, `^`, `(`, `)`
 
-sqrt gives the square root of a number. For example: the result of sqrt16 is 4.
-**Important:** the sqrt has the same precedence as addition and subtraction. For example, sqrt(3)\*3 with be treated as sqrt(3\*3).
+Parsing follows standard precedence and left‑to‑right associativity. Examples:
 
-The rest of functions have the highest precedence.  
-abs gives the absolute value of a number.  
-sgn gives the sign of a number, if it is a complex number, z, then it will returns z/abs(z).  
-deg gives the radian value of an inputted degree value.  
-grad gives the radian value of an inputted grad value.  
-todeg gives the degree value of an inputted radian value.  
-tograd gives the grad value of an inputted radian value.  
+- `1 - 2 * 3` → parsed as `1, 2, 3, *, -`
+- `1/3 + 0.1` → `1, 3, /, 0.1, +`
+- `4*3^0.9/6` → `4, 3, 0.9, ^, *, 6, /`
 
-PolR(h,k) gives the norm of the vector <h, k>  
-PolT(h,k) gives the angle in radian of the vector <h, k>
+#### Negative Sign Handling
 
-### Constants:
-**Keywords: \i, \e, \pi, \g, \G, \ran**
+- The unary minus is treated by wrapping the following expression in `(0 - ...)`.
+- Negative signs cannot be stacked (e.g., `1---3` causes a syntax error).
+- Examples:
+  - `4+-1` → `4+(0-1)` → parsed as `4,0,1,-,+`
+  - `5*-6/2^7` → `5*(0-6/2^7)` → parsed as `5,0,6,2,7,^,/,-,*`
+  - `4*1.36^-3*2.4-7` → `4*1.36^(0-3*2.4)-7` → `4,1.36,0,3,2.4,*, -, ^, *, 7, -`
 
-Constants as e or π are calculated during calculation.
+#### Parentheses
 
-(5+1.3\i)/(4-\i) will be parsed as 5,1.3,\i,\*,+,4,\i,-,/  
-\i is the imaginary unit.  
-\e is the Euler's number. e = 2.718281....  
-\pi is π. π = 3.141592....  
-\g is the standard acceleration due to gravity of earth. g = 9.80665(m/s²).  
-\G is the gravitational constant. G = 6.67430E-11(m³/(kg\*s²)).  
-\ran gives a random real number in range of 0 to 1.  
+- Unclosed opening parentheses are automatically closed at the end of the expression (e.g., `3-(6/9*(3+2` becomes `3-(6/9*(3+2))`).
+- Closing parentheses without a matching opening one cause a parsing error (e.g., `8-2/5)` fails).
 
-### Summation and product operator:
+---
+
+### Trigonometry Functions
+
+**Keywords:** `sin`, `cos`, `tan`, `arcsin`, `arccos`, `arctan`, `sinh`, `cosh`, `tanh`, `arsinh`, `arcosh`, `artanh`
+
+These functions have the same precedence as addition and subtraction.
+
+Examples:
+- `sin x y^3 + 9` → `x, y, 3, ^, *, sin, 9, +`
+- `tan(x - 6)^3 - 9/4` → `x, 6, -, 3, ^, tan, 9, 4, /, -`
+- `arcsin(tan 9 / 4)` → `9, 4, /, tan, arcsin`
+
+**Important:**  
+`sin(23)*6` is treated as `sin((23)*6)`. To multiply the result of a function, write `(sin(23))*6`.
+
+---
+
+### Logarithms
+
+**Keywords:** `ln` (natural logarithm), `log(base, power)`
+
+- `ln 1.9^0.39 * 3` → `1.9, 0.39, ^, 3, *, ln`
+- `log(3, 13*0.39)^3.1` → `3, 13, 0.39, *, log, 3.1, ^`
+- `log(3)` **will not parse successfully** – two arguments are required.
+
+---
+
+### Other Functions
+
+**Keywords:** `sqrt`, `abs`, `sgn`, `todeg`, `deg`, `tograd`, `grad`, `PolR`, `PolT`
+
+- `sqrt` – square root. It has the same precedence as addition and subtraction.  
+  ⚠️ `sqrt(3)*3` is treated as `sqrt(3*3)`.
+- `abs` – absolute value.
+- `sgn` – sign of a number. For a complex number *z*, returns `z / abs(z)`.
+- `deg` – converts a degree value to radians.
+- `grad` – converts a grad value to radians.
+- `todeg` – converts a radian value to degrees.
+- `tograd` – converts a radian value to grads.
+- `PolR(h, k)` – returns the norm (magnitude) of vector `<h, k>`.
+- `PolT(h, k)` – returns the angle (in radians) of vector `<h, k>`.
+
+Except for `sqrt`, all these functions have the **highest** precedence.
+
+---
+
+### Constants
+
+**Keywords:** `\i`, `\e`, `\pi`, `\g`, `\G`, `\ran`
+
+Constants are evaluated during calculation.
+
+- `\i` – imaginary unit  
+- `\e` – Euler’s number (2.718281…)  
+- `\pi` – π (3.141592…)  
+- `\g` – standard gravity (9.80665 m/s²)  
+- `\G` – gravitational constant (6.67430×10⁻¹¹ m³/(kg·s²))  
+- `\ran` – random real number in [0, 1)
+
+Example:  
+`(5+1.3\i)/(4-\i)` → parsed as `5, 1.3, \i, *, +, 4, \i, -, /`
+
+---
+
+### Summation and Product Operators
+
 **Keywords:**  
-**sum(variable, start integer, end integer, expression),**  
-**pro(variable, start integer, end integer, expression)**  
+`sum(variable, start, end, expression)`  
+`pro(variable, start, end, expression)`
 
-sum(x, 4, 13-3, x^3) will be parsed to x, 4, \[13,3,-\], \[x,3,^\], sum.  
-pro(i, 1, 3, 5i+y)\*9.3 will be parsed to i, 1, 3, \[5,i,\*,y,+\], pro, 9.3, \*.  
+- `sum(x, 4, 13-3, x^3)` → `x, 4, [13,3,-], [x,3,^], sum`
+- `pro(i, 1, 3, 5i+y) * 9.3` → `i, 1, 3, [5,i,*,y,+], pro, 9.3, *`
 
-### Variable:
+---
 
-5xy-4sin-x+5\i will be parsed as 5, x, \*, y, \*, 4, 0, x, -, sin, \*, -, 5, \i, \*, +  
+### Variables
 
-It is possible to use multi-letter variables by doing : \[variable name\]. For example, one can write 10\[alpha\] which will be parsed as 10, \[alpha\], *. 
+Single‑letter variables are recognised (e.g., `5xy` means `5*x*y`).  
+Multi‑letter variables can be enclosed in square brackets: `[variable name]`.
+
+Examples:
+- `5xy - 4sin - x + 5\i` → `5, x, *, y, *, 4, 0, x, -, sin, *, -, 5, \i, *, +`
+- `10[alpha]` → `10, [alpha], *`
+
+---
+
+## Parsing Notes
+
+- All expressions are parsed in a postfix (RPN) style.
+- Implicit multiplication is supported (e.g., `5xy` is `5*x*y`).
+- Use parentheses to explicitly control evaluation order, especially when mixing functions and multiplication.
+- The parser automatically closes unclosed opening parentheses, but extra closing parentheses cause errors.
+
+For any further questions, refer to the source code or contact the project maintainers.
